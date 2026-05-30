@@ -2562,3 +2562,54 @@ Na końcu odpowiedzi podaj krótkie podsumowanie:
 1. Pełny test integracyjny logowania wymaga własnego projektu Firebase nowej grupy, własnego technicznego e-maila oraz poprawnie skonfigurowanych reguł dostępu. Publiczne placeholdery celowo nie pozwalają zalogować się do prywatnej infrastruktury właściciela.
 2. Po podaniu własnej konfiguracji Firebase należy ręcznie sprawdzić oba moduły w przeglądarce: otwarcie overlayu, EN → PL → EN, pustą Litanię Dostępu, błędne hasło, poprawne hasło i ładowanie danych.
 3. Nie wykonano zmian w Web Push, backupach ani plikach testowych.
+
+## Aktualizacja — 2026-05-30 — zmiana etykiety przycisku Main z `Map` na `VTT`
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+W module Main zmień nazwę przycisku "Map" na "VTT".\nW placeholderze zmień _YOUR_MAP_ na _YOUR_VTT_
+```
+
+### Zakres prac
+
+W module `Main` zmieniono publiczną etykietę przycisku prowadzącego do zewnętrznego narzędzia mapowego z `Map` na `VTT`. Zmieniono również publiczny placeholder adresu URL z `INSERT_YOUR_MAP_LINK` na `INSERT_YOUR_VTT_LINK` oraz zaktualizowano dokumentację modułu tak, aby opisywała aktualną etykietę interfejsu.
+
+### Ustalenia i wnioski
+
+- Przycisk nadal korzysta z istniejącego atrybutu technicznego `data-map-link` i z istniejącego klucza konfiguracyjnego `Map:`. Nie zmieniono parsera ani logiki dynamicznego ładowania adresu URL, ponieważ zadanie dotyczy etykiety przycisku i treści placeholdera.
+- Publiczny placeholder ma teraz postać `INSERT_YOUR_VTT_LINK`.
+- Starsze sekcje niniejszego dziennika pozostają niezmienione jako historyczny zapis wcześniejszych etapów Release.
+
+### Decyzje i wymagania
+
+- Publiczna nazwa przycisku w `Main` to od tej aktualizacji `VTT`.
+- Placeholder adresu dla tego przycisku musi używać członu `_YOUR_VTT_`, a nie `_YOUR_MAP_`.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `Main/index.html` | Zmieniono widoczną etykietę przycisku `Map` na `VTT` i uaktualniono komentarz wdrożeniowy przy przycisku. |
+| `Main/ZmienneHiperlacza.md` | Zmieniono placeholder `INSERT_YOUR_MAP_LINK` na `INSERT_YOUR_VTT_LINK`. |
+| `Main/docs/README.md` | Zaktualizowano instrukcję użytkową PL/EN: nazwa przycisku to teraz `VTT`, a placeholder to `INSERT_YOUR_VTT_LINK`. |
+| `Main/docs/Documentation.md` | Zaktualizowano techniczne opisy widocznego przycisku na `VTT`, pozostawiając udokumentowane klucze parsera `Map`/`Images`. |
+| `Analizy/Release.md` | Dopisano niniejszy wpis dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+- `Main/index.html`: widoczny tekst odnośnika zmieniono z `Map` na `VTT`; komentarz obok odnośnika również wskazuje teraz nazwę `VTT`. Techniczny selektor `data-map-link` pozostaje bez zmian, dzięki czemu istniejąca logika dynamicznych linków działa tak samo jak wcześniej.
+- `Main/ZmienneHiperlacza.md`: przy zachowaniu klucza `Map:` przykładową wartość zmieniono na `INSERT_YOUR_VTT_LINK`.
+- Dokumentacja modułu: opisy przycisku i instrukcje podmiany placeholdera dostosowano do publicznej terminologii `VTT`.
+
+### Testy
+
+- Wyszukano `INSERT_YOUR_MAP_LINK` i `_YOUR_MAP_` w katalogu `Main`; stare warianty nie występują już w bieżących plikach modułu.
+- Wyszukano `VTT` i `INSERT_YOUR_VTT_LINK` w katalogu `Main`; potwierdzono nową etykietę przycisku, komentarz wdrożeniowy, placeholder oraz aktualizacje dokumentacji.
+- Wykonano `git diff --check`; nie wykryto błędów whitespace.
+- Uruchomiono `python3 -m http.server 8768`, pobrano przez `curl` pliki `Main/index.html` oraz `Main/ZmienneHiperlacza.md` i potwierdzono odpowiednio widoczną etykietę `VTT` oraz wpis `Map: INSERT_YOUR_VTT_LINK`.
+- Nie wykonano zrzutu ekranu zmiany: środowisko nie zawiera binariów Chromium, Chrome ani Firefox oraz nie ma zainstalowanego Playwright/Puppeteer.
+
+### Ryzyka i następne kroki
+
+- Klucz konfiguracyjny `Map:` oraz techniczny atrybut `data-map-link` celowo pozostają bez zmian dla zachowania kompatybilności i minimalnego zakresu modyfikacji. Jeżeli właściciel zdecyduje o pełnej migracji nazw technicznych na `VTT`, należy osobno rozszerzyć parser i zaktualizować konfigurację.

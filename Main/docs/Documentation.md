@@ -4,11 +4,11 @@
 `Main` to statyczny launcher modułów Wrath & Glory. Odpowiada za:
 - prezentację przycisków modułów,
 - przełączanie widoku użytkownik/admin,
-- dynamiczne wczytywanie linków Mapa/Obrazki.
+- dynamiczne wczytywanie linków VTT/Obrazki.
 
 ## 2. Struktura plików
 - `Main/index.html` — HTML + CSS + JS modułu.
-- `Main/ZmienneHiperlacza.md` — konfiguracja linków Mapa/Obrazki (`Nazwa: URL`).
+- `Main/ZmienneHiperlacza.md` — konfiguracja linków VTT/Obrazki (`Nazwa: URL`).
 - `Main/wrath-glory-logo-warhammer.png` — logo strony.
 - `manifest.webmanifest` (repo root) — manifest PWA wspólny.
 - `service-worker.js` (repo root) — globalny plik `service-worker.js` utrzymywany kompatybilnie, ale moduł Main działa jako strona online i czyści starsze rejestracje SW z poziomu `index.html`.
@@ -80,7 +80,7 @@ Ten mechanizm nie jest funkcją offline. Jego celem jest uniknięcie sytuacji, w
 ## 10. Zależności zewnętrzne / Firebase
 1. Wejście bez `?admin=1` pokazuje tylko widok user.
 2. Wejście z `?admin=1` pokazuje komplet przycisków admin.
-3. Mapa/Obrazki otwierają właściwe URL z `ZmienneHiperlacza.md`.
+3. VTT/Obrazki otwierają właściwe URL z `ZmienneHiperlacza.md`.
 4. DataVault w adminie używa `?admin=1`.
 5. Wszystkie przyciski modułów otwierają poprawne ścieżki lokalne i zewnętrzne.
 
@@ -114,14 +114,14 @@ Deklaracje z `:root`:
 - Active `.btn`: cofnięcie przesunięcia i mocniejsze tło.
 
 ## 12. Style szczegółowe
-- `applyDynamicLinks(links)` — podmienia `href` dla przycisków Mapa/Obrazki po sparsowaniu `ZmienneHiperlacza.md`.
+- `applyDynamicLinks(links)` — podmienia `href` dla przycisków VTT/Obrazki po sparsowaniu `ZmienneHiperlacza.md`.
 
 Inicjalizacja skryptu:
 1. Wylicza `isAdmin` z query string (`admin=1`).
 2. Usuwa elementy `data-admin-only="true"` dla użytkownika końcowego.
 3. Przełącza link Infoczytnika (`DataSlate.html` vs panel modułu).
 4. Przełącza link DataVault (`?admin=1` tylko dla admina).
-5. Ładuje dynamiczne linki Mapa/Obrazki z pliku markdown.
+5. Ładuje dynamiczne linki VTT/Obrazki z pliku markdown.
 6. Pozostawia interfejs bez dodatkowych akcji asynchronicznych poza dynamicznym ładowaniem linków.
 
 ## 13. Procedura odtworzenia 1:1
@@ -138,7 +138,7 @@ Inicjalizacja skryptu:
 ## 16. Konfiguracja multi-tenant
 - `Main/index.html` zawiera jawne komentarze `WAŻNE/IMPORTANT` przy:
   - przyciskach modułów,
-  - przyciskach `Mapa` i `Obrazki`,
+  - przyciskach `VTT` i `Obrazki`,
   - domyślnych wartościach obiektu `links`.
 - Przy wdrożeniu dla nowej grupy trzeba:
   1. zastąpić angielskie placeholdery we wpisach `Map:` i `Images:` w `Main/ZmienneHiperlacza.md`,
