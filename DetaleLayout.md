@@ -5,7 +5,7 @@ Ten plik jest **głównym źródłem prawdy** dla całego projektu: zawiera komp
 ---
 
 ## Wspólny komponent — przełącznik języka
-- W modułach: **GeneratorNazw**, **GeneratorNPC**, **DataVault**, **KalkulatorXP**, **Audio**, **Infoczytnik (GM_test)** oraz **DiceRoller** dodano przełącznik języka (select PL/EN).
+- W modułach: **NameGenerator**, **NPCGenerator**, **DataVault**, **KalkulatorXP**, **Audio**, **Infoczytnik (GM_test)** oraz **DiceRoller** dodano przełącznik języka (select PL/EN).
 - Styl selecta:
   - tło: **#0b0b0b** (ciemne, spójne z motywem konsolowym),
   - obramowanie: `1px solid --b` / `--border` (zależnie od modułu),
@@ -56,7 +56,7 @@ Ten plik jest **głównym źródłem prawdy** dla całego projektu: zawiera komp
 - Brak funkcjonalności clamp w module Main.
 
 ### 5) Wyjątki i formatowanie specjalne
-- W `Kalkulator/index.html` dodano wyjątek kolorystyczny:
+- W `Calculators/index.html` dodano wyjątek kolorystyczny:
   - przycisk `.btn.secret` celowo używa czerwonej palety, aby odróżniał się od zielonych przycisków nawigacyjnych.
   - wartości kolorów:
     - obramowanie: `#ff5a5a`,
@@ -69,7 +69,7 @@ Ten plik jest **głównym źródłem prawdy** dla całego projektu: zawiera komp
 
 ---
 
-## Moduł — GeneratorNazw
+## Moduł — NameGenerator
 
 ### 1) Fonty i typografia
 #### 1.1 Fonty lokalne (bez Google Fonts)
@@ -109,7 +109,7 @@ Ten plik jest **głównym źródłem prawdy** dla całego projektu: zawiera komp
 - `.pill`: tło `rgba(0, 0, 0, 0.35)`, obwódka `--border`, `border-radius: 999px`.
 
 ### 4) Zwijanie/rozwijanie > 9 linii
-- Brak funkcjonalności clamp w module GeneratorNazw.
+- Brak funkcjonalności clamp w module NameGenerator.
 
 ### 5) Wyjątki i formatowanie specjalne
 - Wyniki są prezentowane jako lista wierszy z prefiksem `•`, renderowane w `.results` z `white-space: pre-wrap`.
@@ -354,7 +354,7 @@ Jeżeli w przyszłości dodasz nową zakładkę lub kolumny, zasady są następu
 3. Upewnij się, że nowe kolumny respektują **reguły clampowania** (>9 linii).
 
 
-## Moduł — GeneratorNPC
+## Moduł — NPCGenerator
 
 ### 1) Fonty i typografia
 #### 1.1 Fonty lokalne
@@ -433,9 +433,9 @@ Jeżeli w przyszłości dodasz nową zakładkę lub kolumny, zasady są następu
 
 Moduł składa się z trzech stron:
 - `index.html` (landing),
-- `KalkulatorXP.html` (kalkulator XP),
-- `TworzeniePostaci.html` (generator postaci).  
-Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są w `index.html` i `TworzeniePostaci.html`.
+- `XPCalculator.html` (kalkulator XP),
+- `CharacterCreation.html` (generator postaci).
+Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są w `index.html` i `CharacterCreation.html`.
 
 ### 1) Fonty i typografia
 #### 1.1 Fonty lokalne
@@ -478,11 +478,11 @@ Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są
 
 ### 3) Layout i elementy UI
 - `index.html`: identyczny layout jak Main (karta centralna, grid przycisków).
-- `KalkulatorXP.html`:
+- `XPCalculator.html`:
   - `.main`: grid `360px` + `1fr`.
   - `.panel`, `.workspace`: ramki `1px solid var(--b)` + `box-shadow` z inset.
   - `.dataTable`: `font-size: 13px`, zebra i hover z `--zebra`/`--hover`.
-- `TworzeniePostaci.html`:
+- `CharacterCreation.html`:
   - `.wrapper`: max szerokość `1100px`, panel z `border-radius: 10px`.
   - `.table`: gradient w nagłówkach i zebra w wierszach.
   - `textarea` bez możliwości zmiany rozmiaru (`resize: none`).
@@ -491,7 +491,7 @@ Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są
 - Brak clampowania treści w module Kalkulator.
 
 ### 5) Wyjątki i formatowanie specjalne
-- `.error-message` w `TworzeniePostaci.html` używa koloru `var(--red)`.
+- `.error-message` w `CharacterCreation.html` używa koloru `var(--red)`.
 
 ---
 
@@ -586,8 +586,8 @@ Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są
 ## Moduł — Infoczytnik
 
 ## 2026-04-23 — Infoczytnik (test): etykiety fontów + preload
-- `Infoczytnik/GM_test.html`: dropdown **Font** używa teraz etykiet tekstowych `ID. Frakcja - Nazwa fontu` i renderuje je jednolitym fontem UI (bez stylowania fragmentów opcji).
-- `Infoczytnik/GM_test.html` i `Infoczytnik/Infoczytnik_test.html`: rozszerzono import Google Fonts o brakujące rodziny: `IBM Plex Serif`, `Open Sans`, `Noto Serif`, `DM Serif Display`, `IBM Plex Sans Condensed`, `Exo 2`.
+- `DataSlate/GM_test.html`: dropdown **Font** używa teraz etykiet tekstowych `ID. Frakcja - Nazwa fontu` i renderuje je jednolitym fontem UI (bez stylowania fragmentów opcji).
+- `DataSlate/GM_test.html` i `DataSlate/Infoczytnik_test.html`: rozszerzono import Google Fonts o brakujące rodziny: `IBM Plex Serif`, `Open Sans`, `Noto Serif`, `DM Serif Display`, `IBM Plex Sans Condensed`, `Exo 2`.
 - Dodano preload webfontów przez `document.fonts.load(...)` (manifestowe fonty w GM + lista stała na ekranie gracza), aby przełączenie fontu i pierwszy render były natychmiastowe optycznie.
 
 ## 2026-03-31 — Infoczytnik (domyślny preset GM)
@@ -602,7 +602,7 @@ Wspólny styl bazowy pochodzi z `kalkulatorxp.css`, a dodatkowe style inline są
 
 
 Moduł składa się z dwóch stron oraz strony startowej:
-- **Infoczytnik.html** — ekran graczy (Data-Slate),
+- **DataSlate.html** — ekran graczy (Data-Slate),
 - **GM.html** — panel prowadzącego,
 - **index.html** — menu wyboru wersji (produkcyjnych i testowych), spójne stylistycznie z modułem Main.
 
@@ -624,7 +624,7 @@ Załadowane fonty (używane zależnie od frakcji):
 - Teksty techniczne i podgląd: **Consolas, "Courier New", monospace**.
 
 #### 1.3 Zasady użycia fontów
-- `Infoczytnik.html`: rozmiary dynamiczne przez `clamp(...)`:
+- `DataSlate.html`: rozmiary dynamiczne przez `clamp(...)`:
   - `--msg-font-size: clamp(18px, 3.4vw, 32px)`.
   - `--prefix-font-size: clamp(12px, 2.0vw, 16px)`.
   - `--suffix-font-size: clamp(12px, 2.0vw, 16px)`.
@@ -633,7 +633,7 @@ Załadowane fonty (używane zależnie od frakcji):
 - `index.html`: stos monospace `"Consolas", "Fira Code", "Source Code Pro", monospace` ustawiony globalnie w `*`.
 
 ### 2) Kolory, tła, ramki, cienie
-#### 2.1 Infoczytnik.html (ekran graczy)
+#### 2.1 DataSlate.html (ekran graczy)
 - Akcent bazowy: `--accent = #00ff66`.
 - Tło globalne i panelu: `#000`.
 - Tekst prefix/suffix: `rgba(255,255,255,.88)` i `rgba(255,255,255,.86)`.
@@ -707,8 +707,8 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
 ## Aktualizacja 2026-03-13 — korekta CTA push i spacingu fillerów
 
 - `Main/index.html`: przycisk **Włącz powiadomienia** (`.pushCta`) zmieniono na kompaktowy, "pill" i przypięto do prawego dolnego rogu (`position: fixed; right:14px; bottom:14px`).
-- `Infoczytnik/GM_test.html`: podgląd `livePreview` dla prefix/suffix renderuje nowe linie przez `white-space: pre-line`.
-- `Infoczytnik/Infoczytnik_test.html`: układ odstępów fillerów oparto o dwa równe gapy (`--gap-prefix-to-msg`, `--gap-msg-to-suffix`) oraz odseparowano wpływ logo na wysokość sekcji prefixu (logo pozycjonowane absolutnie).
+- `DataSlate/GM_test.html`: podgląd `livePreview` dla prefix/suffix renderuje nowe linie przez `white-space: pre-line`.
+- `DataSlate/Infoczytnik_test.html`: układ odstępów fillerów oparto o dwa równe gapy (`--gap-prefix-to-msg`, `--gap-msg-to-suffix`) oraz odseparowano wpływ logo na wysokość sekcji prefixu (logo pozycjonowane absolutnie).
 
 ## Aktualizacja 2026-03-28 — nowe layouty pisma (Infoczytnik)
 
@@ -746,7 +746,7 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
   - pickery kolorów aktualizują pola tekstowe na eventach `input` i `change`;
   - `fillerLineCount` rerolluje fillery natychmiast po zmianie wartości (bez konieczności zmiany zestawu);
   - usunięto komunikat „Flicker aktywny (opcjonalny)” — hint pokazuje tylko ostrzeżenie przy wyłączonym prostokącie cienia.
-- Kontrakt GM → Infoczytnik:
+- Kontrakt GM → DataSlate:
   - `msgFontSize`, `prefixFontSize`, `suffixFontSize` są przekazywane jako **number** (bez `px`).
 - `Infoczytnik_test.html`:
   - doładowuje ten sam zestaw Google Fonts co panel GM, więc wybór fontu jest zgodny między preview i ekranem gracza;
@@ -754,18 +754,18 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
 
 ## Aktualizacja 2026-04-17 — Status `old` i przekreślenia
 
-### Nowy token koloru (DataVault + GeneratorNPC)
+### Nowy token koloru (DataVault + NPCGenerator)
 - Dodano kolor archiwalny: `--text-old: #7f9b7f`.
 - Zastosowanie:
   - rekordy oznaczone `Status=old` w DataVault (kolor bazowy wiersza),
-  - pola `LP`, `Nazwa`, `Typ` w podglądzie bazowym GeneratorNPC,
+  - pola `LP`, `Nazwa`, `Typ` w podglądzie bazowym NPCGenerator,
   - teksty przekreślone (`{{S}}...{{/S}}`) jako kolor domyślny przekreślenia.
 
 ### Priorytet kolorów
 - Czerwony (`{{RED}}`) ma wyższy priorytet niż styl archiwalny i przekreślenie.
 - Segment `{{RED}}{{S}}...{{/S}}{{/RED}}` pozostaje czerwony, ale jest przekreślony.
 
-### Stała szerokość kolumny „Klucz” (GeneratorNPC)
+### Stała szerokość kolumny „Klucz” (NPCGenerator)
 - W tabeli `data-sheet="Bestiariusz"` ustawiono `table-layout: fixed`.
 - Pierwsza kolumna (`Klucz`) ma stałą szerokość: `25ch` (`width/min-width/max-width`).
 - Druga kolumna (`Wartość`) zajmuje pozostałe miejsce (`auto`).
@@ -777,7 +777,7 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
 - Urealniono opis clampa do aktualnej implementacji opartej wyłącznie o pomiar renderu (`ResizeObserver`).
 
 ## Aktualizacja 2026-04-23 — Kalkulator: styl i pozycja „Tajny przycisk!”
-- W `Kalkulator/index.html` przycisk **Tajny przycisk!** otrzymał ten sam wariant CTA co `Main/index.html` (**Włącz powiadomienia**):
+- W `Calculators/index.html` przycisk **Tajny przycisk!** otrzymał ten sam wariant CTA co `Main/index.html` (**Włącz powiadomienia**):
   - obramowanie: `#ff3b30`,
   - tło: `rgba(255, 59, 48, 0.2)`,
   - tekst: `#ffe5e3`,
@@ -791,8 +791,8 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
   - przeniesienie z prawej kolumny siatki `.actions` do osobnego kontenera `.secretCtaWrap`,
   - wyrównanie do prawej (`justify-content: flex-end`) pod główną siatką nawigacji.
 
-## Aktualizacja 2026-04-27 – modal potwierdzenia (Kalkulator/TworzeniePostaci)
-- Zmieniono asset grafiki modala na `/Kalkulator/Modal_Icon.png`.
+## Aktualizacja 2026-04-27 – modal potwierdzenia (Calculators/TworzeniePostaci)
+- Zmieniono asset grafiki modala na `/Calculators/Modal_Icon.png`.
 - Dla przycisku potwierdzającego (`Tak` / `Yes`) ustawiono czerwony wariant kolorystyczny:
   - obramowanie: `rgba(190,40,40,.75)`
   - tło: `rgba(110,20,20,.7)`
@@ -820,7 +820,7 @@ Każda modyfikacja stylu w dowolnym module **musi** być odzwierciedlona w tym p
 - The “Litany of Access” label is intentionally darker than the message body text: `var(--muted, #4a8b4a)`.
 
 ## Moduł — Infoczytnik (aktualizacja 2026-05-28)
-- W panelu GM (`Infoczytnik/GM_test.html`) dodano blok **Kolor logo** pomiędzy polami **Logo** i **Zestaw fillerów**.
+- W panelu GM (`DataSlate/GM_test.html`) dodano blok **Kolor logo** pomiędzy polami **Logo** i **Zestaw fillerów**.
 - Domyślna barwa logo: `#ffffff`.
 - W stanie wyłączonego checkboxa **Logo** panel koloru logo przechodzi do stanu nieaktywnego (wyszarzenie + blokada kliknięcia).
 - Podgląd GM i ekran odbiorcy renderują logo jako maskę PNG, a kolor jest kontrolowany przez jednolity fill (bez gradientu).

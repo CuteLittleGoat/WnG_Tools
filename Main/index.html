@@ -140,17 +140,17 @@
     <div class="actions">
       <div class="stack right">
         <!-- WAŻNE: Po skopiowaniu aplikacji na inny serwer sprawdź i zaktualizuj wszystkie linki modułów (relatywne i zewnętrzne), aby wskazywały zasoby danej grupy. / IMPORTANT: After copying the app to another server, verify and update all module links (relative and external) so they point to that group's resources. -->
-        <a class="btn" data-infoczytnik-link href="../Infoczytnik/Infoczytnik.html">Infoczytnik</a>
+        <a class="btn" data-infoczytnik-link href="../DataSlate/DataSlate.html">DataSlate</a>
       </div>
       <div class="stack">
         <a class="btn" data-datavault-link href="../DataVault/index.html" target="_self">Skarbiec Danych</a>
         <p class="note" data-admin-only="true">aby wejść do panelu admina dopisz do adresu <strong>index.html?admin=1</strong></p>
       </div>
       <div class="stack" data-admin-only="true">
-        <a class="btn" href="../GeneratorNazw/index.html">Generator Nazw</a>
+        <a class="btn" href="../NameGenerator/index.html">Generator Nazw</a>
       </div>
       <div class="stack" data-admin-only="true">
-        <a class="btn" href="../GeneratorNPC/" target="_self">Generator NPC</a>
+        <a class="btn" href="../NPCGenerator/" target="_self">Generator NPC</a>
       </div>
       <div class="stack" data-admin-only="true">
         <a class="btn" href="../Audio/index.html">Audio</a>
@@ -165,7 +165,7 @@
         <a class="btn" data-map-link href="#" target="_blank" rel="noopener noreferrer">Mapa</a>
       </div>
       <div class="stack">
-        <a class="btn" href="../Kalkulator/" target="_self">Kalkulator</a>
+        <a class="btn" href="../Calculators/" target="_self">Calculators</a>
       </div>
       <div class="stack">
         <a class="btn" href="../DiceRoller/index.html">Rzut kośćmi</a>
@@ -183,8 +183,8 @@
     const infoczytnikLink = document.querySelector("[data-infoczytnik-link]");
     if (infoczytnikLink) {
       infoczytnikLink.href = isAdmin
-        ? "../Infoczytnik/index.html"
-        : "../Infoczytnik/Infoczytnik.html";
+        ? "../DataSlate/index.html"
+        : "../DataSlate/DataSlate.html";
     }
 
     const dataVaultLink = document.querySelector("[data-datavault-link]");

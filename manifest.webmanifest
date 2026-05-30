@@ -1,7 +1,7 @@
 {
   "name": "Kozi Przybornik",
   "short_name": "Wrath&Glory",
-  "description": "Panel startowy Wrath & Glory wraz z modułem Infoczytnik.",
+  "description": "Panel startowy Wrath & Glory wraz z modułem DataSlate.",
   "start_url": "./Main/index.html",
   "scope": "./",
   "display": "standalone",
