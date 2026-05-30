@@ -1191,3 +1191,89 @@ Nie wykonano interaktywnego testu w przeglądarce, ponieważ etap ograniczono do
 4. Web Push pozostaje do usunięcia w osobnym etapie bez uszkodzenia komunikacji Firestore DataSlate.
 5. Neutralne arkusze XLSX pozostają do dostarczenia i walidacji w osobnym etapie.
 6. Przed publicznym Release należy wrócić do decyzji dotyczących plików roboczych, backupów, draftów, ikon i finalnej nazwy aplikacji w manifeście.
+
+## Aktualizacja — 2026-05-30 — Etap 2 Release: angielski interfejs i widoczne selektory języka
+
+### Oryginalny pełny prompt użytkownika
+
+> Pracujesz w repozytorium `WnG_Tools`.
+>
+> Wykonaj drugi etap prac Release: wprowadzenie angielskiego interfejsu, ustawienie języka angielskiego jako domyślnego oraz przywrócenie widocznych selektorów języka tam, gdzie mechanizm PL/EN już istnieje.
+>
+> WAŻNE: przed rozpoczęciem przeczytaj `AGENTS.md` i `Analizy/Release.md`; nie modyfikuj `AGENTS.md`; nie usuwaj starszych sekcji `Analizy/Release.md`; po zakończeniu dopisz nową sekcję zgodną z `AGENTS.md`; nie czyść Firebase; nie usuwaj Web Push; nie dodawaj neutralnych makiet XLSX; nie usuwaj plików testowych, backupowych, `Old`, `Draft` ani innych plików roboczych; nie wykonuj zmian niezwiązanych z etapem językowym; nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku, a wtedy zrób jeden logiczny commit.
+>
+> DODATKOWA DECYZJA DO ZAPISANIA W `Analizy/Release.md`: na późniejszym etapie czyszczenia plików stare pliki testowe i backupowe DataSlate są przeznaczone do skasowania z publicznej paczki Release, w szczególności `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html`, `DataSlate/Infoczytnik_backup.html`. Jeżeli znajdziesz inne stare pliki testowe lub backupowe w `DataSlate/`, dopisz je do listy kandydatów. Nie usuwaj ich w tym etapie.
+>
+> CEL ETAPU: aplikacja po otwarciu ma domyślnie pokazywać publiczny interfejs po angielsku. Tam, gdzie moduł ma mechanizm PL/EN, selektor ma być widoczny, język domyślny ma być `en`, a kolejność opcji ma być `English`, potem `Polski`. Tam, gdzie nie planujemy selektora, widoczne teksty statyczne mają zostać ręcznie zmienione na angielskie.
+>
+> ZAKRES PRAC: popraw `Audio/index.html`, `DataVault/index.html`, `DataVault/app.js`, `DiceRoller/index.html`, `DiceRoller/script.js`, `NPCGenerator/index.html`, `NameGenerator/index.html`, `NameGenerator/script.js`, `Calculators/XPCalculator.html`, `Calculators/CharacterCreation.html`; ustaw `<html lang="en">`, startowe `en`, pierwsze renderowanie EN, kolejność `English` / `Polski`, usuń ukrycie selektora, zachowaj przełączanie EN → PL → EN i polskie tłumaczenia. Ręcznie przetłumacz statyczne UI bez nowych selektorów w `Main/index.html`, `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `Calculators/index.html`. Dla `NameGenerator` przetłumacz wyłącznie UI i nie tłumacz wyników ani słowników generatora. Nie wykonuj czyszczenia Firebase, usuwania Web Push, zmian Firestore DataSlate, zmian XLSX, usuwania plików roboczych, tłumaczenia wyników `NameGenerator`, finalnego czyszczenia paczki, zmian ikon, brandingu ani dużych refaktorów. Dokumentację aktualizuj wyłącznie w zakresie językowym. Wykonaj statyczne wyszukiwania wskazane w promptcie oraz lokalny test HTTP 12 plików wejściowych, jeżeli środowisko pozwala. Na końcu dopisz pełną sekcję do `Analizy/Release.md` i podsumuj wynik.
+>
+> Uwaga techniczna: treść promptu została przesłana w wiadomości dwukrotnie w identycznym brzmieniu. Powyżej zapisano pełną merytoryczną treść jednokrotnie, bez powielania identycznego bloku.
+
+### Zakres prac
+
+- Przeczytano obowiązujący `AGENTS.md` oraz pełną aktualną zawartość `Analizy/Release.md` przed edycją.
+- Zmieniono ustawienia startowe modułów z istniejącym mechanizmem PL/EN na język angielski.
+- Odkryto selektory ukryte klasą `language-switcher--hidden` i ustawiono kolejność opcji `English`, `Polski`.
+- Ręcznie przetłumaczono widoczne teksty ekranów statycznych wskazanych przez właściciela.
+- Zinwentaryzowano kandydatów DataSlate do późniejszego usunięcia; w bieżącym etapie nie usunięto żadnego pliku.
+
+### Ustalenia i wnioski
+
+- Domyślny język `en` ustawiono w: Audio, DataVault, DiceRoller, NPCGenerator, NameGenerator, XPCalculator oraz CharacterCreation.
+- Widoczne selektory PL/EN przywrócono w: Audio (oba widoki selektora), DataVault, NPCGenerator i NameGenerator. DiceRoller, XPCalculator oraz CharacterCreation miały już widoczne selektory; poprawiono ich kolejność opcji i język startowy.
+- Statyczne UI ręcznie przetłumaczono w: Main, stronie wejściowej DataSlate, panelu GM DataSlate, ekranie gracza DataSlate (atrybut dokumentu) oraz stronie wejściowej Calculators.
+- Polskie warianty tłumaczeń w modułach PL/EN pozostawiono celowo. Polskie dane słowników i generowane wyniki NameGenerator również pozostawiono celowo do osobnego późniejszego etapu.
+- Pozostałe polskie komentarze techniczne dwujęzyczne nie są widocznym UI i nie wymagały zmiany w tym etapie. Zachowane pliki testowe i backupowe DataSlate mogą nadal zawierać stare polskie UI do czasu późniejszego czyszczenia.
+
+### Decyzje i wymagania
+
+- Stare pliki testowe i backupowe DataSlate mają zostać usunięte z publicznej paczki Release w późniejszym etapie czyszczenia plików, ale nie w bieżącym etapie.
+- Zinwentaryzowane kandydaty do późniejszego usunięcia:
+  - `DataSlate/GM_test.html`;
+  - `DataSlate/Infoczytnik_test.html`;
+  - `DataSlate/GM_backup.html`;
+  - `DataSlate/Infoczytnik_backup.html`.
+- Nie znaleziono dodatkowych plików `*test*` ani `*backup*` w głównym katalogu `DataSlate/`.
+- Zgodnie z zakresem nie czyszczono Firebase, nie zmieniano wartości Firebase na placeholdery, nie usuwano Web Push, nie dodawano neutralnych makiet XLSX i nie usuwano plików roboczych.
+
+### Zmienione pliki
+
+- `Audio/index.html` — język dokumentu, widoczność dwóch selektorów, kolejność opcji i domyślny język EN.
+- `DataVault/index.html`, `DataVault/app.js` — język dokumentu, widoczność selektora, kolejność opcji i domyślny język EN.
+- `DiceRoller/index.html`, `DiceRoller/script.js` — język dokumentu, kolejność opcji i domyślny język EN.
+- `NPCGenerator/index.html` — język dokumentu, widoczność selektora, kolejność opcji i domyślny język EN.
+- `NameGenerator/index.html`, `NameGenerator/script.js` — język dokumentu, widoczność selektora, kolejność opcji i domyślny język interfejsu EN bez zmian słowników wynikowych.
+- `Calculators/XPCalculator.html`, `Calculators/CharacterCreation.html` — język dokumentu, kolejność opcji i domyślny język EN.
+- `Main/index.html`, `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `Calculators/index.html` — statyczny interfejs angielski i `lang="en"`.
+- `Analizy/Release.md` — niniejszy append-only wpis decyzji, zmian i testów.
+
+### Szczegóły zmian w kodzie
+
+- Nie przebudowano architektury tłumaczeń. Zmieniono wyłącznie startowy język, widoczność istniejących selektorów, ich kolejność oraz teksty statycznego UI.
+- W `Main/index.html` dynamiczny parser linków akceptuje angielskie klucze `Map` i `Images`, nadal zachowując zgodność wsteczną z polskimi kluczami istniejącego pliku konfiguracyjnego.
+- W `DataSlate/GM.html` przetłumaczono etykiety, przyciski, placeholder wiadomości, komunikaty statusu oraz komunikaty błędów importu. Nie zmieniano komunikacji Firestore ani logiki push.
+- W `NameGenerator` nie zmieniono danych służących do generowania nazw, tytułów ani kryptonimów.
+
+### Testy
+
+- `git status --short` — wykonano przed i po zmianach; przed zmianami drzewo było czyste, po zmianach lista obejmuje wyłącznie pliki etapu językowego i ten dziennik.
+- `rg` dla `language-switcher--hidden`, `currentLanguage = "pl"`, `currentLanguage = 'pl'` i `<html lang="pl">` w produkcyjnych plikach objętych etapem — brak aktywnych trafień.
+- `rg` oraz ręczna ocena pozostałych polskich tekstów — pozostały polskie warianty tłumaczeń, generowane wyniki NameGenerator, komentarze techniczne, zgodność wsteczna parsera linków oraz nieedytowane pliki testowe/backupowe DataSlate.
+- `node --check DataVault/app.js`, `node --check DiceRoller/script.js`, `node --check NameGenerator/script.js` — zaliczone.
+- `git -c core.whitespace=cr-at-eol diff --check` — zaliczone.
+- `python3 -m http.server 8765` oraz `curl` — HTTP 200 dla wszystkich 12 wymaganych plików wejściowych: Main, Audio, DataVault, DiceRoller, NPCGenerator, NameGenerator, DataSlate index, DataSlate GM, DataSlate ekran gracza, Calculators index, XPCalculator i CharacterCreation.
+- Nie wykonano interaktywnego testu przeglądarkowego EN → PL → EN, ponieważ środowisko terminalowe nie zapewnia interaktywnej przeglądarki. Zachowano istniejące listenery zmiany języka i wykonano statyczną walidację ich konfiguracji startowej.
+
+### Ryzyka i następne kroki
+
+1. Wykonać ręczny smoke test w przeglądarce dla przełączania EN → PL → EN oraz dla layoutów responsywnych.
+2. W osobnym etapie wyczyścić prywatne konfiguracje Firebase i zastąpić je angielskimi placeholderami bez usunięcia Firestore DataSlate.
+3. W osobnym etapie usunąć Web Push bez naruszenia komunikacji Firestore GM → ekran gracza.
+4. W późniejszym etapie usunąć zinwentaryzowane testowe i backupowe pliki DataSlate z publicznej paczki.
+5. Po dostarczeniu neutralnych XLSX zwalidować parsery i przykładowe dane.
+6. Tłumaczenie generowanych wyników NameGenerator pozostaje świadomie odłożone.
+
+#### Uzupełnienie dokumentacji etapu językowego
+
+Po statycznym wyszukiwaniu zaktualizowano również dokumentację modułów Audio, DataVault, NPCGenerator, NameGenerator i Calculators, ponieważ zawierała nieaktualne opisy ukrytych selektorów albo polskiego języka startowego. Dokumentacja opisuje teraz widoczny selektor PL/EN i domyślny język angielski. Zmienione pliki dokumentacji: `Audio/docs/README.md`, `Audio/docs/Documentation.md`, `DataVault/docs/README.md`, `DataVault/docs/Documentation.md`, `NPCGenerator/docs/README.md`, `NPCGenerator/docs/Documentation.md`, `NameGenerator/docs/README.md`, `NameGenerator/docs/Documentation.md`, `Calculators/docs/Documentation.md`.

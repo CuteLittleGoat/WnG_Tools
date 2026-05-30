@@ -312,7 +312,7 @@ window.firebaseConfig = {
 - Dla każdej grupy wymagany jest własny `Audio/config/firebase-config.js`. Może on wskazywać osobny projekt Firebase albo ten sam projekt z odpowiednio rozdzielonymi regułami i przestrzenią danych. Jeżeli grupy mają być w pełni odizolowane bez dodatkowych zmian w ścieżkach danych, najprostsze jest użycie osobnego projektu Firebase.
 
 
-W `index.html` oba ukryte przełączniki języka (`#languageSelect` i `#languageSelectUser`) mają komentarz „MIEJSCE ZMIANY WIDOCZNOŚCI…”, który wskazuje dokładny punkt usunięcia klasy `.language-switcher--hidden`.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 ## Dodawanie nowej wersji językowej (PL)
 
@@ -327,7 +327,7 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
-In `index.html`, both hidden language switchers (`#languageSelect` and `#languageSelectUser`) include the “LANGUAGE SWITCHER VISIBILITY CHANGE POINT…” comment indicating the exact place to remove `.language-switcher--hidden`.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ## Adding a new language version (EN)
 
@@ -343,5 +343,5 @@ Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 
 
 ## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik wyboru języka jest celowo ukryty w interfejsie, ale cały kod tłumaczeń (słowniki, logika `applyLanguage`/`updateLanguage`, aktualizacja etykiet i komunikatów) pozostaje aktywny. Aby ponownie go odkryć, usuń klasę `language-switcher--hidden` z elementu `<div class="language-switcher ...">` w pliku `index.html` tego modułu.
-- EN: The language selector is intentionally hidden in the UI, but all translation code (dictionaries, `applyLanguage`/`updateLanguage` logic, labels/messages refresh) remains active. To reveal it again, remove the `language-switcher--hidden` class from `<div class="language-switcher ...">` in this module's `index.html`.
+- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
+- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.

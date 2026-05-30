@@ -84,11 +84,11 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
-Przełącznik języka jest ukryty celowo; miejsce do jego włączenia jest oznaczone komentarzem przy kontenerze `.language-switcher--hidden`.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 ## 🇬🇧 User instructions (EN)
 
-The language switcher is intentionally hidden; the place to enable it is marked with a comment next to the `.language-switcher--hidden` container.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ### What this module is for
 **NPC Generator** helps you quickly build enemy/NPC sheets for sessions. Pick a base profile, adjust values, and generate a ready card.
@@ -178,8 +178,8 @@ EN: NPCGenerator loads data via `shared/firebase-data-loader.js` (Firebase Auth 
 
 
 ## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik języka jest celowo ukryty w interfejsie. Kod tłumaczeń pozostaje aktywny, a miejsce zmiany widoczności jest oznaczone komentarzem przy `.language-switcher--hidden`.
-- EN: The language switcher is intentionally hidden in the UI. Translation code remains active, and the visibility change point is marked by a comment next to `.language-switcher--hidden`.
+- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
+- EN: The PL/EN language switcher is visible; English is the default option and Polish remains available.
 
 
 ## Dostęp do prywatnych danych / Private data access

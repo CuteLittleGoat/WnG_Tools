@@ -1202,7 +1202,7 @@ const seedHint = document.getElementById("seedHint");
 const generateButton = document.getElementById("gen");
 const copyButton = document.getElementById("copy");
 
-let currentLanguage = "pl";
+let currentLanguage = "en";
 
 function getLocalizedName(item) {
   if (currentLanguage === "en") {

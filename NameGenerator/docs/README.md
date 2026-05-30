@@ -14,7 +14,7 @@
 6. Kliknij **Generuj**.
 7. Kliknij **Kopiuj wynik**, aby skopiować listę do schowka.
 
-Przełącznik języka jest obecnie ukryty w interfejsie użytkownika. Kod zawiera przygotowaną obsługę wersji PL/EN, ale zwykły użytkownik nie wybiera języka z poziomu strony.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 
 ## Dodawanie nowej wersji językowej (PL)
@@ -29,11 +29,11 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
-Przełącznik języka jest ukryty, ale gotowy do użycia; miejsce zmiany widoczności jest opisane komentarzem w `index.html`.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 ## 🇬🇧 User instructions (EN)
 
-The language switcher is hidden but ready to use; the visibility change point is described by a comment in `index.html`.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ### What this module is for
 **Name Generator** creates Warhammer 40k-style names (characters, vehicles, ships, and other sets depending on category).
@@ -47,7 +47,7 @@ The language switcher is hidden but ready to use; the visibility change point is
 6. Click **Generate**.
 7. Click **Copy result** to copy the list to clipboard.
 
-The language switcher is currently hidden in the user interface. The code already contains PL/EN language support, but a regular user does not choose the language from the page.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 
 ## Adding a new language version (EN)

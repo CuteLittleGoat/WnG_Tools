@@ -83,7 +83,7 @@ W oknie dostępu etykieta **„Litania Dostępu”** jest ustawiona po lewej str
 
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
-Przełącznik języka jest domyślnie ukryty; dokładne miejsce zmiany widoczności opisuje komentarz w `index.html` obok `.language-switcher--hidden`.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 ## Ważne przy kopiowaniu modułu
 W module jest przycisk **Strona Główna / Main Page**. Po skopiowaniu aplikacji do innej lokalizacji (inna domena, inny katalog) **zaktualizuj jego hiperłącze**, żeby poprawnie wracał do strony startowej.
@@ -178,7 +178,7 @@ In the access window, the **“Litany of Access”** label is on the left and th
 
 Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
-The language switcher is hidden by default; the exact visibility change point is documented by a comment in `index.html` next to `.language-switcher--hidden`.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ## Important when copying the module
 This module includes a **Strona Główna / Main Page** button. After copying the app to another location (different domain or folder), **update its hyperlink** so it returns to the launcher correctly.

@@ -505,23 +505,22 @@ W pliku `NPCGenerator/index.html` komentarze `WAŻNE/IMPORTANT` oznaczają istot
 
 Po wdrożeniu należy przetestować zapis i odczyt ulubionych.
 
-## 17. Ukryty przełącznik języka
-Mechanizm przełączania języka PL/EN jest obecny w kodzie modułu NPCGenerator, ale przełącznik jest obecnie ukryty w interfejsie użytkownika.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 Zwykły użytkownik nie widzi selektora języka.
 
 Lokalizacja techniczna:
 - plik: `NPCGenerator/index.html`,
-- kontener: `<div class="language-switcher language-switcher--hidden">`,
+- kontener: `<div class="language-switcher">`,
 - selektor pola: `#languageSelect`,
 - opcje: `pl` i `en`,
-- komentarz pomocniczy w kodzie: `MIEJSCE ZMIANY WIDOCZNOŚCI PRZEŁĄCZNIKA JĘZYKA / LANGUAGE SWITCHER VISIBILITY CHANGE POINT`.
+- The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 Przełącznik ukrywa klasa CSS:
 
-`language-switcher--hidden`
 
-Aby ponownie pokazać przełącznik w interfejsie, należy usunąć klasę `language-switcher--hidden` z kontenera `.language-switcher` albo zmienić powiązaną regułę CSS ukrywającą ten element.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 Mechanizm tłumaczeń pozostaje częścią kodu, ponieważ słowniki tłumaczeń i funkcje aktualizacji języka nadal istnieją.
 

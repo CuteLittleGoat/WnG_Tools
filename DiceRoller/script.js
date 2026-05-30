@@ -79,7 +79,7 @@ const translations = {
   },
 };
 
-let currentLanguage = "pl";
+let currentLanguage = "en";
 
 const clampValue = (value, min = MIN_VALUE, max = MAX_VALUE) => {
   if (Number.isNaN(value)) {

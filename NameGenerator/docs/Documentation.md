@@ -205,7 +205,7 @@ Każda funkcja generatora:
   - uzupełnia etykiety, przyciski, podpowiedzi i placeholdery,
   - odświeża listy kategorii i opcji z pól `name`/`nameEn` (z zachowaniem bieżącego wyboru),
   - przełącza tekst pilla losowości oraz komunikatów kopiowania.
-- `#languageSelect` domyślnie ustawiony na `pl` i uruchamia `applyLanguage()` przy zmianie.
+- `#languageSelect` domyślnie ustawiony na `en` i uruchamia `applyLanguage()` przy zmianie.
 
 ### 4.7 Obsługa przycisków
 - `#gen` → `generate()`.
@@ -279,7 +279,7 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
-In `NameGenerator/index.html`, the language switcher container includes the “LANGUAGE SWITCHER VISIBILITY CHANGE POINT…” comment that clearly marks the code-change location.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ## Adding a new language version (EN)
 
@@ -295,5 +295,5 @@ Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 
 
 ## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik wyboru języka jest celowo ukryty w interfejsie, ale cały kod tłumaczeń (słowniki, logika `applyLanguage`/`updateLanguage`, aktualizacja etykiet i komunikatów) pozostaje aktywny. Aby ponownie go odkryć, usuń klasę `language-switcher--hidden` z elementu `<div class="language-switcher ...">` w pliku `index.html` tego modułu.
-- EN: The language selector is intentionally hidden in the UI, but all translation code (dictionaries, `applyLanguage`/`updateLanguage` logic, labels/messages refresh) remains active. To reveal it again, remove the `language-switcher--hidden` class from `<div class="language-switcher ...">` in this module's `index.html`.
+- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
+- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.

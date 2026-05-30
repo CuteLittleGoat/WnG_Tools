@@ -169,7 +169,7 @@ const translations = {
   },
 };
 
-let currentLanguage = "pl";
+let currentLanguage = "en";
 
 const applyLanguage = (lang) => {
   currentLanguage = lang;

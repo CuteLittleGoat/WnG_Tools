@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
-<html lang="pl">
+<html lang="en">
 <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Kozi Przybornik</title>
+  <title>Goat Toolkit</title>
   <link rel="manifest" href="../manifest.webmanifest">
   <meta name="theme-color" content="#031605">
   <meta name="theme-color" content="#031605" media="(prefers-color-scheme: light)">
@@ -143,32 +143,32 @@
         <a class="btn" data-infoczytnik-link href="../DataSlate/DataSlate.html">DataSlate</a>
       </div>
       <div class="stack">
-        <a class="btn" data-datavault-link href="../DataVault/index.html" target="_self">Skarbiec Danych</a>
-        <p class="note" data-admin-only="true">aby wejść do panelu admina dopisz do adresu <strong>index.html?admin=1</strong></p>
+        <a class="btn" data-datavault-link href="../DataVault/index.html" target="_self">DataVault</a>
+        <p class="note" data-admin-only="true">to enter the admin panel, append this to the address <strong>index.html?admin=1</strong></p>
       </div>
       <div class="stack" data-admin-only="true">
-        <a class="btn" href="../NameGenerator/index.html">Generator Nazw</a>
+        <a class="btn" href="../NameGenerator/index.html">Name Generator</a>
       </div>
       <div class="stack" data-admin-only="true">
-        <a class="btn" href="../NPCGenerator/" target="_self">Generator NPC</a>
+        <a class="btn" href="../NPCGenerator/" target="_self">NPC Generator</a>
       </div>
       <div class="stack" data-admin-only="true">
         <a class="btn" href="../Audio/index.html">Audio</a>
-        <p class="note">aby wejść do panelu admina dopisz do adresu <strong>index.html?admin=1</strong></p>
+        <p class="note">to enter the admin panel, append this to the address <strong>index.html?admin=1</strong></p>
       </div>
       <div class="stack">
         <!-- WAŻNE: Link "Obrazki" jest ładowany dynamicznie z pliku Main/ZmienneHiperlacza.md — każda grupa musi podać własny URL na swoim serwerze. / IMPORTANT: The "Images" link is loaded dynamically from Main/ZmienneHiperlacza.md — each group must provide its own URL on its own server. -->
-        <a class="btn" data-images-link href="#" target="_blank" rel="noopener noreferrer">Obrazki</a>
+        <a class="btn" data-images-link href="#" target="_blank" rel="noopener noreferrer">Images</a>
       </div>
       <div class="stack">
         <!-- WAŻNE: Link "Mapa" jest ładowany dynamicznie z pliku Main/ZmienneHiperlacza.md — każda grupa musi podać własny URL na swoim serwerze. / IMPORTANT: The "Map" link is loaded dynamically from Main/ZmienneHiperlacza.md — each group must provide its own URL on its own server. -->
-        <a class="btn" data-map-link href="#" target="_blank" rel="noopener noreferrer">Mapa</a>
+        <a class="btn" data-map-link href="#" target="_blank" rel="noopener noreferrer">Map</a>
       </div>
       <div class="stack">
         <a class="btn" href="../Calculators/" target="_self">Calculators</a>
       </div>
       <div class="stack">
-        <a class="btn" href="../DiceRoller/index.html">Rzut kośćmi</a>
+        <a class="btn" href="../DiceRoller/index.html">Dice Roller</a>
       </div>
     </div>
   </main>
@@ -210,14 +210,14 @@
     fetch(linkConfigPath)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`Nie udało się pobrać ${linkConfigPath}`);
+          throw new Error(`Could not fetch ${linkConfigPath}`);
         }
         return response.text();
       })
       .then((text) => {
         const links = {};
         text.split(/\r?\n/).forEach((line) => {
-          const match = line.match(/^(Mapa|Obrazki)\s*:\s*(\S+)/);
+          const match = line.match(/^(Map|Images|Mapa|Obrazki)\s*:\s*(\S+)/);
           if (match) {
             const key = match[1].toLowerCase();
             links[key] = match[2];
@@ -226,7 +226,7 @@
         applyDynamicLinks(links);
       })
       .catch((error) => {
-        console.warn("Nie udało się wczytać zmiennych hiperłączy.", error);
+        console.warn("Could not load hyperlink variables.", error);
       });
 
   </script>

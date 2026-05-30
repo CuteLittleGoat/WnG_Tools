@@ -6,7 +6,7 @@
 Moduł **Audio** służy do szybkiego odtwarzania efektów dźwiękowych (SFX) podczas sesji. Możesz korzystać z gotowego widoku gracza albo z rozszerzonego widoku prowadzącego (admina), w którym ustawiasz listy i kolejność dźwięków.
 
 ### Jak otworzyć moduł
-Przełącznik języka jest obecnie ukryty w interfejsie użytkownika. Moduł ma przygotowaną obsługę tekstów PL/EN, ale użytkownik korzysta z aktualnie widocznej wersji interfejsu bez ręcznej zmiany języka.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 1. Otwórz `Audio/index.html`.
 2. Jeśli chcesz zwykły widok odtwarzania, pozostaw adres bez zmian.
@@ -92,17 +92,17 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 
 Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
-Przełącznik języka jest obecnie ukryty; miejsce jego ujawnienia jest oznaczone komentarzem w kodzie HTML przy elementach `.language-switcher--hidden`.
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
 ## 🇬🇧 User instructions (EN)
 
-The language switcher is currently hidden; the place to reveal it is marked with an HTML code comment next to `.language-switcher--hidden` elements.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ### What this module is for
 The **Audio** module lets you quickly play sound effects (SFX) during sessions. You can use a simple player view or the extended admin view to manage lists and ordering.
 
 ### How to open the module
-The language switcher is currently hidden in the user interface. The module contains prepared PL/EN text support, but the user works with the currently visible interface without manually switching language.
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 1. Open `Audio/index.html`.
 2. For standard playback mode, keep the URL as is.
@@ -111,7 +111,7 @@ The language switcher is currently hidden in the user interface. The module cont
 ### What you see in user view (without `?admin=1`)
 - **Sound grid** panel (left) with playable SFX tiles.
 - **Navigation** panel (right) to choose the main view or a favorites list.
-- The language switcher is intentionally hidden; the UI uses the currently visible language version.
+- The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
 ### How to play sounds (user view)
 1. In navigation, click **Main view** or a selected favorites list.
@@ -184,5 +184,5 @@ Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 
 
 ## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik wyboru języka jest celowo ukryty w interfejsie. Kod tłumaczeń pozostaje aktywny, a miejsce zmiany widoczności jest oznaczone komentarzem przy `.language-switcher--hidden`.
-- EN: The language selector is intentionally hidden in the UI. Translation code remains active, and the visibility change point is marked by a comment next to `.language-switcher--hidden`.
+- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
+- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.
