@@ -1,3 +1,21 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`DiceRoller` is a client-side Wrath & Glory dice-test simulator. It has no backend dependency: `index.html` defines the page, `style.css` defines presentation, and `script.js` performs random rolls and renders the result.
+
+## 2. Files and interface
+- `index.html` contains numeric fields, action buttons, result panels, and the English-first language selector.
+- `style.css` defines the dark card layout, dice presentation, success/failure states, and narrow-screen adjustments.
+- `script.js` validates inputs, rolls d6 values, separates normal and Wrath dice, counts icons and exalted icons, determines pass/fail status, resets the form, and switches translated labels.
+
+## 3. Mechanics
+The user enters the dice pool, difficulty, and Wrath-dice count accepted by the form. Clicking the roll action generates values from 1 to 6 and calculates icons according to the embedded game rules. The result view explains the rolled dice and final status. Reset clears the current result and restores input defaults. Invalid input produces a readable validation message.
+
+## 4. Styling and reconstruction
+The page uses responsive panels, prominent buttons, status colors, and individual dice result elements. To rebuild it, restore the three files, preserve element IDs referenced by `script.js`, reconnect event handlers, and verify valid rolls, validation errors, reset, responsive layout, and EN → PL → EN switching.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # DiceRoller — dokumentacja techniczna
 
 ## 1. Cel modułu
@@ -122,7 +140,7 @@ Zmiana języka:
 5. Odwzoruj animację z ukryciem punktów i widocznym `?`.
 6. Zweryfikuj działanie w PL i EN.
 
-## 9. Test regresji po zmianach
+## 9. Test funkcjonalny
 Minimalny zestaw testów manualnych:
 1. Ustaw `difficulty=3`, `pool=2`, `wrath=1`, wykonaj rzut — brak błędów w konsoli.
 2. Ustaw `pool=2`, wpisz `wrath=5` — wartość furii zostaje skorygowana do 2.
@@ -194,17 +212,4 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.

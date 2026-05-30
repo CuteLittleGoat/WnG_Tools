@@ -1,6 +1,71 @@
-# Main — instrukcja użytkownika / User Guide
+# 🇬🇧 User instructions (EN)
 
-## 🇵🇱 Instrukcja dla użytkownika (PL)
+### What Main is for
+The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open other modules from here with one click.
+
+### How to open
+1. Open `Main/index.html`.
+2. For extended mode, append `?admin=1`.
+
+### What you see in standard mode
+- App logo.
+- Grid of core module buttons.
+
+### Extra in admin mode (`?admin=1`)
+- Additional module buttons: **Name Generator**, **NPC Generator**, **Audio**.
+- Where supported, links open extended/admin-capable module entry points.
+
+### What each button does
+- **DataSlate** – opens message display module.
+- **DataVault** – opens knowledge/data browser.
+- **Name Generator** (admin) – opens naming tool.
+- **NPC Generator** (admin) – opens NPC card builder.
+- **Audio** (admin) – opens sound effects module.
+- **Images** – opens external images channel.
+- **VTT** – opens external VTT room.
+- **Calculator** – opens calculator module.
+- **DiceRoller** – opens dice module.
+
+### Session workflow suggestion
+1. Keep Main open as your control center.
+2. Open modules as needed with single clicks.
+3. Return to Main when switching tools.
+4. Use module buttons to move quickly between tools during the session.
+
+### Tips
+- **VTT** and **Images** open in a new tab.
+- Other modules open as standard in-app navigation.
+- For admin-only options, verify URL includes `?admin=1`.
+
+### Important when copying Main to another server
+If you copy the app for a different group or another domain/server, you **must update external links** used by **VTT** and **Images** buttons.
+
+Steps:
+1. Open `Main/ZmienneHiperlacza.md`.
+2. Replace the English `INSERT_YOUR_VTT_LINK` and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` placeholders with your own URLs under the `Map` and `Images` keys.
+3. Save the file.
+4. Refresh `Main/index.html` and click **VTT** and **Images**.
+5. Confirm they open correct destinations for the new group.
+## Multi-group setup (separate servers)
+When copying the **Main** module for a new group:
+- Set group-specific **VTT** and **Images** URLs in `Main/ZmienneHiperlacza.md`.
+- Verify in `Main/index.html` that all module links point to valid locations on the new server.
+- Refresh the page and click every button to confirm navigation works correctly.
+
+
+## Adding a new language version (EN)
+
+This is the update map for adding another language (for example FR/DE):
+
+1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
+2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
+3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
+4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
+5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
+
+Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+# 🇵🇱 Instrukcja dla użytkownika (PL)
 
 ### Do czego służy strona Main
 Moduł **Main** to ekran startowy całego pakietu Wrath & Glory. Z tego miejsca uruchamiasz pozostałe moduły jednym kliknięciem.
@@ -71,72 +136,4 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-## 🇬🇧 User instructions (EN)
-
-### What Main is for
-The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open other modules from here with one click.
-
-### How to open
-1. Open `Main/index.html`.
-2. For extended mode, append `?admin=1`.
-
-### What you see in standard mode
-- App logo.
-- Grid of core module buttons.
-
-### Extra in admin mode (`?admin=1`)
-- Additional module buttons: **Name Generator**, **NPC Generator**, **Audio**.
-- Where supported, links open extended/admin-capable module entry points.
-
-### What each button does
-- **DataSlate** – opens message display module.
-- **DataVault** – opens knowledge/data browser.
-- **Name Generator** (admin) – opens naming tool.
-- **NPC Generator** (admin) – opens NPC card builder.
-- **Audio** (admin) – opens sound effects module.
-- **Images** – opens external images channel.
-- **VTT** – opens external VTT room.
-- **Calculator** – opens calculator module.
-- **DiceRoller** – opens dice module.
-
-### Session workflow suggestion
-1. Keep Main open as your control center.
-2. Open modules as needed with single clicks.
-3. Return to Main when switching tools.
-4. Use module buttons to move quickly between tools during the session.
-
-### Tips
-- **VTT** and **Images** open in a new tab.
-- Other modules open as standard in-app navigation.
-- For admin-only options, verify URL includes `?admin=1`.
-
-### Important when copying Main to another server
-If you copy the app for a different group or another domain/server, you **must update external links** used by **VTT** and **Images** buttons.
-
-Steps:
-1. Open `Main/ZmienneHiperlacza.md`.
-2. Replace the English `INSERT_YOUR_VTT_LINK` and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` placeholders with your own URLs under the `Map` and `Images` keys.
-3. Save the file.
-4. Refresh `Main/index.html` and click **VTT** and **Images**.
-5. Confirm they open correct destinations for the new group.
-## Multi-group setup (separate servers)
-When copying the **Main** module for a new group:
-- Set group-specific **VTT** and **Images** URLs in `Main/ZmienneHiperlacza.md`.
-- Verify in `Main/index.html` that all module links point to valid locations on the new server.
-- Refresh the page and click every button to confirm navigation works correctly.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.

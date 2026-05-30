@@ -1,3 +1,25 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`NPCGenerator` builds printable NPC profiles from DataVault records. The browser interface loads source collections through the shared Firebase data loader after authentication against the administrator-configured project. Favorites use the module Firebase configuration where enabled.
+
+## 2. Files and dependencies
+- `index.html` contains the access gate, HTML structure, localization dictionaries, module aggregation, render logic, printable-card logic, and Firebase integration hooks.
+- `style.css` defines top bar, sidebar, workspace, tables, popovers, tags, clamps, print card, and responsive behavior.
+- `config/firebase-config.js` is the public Firebase Web SDK template for module configuration.
+- `../shared/firebase-data-loader.js` and `../shared/firebase-config.js` provide DataVault access.
+
+## 3. Interface and mechanics
+The public access screen starts in English and can switch to Polish. Public placeholders do not connect to private data: the administrator must configure the group’s own Firebase project before the password gate can work. After loading data, users select NPC components, inspect tables and traits, save favorites, and generate a printable card. Text formatters preserve inline markers, page references, ranges, state styling, and compact table geometry.
+
+## 4. Data and layout
+The module depends on the canonical DataVault structure for NPCs, archetypes, attributes, skills, weapons, armor, equipment, talents, psychic powers, and prayers. The layout uses a dark tabletop-oriented palette, responsive wide-table handling, popovers, truncated fields with expansion behavior, and print-specific health/shock trackers.
+
+## 5. Rebuild checklist
+Restore HTML, CSS, Firebase templates, and shared loader references. Configure a separate Firebase project and compatible neutral data. Verify gate EN → PL → EN switching, understandable authentication errors, each source collection, selections, favorites, popovers, formatting, wide tables on phones, print output, and missing-config behavior. Never commit passwords, tokens, service-account files, or private keys.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Generator NPC — dokumentacja techniczna (pełny opis)
 
 ## 1. Cel aplikacji i ogólny opis

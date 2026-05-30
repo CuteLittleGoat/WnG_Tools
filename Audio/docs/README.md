@@ -1,100 +1,4 @@
-# Audio — instrukcja użytkownika / User Guide
-
-## 🇵🇱 Instrukcja dla użytkownika (PL)
-
-### Do czego służy moduł
-Moduł **Audio** służy do szybkiego odtwarzania efektów dźwiękowych (SFX) podczas sesji. Możesz korzystać z gotowego widoku gracza albo z rozszerzonego widoku prowadzącego (admina), w którym ustawiasz listy i kolejność dźwięków.
-
-### Jak otworzyć moduł
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-1. Otwórz `Audio/index.html`.
-2. Jeśli chcesz zwykły widok odtwarzania, pozostaw adres bez zmian.
-3. Jeśli chcesz pełny panel zarządzania, dopisz w adresie: `?admin=1`.
-
-### Co zobaczysz w widoku użytkownika (bez `?admin=1`)
-- Panel **dźwięków** (po lewej) z przyciskami odtwarzania.
-- Panel **Nawigacja** (po prawej) z wyborem widoku głównego i list ulubionych.
-
-### Jak odtwarzać dźwięki (widok użytkownika)
-1. W panelu nawigacji kliknij **Widok główny** albo wybraną listę ulubionych.
-2. Kliknij nazwę dźwięku, aby go uruchomić.
-3. Kliknij ponownie, aby zatrzymać.
-4. Możesz uruchomić kilka dźwięków równocześnie.
-5. Suwakiem na kafelku ustaw głośność konkretnego dźwięku.
-
-### Co oznaczają elementy na kafelku dźwięku
-- **Nazwa dźwięku** – główny przycisk odtwarzania.
-- **Tag pod nazwą** – informacja, z jakiej grupy/folderu pochodzi dźwięk.
-- **Alias w nawiasie** (jeśli ustawiony) – dodatkowa pomocnicza nazwa.
-- **Suwak głośności** – indywidualna głośność tego dźwięku.
-
-### Jak korzystać z panelu administratora (`?admin=1`)
-1. Kliknij **Wczytaj manifest**, aby załadować bazę dźwięków.
-2. Użyj filtrów tagów, aby zawęzić listę widocznych SFX.
-3. W polu wyszukiwarki wpisz fragment nazwy, aby szybciej znaleźć konkretny dźwięk.
-4. Kliknij **Nowa lista ulubionych**, aby utworzyć nową listę.
-5. Przy wybranym dźwięku wybierz listę docelową i kliknij **Dodaj do listy**.
-6. W sekcji list możesz:
-   - zmieniać kolejność list,
-   - zmieniać nazwy list,
-   - usuwać listy,
-   - zmieniać kolejność dźwięków w liście.
-
-### Przyciski specjalne
-- **Wyczyść wszystkie aliasy** – usuwa wszystkie aliasy dźwięków jednocześnie (po potwierdzeniu).
-- **Odtwórz / Zatrzymaj** – szybki odsłuch pojedynczego dźwięku z panelu admina.
-- **Wyczyść** (przy polu aliasu) – usuwa alias tylko dla jednego dźwięku.
-
-### Dobre praktyki podczas sesji
-- Przed sesją przygotuj 1 listę „główną” i 2–3 listy tematyczne.
-- Nadawaj aliasy dźwiękom trudnym do rozpoznania po samej nazwie.
-- Ustaw głośność każdego kluczowego dźwięku wcześniej, żeby nie poprawiać tego w trakcie sceny.
-
----
-
-### Integracja Firebase — wymagana dla współdzielonych list
-Aby listy ulubionych i ustawienia były wspólne dla wielu urządzeń/użytkowników, moduł **Audio** wymaga integracji z Firebase (Firestore). Bez niej działa tylko lokalnie na jednym urządzeniu.
-
-#### Krok po kroku — konfiguracja bazy
-1. Wejdź na [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Kliknij **Utwórz projekt**.
-3. Wpisz nazwę projektu i kliknij **Dalej**.
-4. Wybierz ustawienia Analytics (opcjonalnie) i zakończ tworzenie.
-5. Kliknij ikonę **Web** (`</>`) i zarejestruj aplikację webową.
-6. Skopiuj obiekt `firebaseConfig`.
-7. Wklej dane do `Audio/config/firebase-config.js`.
-8. Otwórz **Firestore Database** w menu Firebase.
-9. Kliknij **Utwórz bazę danych**.
-10. Wybierz tryb startowy, kliknij **Dalej**, wybierz region i kliknij **Włącz**.
-11. W zakładce **Reguły** ustaw dostęp tak, aby uprawnieni użytkownicy mogli czytać i zapisywać ustawienia.
-12. Otwórz `Audio/index.html?admin=1` i sprawdź status Firebase.
-13. Utwórz testową listę ulubionych i odśwież stronę — lista powinna pozostać.
-
----
-
-## Kopia modułu dla nowej grupy
-- Przed pierwszym użyciem na nowym serwerze podmień `Audio/config/firebase-config.js` na dane Firebase tej grupy.
-- Po uruchomieniu `Audio/index.html?admin=1` sprawdź status „Firebase” — ma wskazywać połączenie z właściwym projektem.
-- Dzięki osobnym konfiguracjom grupy nie nadpisują sobie danych list i widoków.
-
----
-
-## Dodawanie nowej wersji językowej (PL)
-
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
-
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
-
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-## 🇬🇧 User instructions (EN)
+# 🇬🇧 User instructions (EN)
 
 The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
@@ -182,7 +86,96 @@ This is the update map for adding another language (for example FR/DE):
 
 Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
+# 🇵🇱 Instrukcja dla użytkownika (PL)
 
-## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
-- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+### Do czego służy moduł
+Moduł **Audio** służy do szybkiego odtwarzania efektów dźwiękowych (SFX) podczas sesji. Możesz korzystać z gotowego widoku gracza albo z rozszerzonego widoku prowadzącego (admina), w którym ustawiasz listy i kolejność dźwięków.
+
+### Jak otworzyć moduł
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+
+1. Otwórz `Audio/index.html`.
+2. Jeśli chcesz zwykły widok odtwarzania, pozostaw adres bez zmian.
+3. Jeśli chcesz pełny panel zarządzania, dopisz w adresie: `?admin=1`.
+
+### Co zobaczysz w widoku użytkownika (bez `?admin=1`)
+- Panel **dźwięków** (po lewej) z przyciskami odtwarzania.
+- Panel **Nawigacja** (po prawej) z wyborem widoku głównego i list ulubionych.
+
+### Jak odtwarzać dźwięki (widok użytkownika)
+1. W panelu nawigacji kliknij **Widok główny** albo wybraną listę ulubionych.
+2. Kliknij nazwę dźwięku, aby go uruchomić.
+3. Kliknij ponownie, aby zatrzymać.
+4. Możesz uruchomić kilka dźwięków równocześnie.
+5. Suwakiem na kafelku ustaw głośność konkretnego dźwięku.
+
+### Co oznaczają elementy na kafelku dźwięku
+- **Nazwa dźwięku** – główny przycisk odtwarzania.
+- **Tag pod nazwą** – informacja, z jakiej grupy/folderu pochodzi dźwięk.
+- **Alias w nawiasie** (jeśli ustawiony) – dodatkowa pomocnicza nazwa.
+- **Suwak głośności** – indywidualna głośność tego dźwięku.
+
+### Jak korzystać z panelu administratora (`?admin=1`)
+1. Kliknij **Wczytaj manifest**, aby załadować bazę dźwięków.
+2. Użyj filtrów tagów, aby zawęzić listę widocznych SFX.
+3. W polu wyszukiwarki wpisz fragment nazwy, aby szybciej znaleźć konkretny dźwięk.
+4. Kliknij **Nowa lista ulubionych**, aby utworzyć nową listę.
+5. Przy wybranym dźwięku wybierz listę docelową i kliknij **Dodaj do listy**.
+6. W sekcji list możesz:
+   - zmieniać kolejność list,
+   - zmieniać nazwy list,
+   - usuwać listy,
+   - zmieniać kolejność dźwięków w liście.
+
+### Przyciski specjalne
+- **Wyczyść wszystkie aliasy** – usuwa wszystkie aliasy dźwięków jednocześnie (po potwierdzeniu).
+- **Odtwórz / Zatrzymaj** – szybki odsłuch pojedynczego dźwięku z panelu admina.
+- **Wyczyść** (przy polu aliasu) – usuwa alias tylko dla jednego dźwięku.
+
+### Dobre praktyki podczas sesji
+- Przed sesją przygotuj 1 listę „główną” i 2–3 listy tematyczne.
+- Nadawaj aliasy dźwiękom trudnym do rozpoznania po samej nazwie.
+- Ustaw głośność każdego kluczowego dźwięku przed sesją, żeby nie poprawiać tego w trakcie sceny.
+
+---
+
+### Integracja Firebase — wymagana dla współdzielonych list
+Aby listy ulubionych i ustawienia były wspólne dla wielu urządzeń/użytkowników, moduł **Audio** wymaga integracji z Firebase (Firestore). Bez niej działa tylko lokalnie na jednym urządzeniu.
+
+#### Krok po kroku — konfiguracja bazy
+1. Wejdź na [https://console.firebase.google.com](https://console.firebase.google.com).
+2. Kliknij **Utwórz projekt**.
+3. Wpisz nazwę projektu i kliknij **Dalej**.
+4. Wybierz ustawienia Analytics (opcjonalnie) i zakończ tworzenie.
+5. Kliknij ikonę **Web** (`</>`) i zarejestruj aplikację webową.
+6. Skopiuj obiekt `firebaseConfig`.
+7. Wklej dane do `Audio/config/firebase-config.js`.
+8. Otwórz **Firestore Database** w menu Firebase.
+9. Kliknij **Utwórz bazę danych**.
+10. Wybierz tryb startowy, kliknij **Dalej**, wybierz region i kliknij **Włącz**.
+11. W zakładce **Reguły** ustaw dostęp tak, aby uprawnieni użytkownicy mogli czytać i zapisywać ustawienia.
+12. Otwórz `Audio/index.html?admin=1` i sprawdź status Firebase.
+13. Utwórz testową listę ulubionych i odśwież stronę — lista powinna pozostać.
+
+---
+
+## Kopia modułu dla nowej grupy
+- Przed pierwszym użyciem na nowym serwerze podmień `Audio/config/firebase-config.js` na dane Firebase tej grupy.
+- Po uruchomieniu `Audio/index.html?admin=1` sprawdź status „Firebase” — ma wskazywać połączenie z właściwym projektem.
+- Dzięki osobnym konfiguracjom grupy nie nadpisują sobie danych list i widoków.
+
+---
+
+## Dodawanie nowej wersji językowej (PL)
+
+To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+
+1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
+2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
+3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
+4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
+5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.

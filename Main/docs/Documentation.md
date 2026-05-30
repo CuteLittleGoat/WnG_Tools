@@ -1,3 +1,22 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`Main` is the static launcher for the toolkit. `index.html` contains the visible cards, user/admin view switch, configured external links, styling, and small browser-maintenance logic. It does not require Firebase.
+
+## 2. Files and layout
+- `index.html` is the complete launcher implementation.
+- `wrath-glory-logo-warhammer.png` is the visible branding image.
+- `ZmienneHiperlacza.md` is the simple configuration reference for external links.
+The page uses a dark themed background, centered content, responsive module cards, and an administrator switch that exposes maintenance links intended for the person configuring the deployment.
+
+## 3. Public links
+Describe and configure the map link as `VTT`. Use `INSERT_YOUR_VTT_LINK` for the VTT destination and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` for the image destination. Replace these strings with the group’s own URLs before publication. No private group links belong in the public repository.
+
+## 4. Runtime behavior and reconstruction
+Module cards navigate to relative module entry points. External buttons navigate to configured URLs. Browser-maintenance logic unregisters service workers and removes related caches for this launcher scope so stale cached launchers do not interfere with the current static page. To rebuild the module, restore the HTML file and logo, preserve relative paths, replace public placeholders for a deployment, and verify normal/admin views, every card, both external links, and mobile wrapping.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Main — dokumentacja techniczna (odtworzenie 1:1)
 
 ## 1. Cel i zakres modułu
@@ -62,7 +81,6 @@ Na tej podstawie JS:
 
 Moduł Main nie rejestruje obecnie Service Workera i nie działa jako samodzielna aplikacja PWA/offline.
 
-Aktualna strona startowa pełni rolę statycznego menu nawigacyjnego do pozostałych modułów. W kodzie `Main/index.html` znajduje się mechanizm porządkujący po wcześniejszych wersjach: jeśli przeglądarka ma zarejestrowane stare Service Workery dla tej ścieżki, strona próbuje je wyrejestrować i oczyścić powiązane cache.
 
 Ten mechanizm nie jest funkcją offline. Jego celem jest uniknięcie sytuacji, w której użytkownik widzi nieaktualną wersję strony z pamięci podręcznej przeglądarki.
 
@@ -159,17 +177,4 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.

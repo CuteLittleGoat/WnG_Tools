@@ -1,6 +1,53 @@
-# DiceRoller — instrukcja użytkownika / User Guide
+# 🇬🇧 User instructions (EN)
 
-## 🇵🇱 Instrukcja dla użytkownika (PL)
+### What this module does
+**DiceRoller** resolves Wrath & Glory dice tests and immediately shows outcome details.
+
+### How to open
+1. Open `DiceRoller/index.html`.
+2. In the top-right corner:
+   - choose language,
+   - click **Main Page** to return to module launcher.
+
+### How to roll (step by step)
+1. Set **Difficulty Number** (required successes).
+2. Set **Dice Pool** (total dice).
+3. Set **Number of Wrath Dice** (red dice count).
+4. Click **Roll the dice!**.
+5. After animation, read the summary panel.
+
+### What result labels mean
+- **Success / Failure** – whether the test passed.
+- **Wrath Complication** – extra negative twist from wrath die.
+- **Wrath Critical** – strong positive wrath effect.
+- **Possible Shift** – extra successes beyond target.
+- **Dice list** – detailed per-die results.
+
+### Input limits
+- All numeric fields: **1 to 99**.
+- **Wrath Dice** cannot exceed **Dice Pool**.
+
+### Helpful tips
+- Set all values first, then roll.
+- Language switching resets current result, so switch language before rolling.
+- Default start values: DN 3, Pool 2, Wrath 1.
+
+### Important when copying the module
+The **Main Page** button uses a hyperlink to the Main module. If you move the app to another location (for example another server or folder), you **must update this link** so return navigation still works.
+
+## Adding a new language version (EN)
+
+This is the update map for adding another language (for example FR/DE):
+
+1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
+2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
+3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
+4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
+5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
+
+Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+# 🇵🇱 Instrukcja dla użytkownika (PL)
 
 ### Do czego służy moduł
 **DiceRoller** wykonuje rzuty kośćmi do testów Wrath & Glory i od razu pokazuje wynik testu.
@@ -51,53 +98,4 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-## 🇬🇧 User instructions (EN)
-
-### What this module does
-**DiceRoller** resolves Wrath & Glory dice tests and immediately shows outcome details.
-
-### How to open
-1. Open `DiceRoller/index.html`.
-2. In the top-right corner:
-   - choose language,
-   - click **Main Page** to return to module launcher.
-
-### How to roll (step by step)
-1. Set **Difficulty Number** (required successes).
-2. Set **Dice Pool** (total dice).
-3. Set **Number of Wrath Dice** (red dice count).
-4. Click **Roll the dice!**.
-5. After animation, read the summary panel.
-
-### What result labels mean
-- **Success / Failure** – whether the test passed.
-- **Wrath Complication** – extra negative twist from wrath die.
-- **Wrath Critical** – strong positive wrath effect.
-- **Possible Shift** – extra successes beyond target.
-- **Dice list** – detailed per-die results.
-
-### Input limits
-- All numeric fields: **1 to 99**.
-- **Wrath Dice** cannot exceed **Dice Pool**.
-
-### Helpful tips
-- Set all values first, then roll.
-- Language switching resets current result, so switch language before rolling.
-- Default start values: DN 3, Pool 2, Wrath 1.
-
-### Important when copying the module
-The **Main Page** button uses a hyperlink to the Main module. If you move the app to another location (for example another server or folder), you **must update this link** so return navigation still works.
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
