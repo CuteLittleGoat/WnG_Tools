@@ -30,12 +30,15 @@ The PL/EN language switcher is visible; English is selected by default and Polis
 - **Alias in parentheses** (if set) – extra custom label.
 - **Volume slider** – per-sound volume control.
 
+### Production manifest
+The tracked `Audio/AudioManifest.xlsx` file is the production-ready neutral manifest included with the public package. Its example records use a neutral URL and can be replaced with your own sound links without changing the workbook structure.
+
 ### How to use admin mode (`?admin=1`)
-1. Click **Wczytaj manifest** to load the SFX database.
+1. Click **Load manifest** to load the SFX database.
 2. Use tag filters to narrow visible sounds.
 3. Use search to quickly find a sound by name fragment.
-4. Click **Nowa lista ulubionych** to create a favorites list.
-5. On a sound tile, choose destination list and click **Dodaj do listy**.
+4. Click **New favorites list** to create a favorites list.
+5. On a sound tile, choose destination list and click **Add to list**.
 6. In list management you can:
    - reorder lists,
    - rename lists,
@@ -126,6 +129,9 @@ Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski poz
    - zmieniać nazwy list,
    - usuwać listy,
    - zmieniać kolejność dźwięków w liście.
+
+### Manifest produkcyjny
+Śledzony plik `Audio/AudioManifest.xlsx` jest gotowym do użycia, neutralnym manifestem produkcyjnym dołączonym do publicznej paczki. Jego przykładowe rekordy używają neutralnego URL-u i mogą zostać zastąpione własnymi linkami audio bez zmiany struktury arkusza.
 
 ### Przyciski specjalne
 - **Wyczyść wszystkie aliasy** – usuwa wszystkie aliasy dźwięków jednocześnie (po potwierdzeniu).

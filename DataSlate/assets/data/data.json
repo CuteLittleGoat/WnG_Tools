@@ -2,47 +2,47 @@
   "backgrounds": [
     {
       "id": 1,
-      "name": "Zielony z wąską ramką",
+      "name": "Green with narrow frame",
       "file": "assets/backgrounds/DataSlate_01.png"
     },
     {
       "id": 2,
-      "name": "Szaro-niebieska ramka",
+      "name": "Gray-blue frame",
       "file": "assets/backgrounds/DataSlate_02.png"
     },
     {
       "id": 3,
-      "name": "Srebrny z Aquillą",
+      "name": "Silver with Aquila",
       "file": "assets/backgrounds/DataSlate_03.png"
     },
     {
       "id": 4,
-      "name": "Retro z grubą ramką",
+      "name": "Retro with thick frame",
       "file": "assets/backgrounds/DataSlate_04.png"
     },
     {
       "id": 5,
-      "name": "Srebrny z wąską ramką",
+      "name": "Silver with narrow frame",
       "file": "assets/backgrounds/DataSlate_05.png"
     },
     {
       "id": 6,
-      "name": "Inkwizycja",
+      "name": "Inquisition",
       "file": "assets/backgrounds/DataSlate_Inq.png"
     },
     {
       "id": 7,
-      "name": "Litannie Zagubionych",
+      "name": "Litanies of the Lost",
       "file": "assets/backgrounds/Litannie_Zagubionych.png"
     },
     {
       "id": 8,
-      "name": "Notatnik",
+      "name": "Notebook",
       "file": "assets/backgrounds/Notatnik.png"
     },
     {
       "id": 9,
-      "name": "Pergamin",
+      "name": "Parchment",
       "file": "assets/backgrounds/Pergamin.png"
     },
     {
@@ -203,12 +203,12 @@
     },
     {
       "id": 15,
-      "name": "Pismo Odręczne",
+      "name": "Handwriting",
       "font": "Caveat"
     },
     {
       "id": 16,
-      "name": "Pismo Ozdobne",
+      "name": "Decorative Script",
       "font": "Great Vibes"
     }
   ],

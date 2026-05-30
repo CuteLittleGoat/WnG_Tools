@@ -23,7 +23,7 @@ The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open ot
 - **Audio** (admin) – opens sound effects module.
 - **Images** – opens external images channel.
 - **VTT** – opens external VTT room.
-- **Calculator** – opens calculator module.
+- **Calculators** – opens calculator module.
 - **DiceRoller** – opens dice module.
 
 ### Session workflow suggestion
@@ -90,7 +90,7 @@ Moduł **Main** to ekran startowy całego pakietu Wrath & Glory. Z tego miejsca 
 - **Audio** (admin) – uruchamia moduł dźwięków.
 - **Obrazki** – otwiera zewnętrzny link do kanału obrazków.
 - **VTT** – otwiera zewnętrzny link do VTT.
-- **Kalkulator** – otwiera moduł kalkulatora.
+- **Calculators** – otwiera moduł kalkulatora.
 - **Rzut kośćmi** – otwiera DiceRoller.
 
 ### Jak korzystać podczas sesji

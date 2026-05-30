@@ -1,6 +1,6 @@
 // Plik logiki modułu: konfiguracja, funkcje i obsługa zdarzeń / Module logic file: configuration, functions, and event handling
 // config/firebase-config.js
-// GLOBALNA konfiguracja Firebase dla modułu Calculators/TworzeniePostaci
+// GLOBALNA konfiguracja Firebase dla modułu Calculators/CharacterCreation
 // (bez "export", żeby działało z firebase-*-compat)
 
 // WAŻNE WDROŻENIE: Każda grupa (każdy serwer) powinna mieć własny projekt Firebase i własny komplet kluczy poniżej.
