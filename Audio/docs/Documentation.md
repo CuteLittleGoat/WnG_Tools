@@ -52,7 +52,7 @@ window.firebaseConfig = {
 };
 ```
 
-**Ważne:** Firebase dla modułu **Audio** nie wymaga oddzielnego konta Google od modułu **Infoczytnik**. Oba moduły mogą korzystać z tego samego konta/projektu, jeśli konfiguracje i reguły są rozdzielone; rozdzielenie projektów to wyłącznie wygoda organizacyjna, a nie wymóg techniczny.
+**Ważne:** Firebase dla modułu **Audio** nie wymaga oddzielnego konta Google od modułu **DataSlate**. Oba moduły mogą korzystać z tego samego konta/projektu, jeśli konfiguracje i reguły są rozdzielone; rozdzielenie projektów to wyłącznie wygoda organizacyjna, a nie wymóg techniczny.
 
 ### 4.2. Firestore
 - Kolekcja: `audio`

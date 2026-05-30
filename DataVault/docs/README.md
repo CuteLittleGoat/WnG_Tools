@@ -58,11 +58,11 @@ Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) prze
 - Jeżeli sesja logowania nie zostanie wykryta po wpisaniu hasła, zobaczysz dokładny komunikat z informacją, że problem dotyczy sesji Auth, a niekoniecznie samego hasła.
 
 ## Aktualny dostęp do danych
-- DataVault i GeneratorNPC używają wspólnego logowania Firebase. Zalogowanie w jednym module odblokowuje drugi bez ponownego wpisywania hasła w tej samej przeglądarce.
+- DataVault i NPCGenerator używają wspólnego logowania Firebase. Zalogowanie w jednym module odblokowuje drugi bez ponownego wpisywania hasła w tej samej przeglądarce.
 - Przycisk „WYLOGUJ / ZABLOKUJ DANE” nie jest dostępny w interfejsie.
 
-## Wspólna sesja z GeneratorNPC
-DataVault i GeneratorNPC korzystają z tej samej nazwanej aplikacji prywatnych danych (`wh40k-data-slate-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
+## Wspólna sesja z NPCGenerator
+DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wh40k-data-slate-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
 
 ## Okno dostępu K.O.Z.A.
 Okno hasła używa narracji K.O.Z.A. i Ducha Maszyny:
@@ -153,11 +153,11 @@ Runtime is loaded from Firebase Realtime Database (`/datavault/live`) through Fi
 - If the sign-in session is not detected after login, you get a precise message saying the issue is with Auth session detection, not necessarily the password itself.
 
 ## Current data access
-- DataVault and GeneratorNPC share the same Firebase login. Signing in once unlocks the other module in the same browser session.
+- DataVault and NPCGenerator share the same Firebase login. Signing in once unlocks the other module in the same browser session.
 - The “LOG OUT / LOCK DATA” button is not available in the interface.
 
-## Shared session with GeneratorNPC
-DataVault and GeneratorNPC use the same named private-data app (`wh40k-data-slate-private-data`), so sign-in in one module is reused in the other.
+## Shared session with NPCGenerator
+DataVault and NPCGenerator use the same named private-data app (`wh40k-data-slate-private-data`), so sign-in in one module is reused in the other.
 
 ## K.O.Z.A. access window
 The password gate uses K.O.Z.A./Machine Spirit wording:

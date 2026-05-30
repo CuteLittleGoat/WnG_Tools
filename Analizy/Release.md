@@ -920,3 +920,274 @@ Wykonano statyczne sprawdzenia organizacyjne:
 1. Historyczne sekcje `Analizy/Release.md` nadal zawierają opisy dawnego blokera. Nie należy ich usuwać; niniejsza późniejsza sekcja stanowi aktualne rozstrzygnięcie.
 2. Zakaz modyfikowania plików `AGENTS.md` nadal obowiązuje. Jeżeli w przyszłości ponownie pojawi się lokalny `AGENTS.md` w katalogu objętym zmianą nazwy, trzeba ponownie ocenić możliwość wykonania operacji.
 3. Usunięcie blokera organizacyjnego nie oznacza automatycznego wykonania prac Release. Kolejne zmiany powinny być wdrażane etapami i każdorazowo dokumentowane w tym pliku.
+
+## Aktualizacja — 2026-05-30 — etap 1 Release: angielskie nazwy katalogów i naprawa ścieżek
+
+### Oryginalny pełny prompt użytkownika
+
+> Uwaga redakcyjna dziennika: użytkownik przekazał poniższy prompt dwa razy z rzędu w identycznym brzmieniu. Aby nie duplikować wielostronicowej treści bez dodawania informacji, poniżej zachowano pełną treść jednego identycznego bloku.
+
+```text
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj pierwszy etap prac Release: przygotowanie zmiany nazw, zmianę nazw katalogów i plików HTML oraz natychmiastową naprawę ścieżek/linków po tej zmianie.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie wykonuj jeszcze tłumaczenia całej aplikacji na angielski.
+- Nie czyść jeszcze Firebase.
+- Nie usuwaj jeszcze Web Push.
+- Nie dodawaj jeszcze neutralnych makiet XLSX.
+- Nie wykonuj zmian niezwiązanych z tym etapem.
+- Nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+CEL ETAPU:
+Zmienić nazwy folderów i wybranych plików HTML na docelowe angielskie nazwy oraz poprawić wszystkie bezpośrednio wynikające z tego ścieżki, linki i odwołania, tak aby aplikacja nie miała połamanej nawigacji po samej zmianie nazw.
+
+KROK 1 — przygotowanie i inwentaryzacja
+
+1. Sprawdź aktualny stan repozytorium:
+   - `git status --short`
+   - lista plików/katalogów w repozytorium
+   - wyszukanie wszystkich wystąpień starych nazw:
+     - `GeneratorNPC`
+     - `GeneratorNazw`
+     - `Infoczytnik`
+     - `Kalkulator`
+     - `KalkulatorXP.html`
+     - `TworzeniePostaci.html`
+     - `Infoczytnik.html`
+
+2. Nie zmieniaj jeszcze logiki funkcjonalnej modułów. Ten etap ma dotyczyć nazw i ścieżek.
+
+3. Zanotuj w pamięci roboczej, które pliki trzeba poprawić po rename.
+
+KROK 2 — zmiana nazw folderów i plików
+
+Wykonaj następujące zmiany nazw:
+
+- `GeneratorNPC/` -> `NPCGenerator/`
+- `GeneratorNazw/` -> `NameGenerator/`
+- `Infoczytnik/` -> `DataSlate/`
+- `Kalkulator/` -> `Calculators/`
+
+Wykonaj także następujące zmiany nazw plików HTML:
+
+- `DataSlate/Infoczytnik.html` -> `DataSlate/DataSlate.html`
+- `Calculators/KalkulatorXP.html` -> `Calculators/XPCalculator.html`
+- `Calculators/TworzeniePostaci.html` -> `Calculators/CharacterCreation.html`
+
+Zasady:
+- Pliki `index.html` mają pozostać plikami wejściowymi katalogów.
+- Nie usuwaj jeszcze plików testowych, backupów, katalogów `Old`, draftów ani innych plików roboczych.
+- Jeżeli istnieją pliki testowe typu `Infoczytnik_test.html`, nie usuwaj ich w tym etapie. Możesz zostawić nazwę bez zmian albo przemianować tylko wtedy, gdy jest to konieczne do uniknięcia połamanych ścieżek. Jeżeli nie masz pewności, zostaw je i opisz to w `Release.md`.
+
+KROK 3 — naprawa ścieżek, linków i dokumentacja zmian
+
+Po zmianie nazw wykonaj globalne wyszukiwanie starych nazw i popraw wszystkie odwołania, które muszą zostać poprawione, aby aplikacja działała po nowych ścieżkach.
+
+Popraw w szczególności:
+
+1. `Main/index.html`
+   - linki do modułów:
+     - `NPCGenerator`
+     - `NameGenerator`
+     - `DataSlate`
+     - `Calculators`
+   - logikę dynamicznego linku DataSlate zależną od trybu admina, jeżeli występuje;
+   - widoczne nazwy modułów tylko wtedy, gdy są bezpośrednio powiązane ze zmianą ścieżek. Nie wykonuj jeszcze pełnego tłumaczenia interfejsu.
+
+2. Linki powrotu do `Main` w modułach:
+   - `Audio`
+   - `DataVault`
+   - `DiceRoller`
+   - `NPCGenerator`
+   - `NameGenerator`
+   - `DataSlate`
+   - `Calculators`
+
+3. Linki wewnętrzne w `DataSlate`
+   - wejście do panelu GM;
+   - wejście do ekranu gracza;
+   - odwołania do `DataSlate.html`;
+   - ścieżki do konfiguracji, assetów i danych, jeżeli zmiana katalogu je naruszyła.
+
+4. Linki wewnętrzne w `Calculators`
+   - link do `XPCalculator.html`;
+   - link do `CharacterCreation.html`;
+   - linki powrotu;
+   - ścieżki do instrukcji PDF, configów i wspólnych zasobów, jeżeli występują.
+
+5. Dokumentację i instrukcje konfiguracyjne tylko w zakresie nazw i ścieżek:
+   - `docs/README.md`
+   - `docs/Documentation.md`
+   - `config/FirebaseREADME.md`
+   - `shared/FirebaseREADME.md`
+   - inne pliki Markdown, jeżeli zawierają stare ścieżki, które po rename stały się błędne.
+
+6. Pliki konfiguracyjne i manifesty:
+   - sprawdź `manifest.webmanifest`;
+   - popraw tylko te ścieżki, które faktycznie odnoszą się do przemianowanych katalogów albo plików.
+
+7. Komentarze w kodzie:
+   - popraw tylko komentarze, które po zmianie nazw stały się mylące lub wskazują błędne ścieżki;
+   - nie wykonuj ogólnego porządkowania komentarzy.
+
+TESTY I KONTROLA PO ZMIANACH
+
+Po zmianach wykonaj statyczne testy:
+
+1. `git status --short`
+2. Globalne wyszukiwanie starych nazw:
+   - `GeneratorNPC`
+   - `GeneratorNazw`
+   - `Infoczytnik`
+   - `Kalkulator`
+   - `KalkulatorXP.html`
+   - `TworzeniePostaci.html`
+   - `Infoczytnik.html`
+
+3. Dla każdego pozostałego wystąpienia starej nazwy oceń:
+   - czy jest błędem i trzeba je poprawić;
+   - czy jest historycznym wpisem w `Analizy/Release.md`, którego nie wolno usuwać;
+   - czy jest celowym odniesieniem w dokumentacji historii zmian.
+
+4. Sprawdź, czy podstawowe pliki wejściowe istnieją pod nowymi ścieżkami:
+   - `Main/index.html`
+   - `Audio/index.html`
+   - `DataVault/index.html`
+   - `DiceRoller/index.html`
+   - `NPCGenerator/index.html`
+   - `NameGenerator/index.html`
+   - `DataSlate/index.html`
+   - `DataSlate/GM.html`
+   - `DataSlate/DataSlate.html`
+   - `Calculators/index.html`
+   - `Calculators/XPCalculator.html`
+   - `Calculators/CharacterCreation.html`
+
+5. Jeżeli środowisko pozwala, uruchom prosty lokalny serwer HTTP i sprawdź przynajmniej statycznie, czy `Main/index.html` prowadzi do nowych ścieżek. Jeżeli nie da się uruchomić przeglądarkowego testu, opisz to w `Release.md`.
+
+AKTUALIZACJA `Analizy/Release.md`
+
+Na końcu dopisz do `Analizy/Release.md` nową sekcję:
+
+- data;
+- pełny prompt użytkownika;
+- zakres prac;
+- lista wykonanych rename;
+- lista plików, w których poprawiono ścieżki;
+- pozostałe wystąpienia starych nazw i uzasadnienie, dlaczego zostały albo nie zostały;
+- wykonane testy;
+- ryzyka i następne kroki.
+
+W sekcji `Release.md` wyraźnie zaznacz, że:
+- nie wykonywano jeszcze pełnego tłumaczenia UI;
+- nie czyszczono jeszcze Firebase;
+- nie usuwano jeszcze Web Push;
+- nie dodawano jeszcze neutralnych makiet danych;
+- ten etap dotyczył wyłącznie zmiany nazw i naprawy ścieżek po zmianie nazw.
+
+WYNIK KOŃCOWY
+
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- jakie foldery i pliki przemianowano;
+- jakie główne pliki zaktualizowano;
+- czy pozostały jakieś stare nazwy i dlaczego;
+- czy testy statyczne przeszły;
+- jakie są proponowane następne kroki.
+```
+
+### Zakres prac
+
+Wykonano wyłącznie pierwszy etap przygotowania Release: inwentaryzację, zmianę nazw czterech katalogów modułów, zmianę nazw trzech produkcyjnych plików HTML i naprawę bezpośrednio wynikających z tego ścieżek, linków, komentarzy ścieżkowych oraz instrukcji konfiguracyjnych. Przed rozpoczęciem odczytano aktualne `AGENTS.md` i `Analizy/Release.md`, sprawdzono czysty stan Git oraz wyszukano stare nazwy.
+
+Nie wykonywano jeszcze pełnego tłumaczenia UI. Nie czyszczono jeszcze Firebase. Nie usuwano jeszcze Web Push. Nie dodawano jeszcze neutralnych makiet XLSX ani innych makiet danych. Ten etap dotyczył wyłącznie zmiany nazw i naprawy ścieżek po zmianie nazw.
+
+### Ustalenia i wnioski
+
+1. Przed zmianami drzewo robocze było czyste.
+2. W repozytorium znajduje się tylko główny `AGENTS.md`; nie zmodyfikowano go.
+3. W `Main/index.html` istniała dynamiczna logika wyboru linku DataSlate zależna od trybu administratora. Zaktualizowano oba warianty: panel modułu oraz produkcyjny ekran gracza.
+4. Testowe i backupowe pliki DataSlate pozostawiono w repozytorium zgodnie z poleceniem. Zachowano ich historyczne nazwy plików, np. `DataSlate/Infoczytnik_test.html` i `DataSlate/Infoczytnik_backup.html`, ponieważ ich zmiana nie była wymagana do naprawienia produkcyjnej nawigacji i mogłaby niepotrzebnie rozszerzyć zakres etapu.
+5. Nie znaleziono starych bezpośrednich ścieżek katalogowych ani starych produkcyjnych nazw plików HTML poza nieedytowalnym `AGENTS.md` i append-only dziennikiem `Analizy/Release.md`.
+6. Pozostałe wystąpienia słów `Infoczytnik` i `Kalkulator` poza `AGENTS.md` oraz `Analizy/Release.md` są celowe: dotyczą zachowanych nazw plików testowych i backupowych, historycznych opisów zmian, polskich etykiet UI pozostawionych do późniejszego etapu tłumaczenia albo polskich nazw funkcjonalnych takich jak `Kalkulator PD`. Nie są połamanymi ścieżkami produkcyjnymi.
+
+### Decyzje i wymagania
+
+- Docelowe katalogi publiczne to `NPCGenerator/`, `NameGenerator/`, `DataSlate/` i `Calculators/`.
+- Produkcyjny ekran gracza DataSlate ma nazwę `DataSlate/DataSlate.html`.
+- Produkcyjne pliki Calculators mają nazwy `Calculators/XPCalculator.html` i `Calculators/CharacterCreation.html`.
+- Pliki `index.html` pozostały plikami wejściowymi swoich katalogów.
+- Zachowane pliki `_test`, `_backup`, `Old`, `Draft` i inne pliki robocze nie zostały usunięte ani masowo przemianowane.
+
+### Zmienione pliki
+
+#### Wykonane rename katalogów i plików produkcyjnych
+
+| Stan przed zmianą | Stan po zmianie |
+| --- | --- |
+| `GeneratorNPC/` | `NPCGenerator/` |
+| `GeneratorNazw/` | `NameGenerator/` |
+| `Infoczytnik/` | `DataSlate/` |
+| `Kalkulator/` | `Calculators/` |
+| `Infoczytnik/Infoczytnik.html` | `DataSlate/DataSlate.html` |
+| `Kalkulator/KalkulatorXP.html` | `Calculators/XPCalculator.html` |
+| `Kalkulator/TworzeniePostaci.html` | `Calculators/CharacterCreation.html` |
+
+#### Pliki z poprawionymi odwołaniami lub opisami ścieżek
+
+- `Main/index.html`, `Main/docs/README.md`, `Main/docs/Documentation.md`;
+- `DataSlate/index.html`, `DataSlate/DataSlate.html`, `DataSlate/GM.html`, `DataSlate/config/firebase-config.js`, `DataSlate/config/FirebaseREADME.md`, `DataSlate/docs/README.md`, `DataSlate/docs/Documentation.md`, `DataSlate/assets/data/NiebieskaRamka.md` oraz zachowane pliki testowe i backupowe, jeżeli zawierały ścieżki katalogowe;
+- `Calculators/index.html`, `Calculators/XPCalculator.html`, `Calculators/CharacterCreation.html`, `Calculators/config/firebase-config.js`, `Calculators/config/FirebaseREADME.md`, `Calculators/docs/README.md`, `Calculators/docs/Documentation.md`;
+- `NPCGenerator/index.html`, `NPCGenerator/config/FirebaseREADME.md`, `NPCGenerator/docs/README.md`, `NPCGenerator/docs/Documentation.md`;
+- `NameGenerator/docs/README.md`, `NameGenerator/docs/Documentation.md`;
+- `DataVault/docs/README.md`, `DataVault/docs/Documentation.md`;
+- `Audio/docs/Documentation.md`;
+- `shared/FirebaseREADME.md`, `shared/access-gate.css`, `shared/firebase-data-loader.js`;
+- `DetaleLayout.md` i `manifest.webmanifest`.
+
+### Szczegóły zmian w kodzie
+
+- W `Main/index.html` zaktualizowano linki modułów do nowych katalogów, produkcyjny link DataSlate do `../DataSlate/DataSlate.html` oraz wariant administratora do `../DataSlate/index.html`. Widoczne etykiety `DataSlate` i `Calculators` zmieniono tylko dlatego, że są bezpośrednio związane z rename modułów.
+- W `DataSlate/index.html` produkcyjny link ekranu gracza prowadzi teraz do `./DataSlate.html`. Zachowano linki do `GM_test.html` i `Infoczytnik_test.html`, ponieważ pliki testowe nie zostały przemianowane.
+- W `Calculators/index.html` linki prowadzą do `XPCalculator.html` i `CharacterCreation.html`.
+- We wspólnej dokumentacji, dokumentacji modułów, komentarzach konfiguracji i manifeście poprawiono wyłącznie referencje ścieżkowe lub nazwy modułów bezpośrednio wynikające z rename.
+- Nie zmieniano logiki Firebase, logiki Web Push ani logiki funkcjonalnej modułów.
+
+### Pozostałe wystąpienia starych nazw
+
+- `AGENTS.md` zawiera tabelę historycznego planu rename i pozostaje niezmieniony zgodnie z zakazem modyfikacji.
+- Starsze sekcje `Analizy/Release.md` pozostają niezmienione jako append-only historia decyzji.
+- `DataSlate/Infoczytnik_test.html`, `DataSlate/Infoczytnik_backup.html` oraz referencje do tych plików pozostały celowo, ponieważ użytkownik nakazał nie usuwać plików testowych i backupowych oraz pozwolił zachować ich nazwy, jeżeli rename nie jest konieczny do naprawy ścieżek.
+- Pozostałe polskie etykiety i historyczne opisy `Infoczytnik` / `Kalkulator` są poza zakresem etapu pełnego tłumaczenia UI i nie są błędnymi ścieżkami.
+
+### Testy
+
+Wykonano następujące sprawdzenia:
+
+- `git status --short` przed zmianami — wynik: czyste drzewo robocze;
+- `find . -maxdepth 2 -mindepth 1 -print | sort` — wynik: wykonano inwentaryzację plików i katalogów;
+- `git grep -nE 'GeneratorNPC|GeneratorNazw|Infoczytnik|KalkulatorXP\\.html|TworzeniePostaci\\.html|Infoczytnik\\.html|Kalkulator' -- ':!Analizy/Release.md'` — wynik: zinwentaryzowano odwołania wymagające oceny;
+- sprawdzenie obecności 12 wymaganych plików wejściowych przez `test -f` — wynik: wszystkie istnieją pod docelowymi ścieżkami;
+- sprawdzenie braku czterech starych katalogów i obecności czterech nowych katalogów przez `test ! -e` / `test -d` — wynik: poprawny;
+- skrypt Python wykorzystujący `html.parser` — wynik: lokalne atrybuty `href` i `src` w 12 podstawowych plikach HTML wskazują na istniejące zasoby;
+- `git -c core.whitespace=cr-at-eol diff --check` — wynik: brak nowych błędów whitespace;
+- `python3 -m http.server 8765` oraz `curl` — wynik: HTTP 200 dla `Main/index.html`, nowych plików wejściowych `NPCGenerator`, `NameGenerator`, `DataSlate` i `Calculators`; treść `Main/index.html` pobrana przez HTTP zawiera nowe linki modułów i oba warianty dynamicznego linku DataSlate;
+- `rg -n --hidden --glob '!AGENTS.md' --glob '!Analizy/Release.md' 'GeneratorNPC/|GeneratorNazw/|Infoczytnik/|Kalkulator/|KalkulatorXP\\.html|TworzeniePostaci\\.html|Infoczytnik\\.html' .` — wynik: brak starych bezpośrednich ścieżek poza nieedytowalnym `AGENTS.md` i append-only dziennikiem Release.
+
+Nie wykonano interaktywnego testu w przeglądarce, ponieważ etap ograniczono do statycznej walidacji ścieżek i lokalnego testu HTTP. Pełne testy UI i integracyjne należy wykonać w kolejnych etapach po zmianach językowych, Firebase i Web Push.
+
+### Ryzyka i następne kroki
+
+1. Zachowane pliki testowe i backupowe DataSlate nadal używają nazw `Infoczytnik_*`. Ich finalny status należy rozstrzygnąć osobno przed publikacją publicznej paczki.
+2. Polskie etykiety UI nadal występują w aplikacji zgodnie z zakresem tego etapu. Następny etap językowy powinien wprowadzić angielski interfejs i domyślny język angielski tam, gdzie mechanizm PL/EN już istnieje.
+3. Prywatne konfiguracje Firebase pozostają do zastąpienia angielskimi placeholderami w osobnym etapie.
+4. Web Push pozostaje do usunięcia w osobnym etapie bez uszkodzenia komunikacji Firestore DataSlate.
+5. Neutralne arkusze XLSX pozostają do dostarczenia i walidacji w osobnym etapie.
+6. Przed publicznym Release należy wrócić do decyzji dotyczących plików roboczych, backupów, draftów, ikon i finalnej nazwy aplikacji w manifeście.

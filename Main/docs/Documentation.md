@@ -119,7 +119,7 @@ Deklaracje z `:root`:
 Inicjalizacja skryptu:
 1. Wylicza `isAdmin` z query string (`admin=1`).
 2. Usuwa elementy `data-admin-only="true"` dla użytkownika końcowego.
-3. Przełącza link Infoczytnika (`Infoczytnik.html` vs panel modułu).
+3. Przełącza link Infoczytnika (`DataSlate.html` vs panel modułu).
 4. Przełącza link DataVault (`?admin=1` tylko dla admina).
 5. Ładuje dynamiczne linki Mapa/Obrazki z pliku markdown.
 6. Pozostawia interfejs bez dodatkowych akcji asynchronicznych poza dynamicznym ładowaniem linków.

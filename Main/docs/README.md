@@ -18,7 +18,7 @@ Moduł **Main** to ekran startowy całego pakietu Wrath & Glory. Z tego miejsca 
 - Linki do modułów otwierają wersje rozszerzone tam, gdzie to obsługiwane.
 
 ### Co robi każdy przycisk
-- **Infoczytnik** – przejście do modułu komunikatów.
+- **DataSlate** – przejście do modułu komunikatów.
 - **Skarbiec Danych** – otwiera DataVault.
 - **Generator Nazw** (admin) – uruchamia generator nazw.
 - **Generator NPC** (admin) – uruchamia generator kart NPC.
@@ -91,7 +91,7 @@ The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open ot
 - Where supported, links open extended/admin-capable module entry points.
 
 ### What each button does
-- **Infoczytnik** – opens message display module.
+- **DataSlate** – opens message display module.
 - **DataVault** – opens knowledge/data browser.
 - **Name Generator** (admin) – opens naming tool.
 - **NPC Generator** (admin) – opens NPC card builder.
