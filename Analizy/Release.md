@@ -3613,3 +3613,88 @@ Po akceptacji właściciela wykonać osobny, mały etap czyszczenia:
 - Ponowne `git status --short`: PASS — zmieniony jest wyłącznie `Analizy/Release.md`.
 - Ponowne `git diff --check`: PASS — brak błędów whitespace po dopisaniu raportu.
 - Ponowne wymagane wyszukiwania `rg` po dopisaniu raportu: PASS po klasyfikacji — nowe trafienia w `Analizy/Release.md` są częścią niniejszego dziennika audytu, nie aktywnymi zależnościami aplikacji.
+
+## Aktualizacja — 2026-05-30 — usunięcie zaakceptowanych materiałów roboczych i zachowanie pozostałych plików
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Poniższe pliki są do usunięcia:\nDoZrobienia.md\nIkonaPowiadomien.png\nDataSlate/Draft/Loga/*.png (14 plików)\nKolumny.md\nCalculators/HowToUse/draft.docx\nDataSlate/Draft/old_Inquisition.png\nDataSlate/Draft/old_Mechanicus.png\nDataSlate/docs/Prefixy_i_Suffixy.txt\nCalculators/Old/Kalkulator_Org.html\nCalculators/Old/HowToUse_Org.pdf\n\n\nZgodnie z opisem z Release.md zaktualizuj dokumentację DataVault/docs/Documentation.md a następnie usuń \nDetaleLayout.md\n\nPozostałe pliki z Tabela rekomendacji plików uznajemy jako konieczne do zatrzymania.\n\nPo wykonaniu zadania zaktualizuj plik Release.md
+```
+
+### Zakres prac
+
+- Zweryfikowano czysty stan repozytorium oraz ponownie przeczytano bieżący dziennik Release i obowiązujący `AGENTS.md` przed rozpoczęciem zmian.
+- Usunięto zaakceptowany pakiet **24 śledzonych plików**: 16 plików z wcześniejszej listy kandydatów do usunięcia oraz 8 plików z wcześniejszej listy kandydatów do archiwizacji.
+- Przed usunięciem `DetaleLayout.md` zaktualizowano aktywne odwołanie w `DataVault/docs/Documentation.md`.
+- Usunięto nieaktualny wpis katalogu `Old/` z drzewa referencyjnego w `Calculators/docs/Documentation.md`, ponieważ zaakceptowane pliki `Calculators/Old/*` nie są już częścią publicznej paczki.
+- Wykonano kontrolę nieaktualnych odwołań, zachowania produkcyjnych logo DataSlate oraz poprawności diffu.
+
+### Ustalenia i wnioski
+
+- Wcześniejsza tabela rekomendacji wymieniała dokładnie zaakceptowany obecnie pakiet 16 kandydatów do usunięcia oraz 8 kandydatów do archiwizacji. Użytkownik zdecydował o usunięciu wszystkich tych 24 plików z repozytorium zamiast przenoszenia materiałów historycznych do archiwum w publicznej paczce.
+- `DetaleLayout.md` nie był zależnością runtime. Jego jedyne aktywne odwołanie poza historią `Analizy/Release.md` znajdowało się w `DataVault/docs/Documentation.md`.
+- Dokumentacja techniczna DataVault zawiera już opis fontów, kolorów, wyjątków formatowania, clamp i szerokości kolumn. Po usunięciu osobnego dziennika `DetaleLayout.md` dokumentacja DataVault została jawnie oznaczona jako samowystarczalne źródło tych informacji.
+- Wszystkie 14 usuniętych kopii `DataSlate/Draft/Loga/*.png` pozostaje reprezentowanych przez zachowane produkcyjne assety w `DataSlate/assets/logos/`.
+- Po usunięciach wyszukiwanie nie wykazało aktywnych odwołań poza historycznym dziennikiem `Analizy/Release.md` do usuniętych nazw i ścieżek.
+
+### Decyzje i wymagania
+
+- Usunąć z publicznego repozytorium wskazane przez użytkownika pliki robocze, drafty, starsze warianty, nadmiarowe kopie i dwa wcześniejsze materiały Calculators.
+- Usunąć `DetaleLayout.md` dopiero po aktualizacji aktywnej dokumentacji DataVault.
+- Wszystkie **pozostałe** pliki wymienione we wcześniejszej „Tabeli rekomendacji plików” uznać za konieczne do zatrzymania. Nie należy usuwać ani archiwizować kolejnych pozycji z tej tabeli bez nowej, wyraźnej decyzji właściciela.
+- Produkcyjne logo DataSlate w `DataSlate/assets/logos/`, zachowane materiały pomocnicze DataSlate, pliki przykładowe DataVault, manifest Audio i pozostałe wcześniej sklasyfikowane pliki zostają w repozytorium.
+
+### Zmienione pliki
+
+| Plik lub grupa plików | Opis zmiany |
+| --- | --- |
+| `DataVault/docs/Documentation.md` | Zastąpiono aktywne odwołanie do usuniętego `DetaleLayout.md` informacją, że bieżący dokument jest samowystarczalnym źródłem opisu layoutu 1:1. |
+| `Calculators/docs/Documentation.md` | Usunięto nieaktualną gałąź `Old/` z referencyjnego drzewa katalogów. |
+| `DoZrobienia.md` | Usunięto zaakceptowany plik roboczy. |
+| `IkonaPowiadomien.png` | Usunięto zaakceptowany nieużywany asset. |
+| `Kolumny.md` | Usunięto zaakceptowany materiał roboczy. |
+| `DetaleLayout.md` | Usunięto historyczno-techniczny dziennik layoutu po przeniesieniu aktywnej roli dokumentacyjnej do dokumentacji DataVault. |
+| `Calculators/HowToUse/draft.docx` | Usunięto draft instrukcji. |
+| `Calculators/Old/HowToUse_Org.pdf` | Usunięto starszą instrukcję Calculators. |
+| `Calculators/Old/Kalkulator_Org.html` | Usunięto starszy plik HTML Calculators. |
+| `DataSlate/Draft/Loga/*.png` | Usunięto 14 nadmiarowych kopii PNG; produkcyjne odpowiedniki pozostają w `DataSlate/assets/logos/`. |
+| `DataSlate/Draft/old_Inquisition.png` | Usunięto starszy wariant assetu. |
+| `DataSlate/Draft/old_Mechanicus.png` | Usunięto starszy wariant assetu. |
+| `DataSlate/docs/Prefixy_i_Suffixy.txt` | Usunięto zaakceptowany materiał pomocniczy. |
+| `Analizy/Release.md` | Dopisano niniejszą sekcję decyzji, implementacji i testów. |
+
+### Szczegóły zmian w kodzie i dokumentacji
+
+#### `DataVault/docs/Documentation.md`
+
+- **Stan przed zmianą:** dokument wskazywał `DetaleLayout.md` w katalogu głównym jako główny dokument opisujący fonty, kolory, wyjątki formatowania, clamp i szerokości kolumn 1:1.
+- **Stan po zmianie:** dokument wskazuje sam siebie jako główne, samowystarczalne źródło tego opisu.
+- **Powód:** użytkownik zaakceptował usunięcie `DetaleLayout.md`; nie wolno było pozostawić aktywnego odwołania do nieistniejącego pliku.
+
+#### `Calculators/docs/Documentation.md`
+
+- **Stan przed zmianą:** referencyjne drzewo katalogów dokumentowało folder `Old/` oraz pliki `HowToUse_Org.pdf` i `Kalkulator_Org.html`.
+- **Stan po zmianie:** gałąź `Old/` została usunięta z drzewa.
+- **Powód:** użytkownik zaakceptował usunięcie obu plików; dokumentacja publiczna ma opisywać aktualny stan paczki.
+
+#### Usunięte pliki
+
+- Pliki usunięto bez zmian w logice runtime aplikacji.
+- Nie usunięto produkcyjnych odpowiedników logo DataSlate z `DataSlate/assets/logos/`.
+- Nie usunięto żadnych innych plików z wcześniejszej tabeli rekomendacji poza pozycjami jawnie wymienionymi przez użytkownika.
+
+### Testy
+
+- `git status --short` przed zmianami: PASS — repozytorium było czyste.
+- `git ls-files -- DoZrobienia.md IkonaPowiadomien.png Kolumny.md DetaleLayout.md Calculators/HowToUse/draft.docx DataSlate/Draft/old_Inquisition.png DataSlate/Draft/old_Mechanicus.png DataSlate/docs/Prefixy_i_Suffixy.txt Calculators/Old/Kalkulator_Org.html Calculators/Old/HowToUse_Org.pdf 'DataSlate/Draft/Loga/*.png'`: PASS — potwierdzono oczekiwany pakiet **24 śledzonych plików** przed usunięciem, w tym 14 plików `DataSlate/Draft/Loga/*.png`.
+- Kontrola `test ! -e` dla wskazanych plików oraz `find DataSlate/Draft/Loga -maxdepth 1 -type f -name '*.png'`: PASS — wszystkie zaakceptowane pliki są nieobecne w drzewie roboczym.
+- `rg -n 'DetaleLayout\\.md|DoZrobienia\\.md|IkonaPowiadomien\\.png|Kolumny\\.md|draft\\.docx|HowToUse_Org\\.pdf|Kalkulator_Org\\.html|Prefixy_i_Suffixy\\.txt|DataSlate/Draft/Loga/|old_Inquisition\\.png|old_Mechanicus\\.png' . --glob '!Analizy/Release.md' || true`: PASS — brak aktywnych odwołań poza historycznym dziennikiem Release.
+- `test "$(find DataSlate/assets/logos -maxdepth 1 -type f -name '*.png' | wc -l)" -ge 14`: PASS — zachowano 14 produkcyjnych plików PNG logo DataSlate.
+- `git diff --check`: PASS — brak błędów whitespace.
+
+### Ryzyka i następne kroki
+
+- Historyczne sekcje `Analizy/Release.md` nadal wymieniają usunięte pliki. Jest to celowe: zgodnie z zasadą dziennika Release starsze wpisy pozostają niezmienione, a niniejsza datowana sekcja rejestruje późniejszą decyzję właściciela.
+- `DataVault/docs/Documentation.md` nadal zawiera obszerną polską część techniczną po angielskim skrócie. Nie zmieniano jej w ramach tego zadania, ponieważ zakres obejmował usunięcie nieaktualnego odwołania do `DetaleLayout.md`, a nie pełne tłumaczenie dokumentacji technicznej.
+- Pozostałych plików z wcześniejszej tabeli rekomendacji nie należy usuwać bez nowej decyzji właściciela.
