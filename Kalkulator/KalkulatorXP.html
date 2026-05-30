@@ -1,0 +1,383 @@
+<!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
+<!doctype html>
+<html lang="pl">
+<!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator PD</title>
+  <link rel="stylesheet" href="kalkulatorxp.css">
+</head>
+<!-- Główna sekcja widoczna dla użytkownika / Main section visible to the user -->
+<body>
+  <div class="app">
+    <!-- Nagłówek nawigacyjny lub informacyjny / Navigation or information header -->
+<header class="topbar">
+      <div class="brand">
+        <div class="sigil">⟦⟧</div>
+        <div>
+          <div class="title" id="pageTitle">Kalkulator PD</div>
+        </div>
+      </div>
+      <div class="actions">
+        <div class="language-switcher">
+          <select id="languageSelect" aria-label="Wersja językowa">
+            <option value="pl">Polski</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <a class="btn secondary" id="btnMainPage" href="../Main/index.html">Strona Główna</a>
+        <button class="btn secondary" id="btnReset" title="Ustaw wszystkie pola na 0">Resetuj wartości</button>
+      </div>
+    </header>
+
+    <!-- Główna zawartość modułu / Main module content -->
+<main class="main calculator">
+      <aside class="panel">
+        <div class="panelHeader">
+          <span class="caret">▸</span><span class="panelTitle" id="instructionsTitle">INSTRUKCJE</span>
+        </div>
+        <div class="panelBody">
+          <div class="hint">
+            <div id="hintLine1">▸ Wprowadź aktualną i docelową wartość dla każdej pozycji.</div>
+            <div id="hintLine2">▸ Suma PD aktualizuje się automatycznie przy zmianach.</div>
+            <div id="hintLine3">▸ Przycisk <b>Resetuj wartości</b> czyści wszystkie pola.</div>
+          </div>
+          <div class="totalBox">
+            <div class="metricLabel" id="totalLabel">Całkowity koszt PD</div>
+            <div class="metricValue" id="totalXp">0</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Wydzielona sekcja funkcjonalna / Dedicated functional section -->
+<section class="workspace">
+        <!-- Sekcja nawigacji i przełączania widoków / Navigation and view-switching section -->
+<nav class="tabs"><div class="tab active" id="tabsTitle">Obliczenia PD</div></nav>
+        <div class="tableWrap">
+          <div class="tableFrame">
+            <div class="tableViewport">
+              <div class="calcGrid">
+                <section class="calcCard">
+                  <header class="cardHeader" id="attributesTitle">Atrybuty</header>
+                  <table class="dataTable" id="attributesTable">
+                    <thead>
+                      <tr>
+                        <th class="currentHeader">Aktualna wartość</th>
+                        <th class="targetHeader">Docelowa wartość</th>
+                        <th class="costHeader">Koszt PD</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="12" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="12" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="12" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="12" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="12" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="12" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="12" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="12" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </section>
+
+                <section class="calcCard">
+                  <header class="cardHeader" id="skillsTitle">Umiejętności</header>
+                  <table class="dataTable" id="skillsTable">
+                    <thead>
+                      <tr>
+                        <th class="currentHeader">Aktualna wartość</th>
+                        <th class="targetHeader">Docelowa wartość</th>
+                        <th class="costHeader">Koszt PD</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="8" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="8" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="8" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="8" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="8" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="8" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                      <tr>
+                        <td><input type="number" class="input current" min="0" max="8" step="1" value="0"></td>
+                        <td><input type="number" class="input target" min="0" max="8" step="1" value="0"></td>
+                        <td class="cost num">0</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </section>
+
+                <section class="calcCard referenceCard">
+                  <header class="cardHeader" id="maxAttributesTitle">Maksymalne wartości atrybutów</header>
+                  <div class="referenceTableWrap">
+                    <table class="dataTable referenceTable" id="maxAttributesTable"></table>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Skrypt odpowiedzialny za interakcję strony / Script responsible for page interactions -->
+<script>
+    const attributeMaximumRows = [
+      { race: "race_1", values: [8, 8, 8, 8, 8, 8, 8, 8] },
+      { race: "race_2", values: [12, 12, 7, 7, 8, 7, 7, 7] },
+      { race: "race_3", values: [8, 7, 12, 12, 12, 10, 6, 10] },
+      { race: "race_4", values: [10, 10, 9, 9, 10, 10, 8, 9] },
+      { race: "race_5", values: [12, 12, 9, 9, 10, 10, 8, 9] },
+      { race: "race_6", values: [12, 12, 7, 4, 8, 1, 4, 8] },
+      { race: "race_7", values: [6, 6, 10, 10, 8, 8, 10, 7] },
+      { race: "race_8", values: [12, 12, 12, 12, 10, 6, 6, 10] },
+      { race: "race_9", values: [8, 8, 12, 12, 10, 10, 6, 10] },
+      { race: "race_10", values: [12, 12, 8, 8, 12, 10, 4, 8] }
+    ];
+
+    const attributeKeys = [
+      "attribute_1",
+      "attribute_2",
+      "attribute_3",
+      "attribute_4",
+      "attribute_5",
+      "attribute_6",
+      "attribute_7",
+      "attribute_8"
+    ];
+
+        // --- MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT ---
+    // Przy dodawaniu nowego języka uzupełnij translations, nazwy ras/atrybutów i komunikaty walidacji.
+    // When adding a new language, complete translations, race/attribute names, and validation messages.
+const translations = {
+      pl: {
+        labels: {
+          languageSelect: "Wersja językowa",
+          pageTitle: "Kalkulator PD",
+          mainPageButton: "Strona Główna",
+          resetButton: "Resetuj wartości",
+          resetTitle: "Ustaw wszystkie pola na 0",
+          instructionsTitle: "INSTRUKCJE",
+          hintLine1: "▸ Wprowadź aktualną i docelową wartość dla każdej pozycji.",
+          hintLine2: "▸ Suma PD aktualizuje się automatycznie przy zmianach.",
+          hintLine3: "▸ Przycisk <b>Resetuj wartości</b> czyści wszystkie pola.",
+          totalLabel: "Całkowity koszt PD",
+          tabsTitle: "Obliczenia PD",
+          attributesTitle: "Atrybuty",
+          skillsTitle: "Umiejętności",
+          currentHeader: "Aktualna wartość",
+          targetHeader: "Docelowa wartość",
+          costHeader: "Koszt PD",
+          maxAttributesTitle: "Maksymalne wartości atrybutów"
+        },
+        races: {
+          race_1: "Człowiek",
+          race_2: "Ork",
+          race_3: "Aeldari",
+          race_4: "Adeptus Astartes",
+          race_5: "Primaris Astartes",
+          race_6: "Ogryn",
+          race_7: "Szczurak",
+          race_8: "Kroot",
+          race_9: "Drukhari",
+          race_10: "Konstrukt Upiorytowy"
+        },
+        attributes: {
+          attribute_1: "Siła",
+          attribute_2: "Wytrzymałość",
+          attribute_3: "Zręczność",
+          attribute_4: "Inicjatywa",
+          attribute_5: "Siła Woli",
+          attribute_6: "Inteligencja",
+          attribute_7: "Ogłada",
+          attribute_8: "Szybkość"
+        }
+      },
+      en: {
+        labels: {
+          languageSelect: "Language version",
+          pageTitle: "XP Calculator",
+          mainPageButton: "Main Page",
+          resetButton: "Reset values",
+          resetTitle: "Set all fields to 0",
+          instructionsTitle: "INSTRUCTIONS",
+          hintLine1: "▸ Enter the current and target value for each entry.",
+          hintLine2: "▸ The XP total updates automatically as you change values.",
+          hintLine3: "▸ The <b>Reset values</b> button clears all fields.",
+          totalLabel: "Total XP cost",
+          tabsTitle: "XP calculations",
+          attributesTitle: "Attributes",
+          skillsTitle: "Skills",
+          currentHeader: "Current value",
+          targetHeader: "Target value",
+          costHeader: "XP cost",
+          maxAttributesTitle: "Maximum attribute values"
+        },
+        races: {
+          race_1: "Human",
+          race_2: "Ork",
+          race_3: "Aeldari",
+          race_4: "Adeptus Astartes",
+          race_5: "Primaris Astartes",
+          race_6: "Ogryn",
+          race_7: "Ratling",
+          race_8: "Kroot",
+          race_9: "Drukhari",
+          race_10: "Wraith Construct"
+        },
+        attributes: {
+          attribute_1: "Strength",
+          attribute_2: "Toughness",
+          attribute_3: "Agility",
+          attribute_4: "Initiative",
+          attribute_5: "Willpower",
+          attribute_6: "Intellect",
+          attribute_7: "Fellowship",
+          attribute_8: "Speed"
+        }
+      }
+    };
+
+    let currentLanguage = "pl";
+
+    const languageSelect = document.getElementById("languageSelect");
+    const pageTitle = document.getElementById("pageTitle");
+    const instructionsTitle = document.getElementById("instructionsTitle");
+    const hintLine1 = document.getElementById("hintLine1");
+    const hintLine2 = document.getElementById("hintLine2");
+    const hintLine3 = document.getElementById("hintLine3");
+    const totalLabel = document.getElementById("totalLabel");
+    const tabsTitle = document.getElementById("tabsTitle");
+    const attributesTitle = document.getElementById("attributesTitle");
+    const skillsTitle = document.getElementById("skillsTitle");
+    const maxAttributesTitle = document.getElementById("maxAttributesTitle");
+    const mainPageButton = document.getElementById("btnMainPage");
+    const resetButton = document.getElementById("btnReset");
+
+    const attributeCosts = {
+      0: 0, 1: 0, 2: 4, 3: 10, 4: 20, 5: 35, 6: 55, 7: 80, 8: 110, 9: 145, 10: 185, 11: 230, 12: 280
+    };
+    const skillCosts = {
+      0: 0, 1: 2, 2: 6, 3: 12, 4: 20, 5: 30, 6: 42, 7: 56, 8: 72
+    };
+
+    function clampValue(value, min, max) {
+      let parsed = parseInt(value, 10);
+      if (isNaN(parsed)) parsed = min;
+      return Math.min(Math.max(parsed, min), max);
+    }
+
+    function calculateRowCost(current, target, costs) {
+      if (target <= current) return 0;
+      return (costs[target] || 0) - (costs[current] || 0);
+    }
+
+    function recalcTable(tableId, costs, min, max) {
+      let subtotal = 0;
+      document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
+        const currentInput = row.querySelector('.current');
+        const targetInput = row.querySelector('.target');
+
+        const currentVal = clampValue(currentInput.value, min, max);
+        const targetVal = clampValue(targetInput.value, min, max);
+
+        currentInput.value = currentVal;
+        targetInput.value = targetVal;
+
+        const rowCost = calculateRowCost(currentVal, targetVal, costs);
+        row.querySelector('.cost').textContent = rowCost;
+        subtotal += rowCost;
+      });
+      return subtotal;
+    }
+
+    function recalcAll() {
+      const attrCost = recalcTable('attributesTable', attributeCosts, 0, 12);
+      const skillCost = recalcTable('skillsTable', skillCosts, 0, 8);
+      document.getElementById('totalXp').textContent = attrCost + skillCost;
+    }
+
+    function renderMaxAttributesTable(lang) {
+      const t = translations[lang];
+      const table = document.getElementById("maxAttributesTable");
+
+      const headerCells = [
+        `<th></th>`,
+        ...attributeKeys.map((key) => `<th>${t.attributes[key]}</th>`)
+      ].join("");
+
+      const bodyRows = attributeMaximumRows.map((row) => {
+        const valueCells = row.values.map((value) => `<td>${value}</td>`).join("");
+        return `<tr><th>${t.races[row.race]}</th>${valueCells}</tr>`;
+      }).join("");
+
+      table.innerHTML = `<thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody>`;
+    }
+
+    function applyLanguage(lang) {
+      currentLanguage = lang;
+      const t = translations[lang].labels;
+      document.documentElement.lang = lang;
+      languageSelect.value = lang;
+      languageSelect.setAttribute("aria-label", t.languageSelect);
+      pageTitle.textContent = t.pageTitle;
+      mainPageButton.textContent = t.mainPageButton;
+      resetButton.textContent = t.resetButton;
+      resetButton.setAttribute("title", t.resetTitle);
+      instructionsTitle.textContent = t.instructionsTitle;
+      hintLine1.textContent = t.hintLine1;
+      hintLine2.textContent = t.hintLine2;
+      hintLine3.innerHTML = t.hintLine3;
+      totalLabel.textContent = t.totalLabel;
+      tabsTitle.textContent = t.tabsTitle;
+      attributesTitle.textContent = t.attributesTitle;
+      skillsTitle.textContent = t.skillsTitle;
+      maxAttributesTitle.textContent = t.maxAttributesTitle;
+      document.querySelectorAll(".currentHeader").forEach((el) => { el.textContent = t.currentHeader; });
+      document.querySelectorAll(".targetHeader").forEach((el) => { el.textContent = t.targetHeader; });
+      document.querySelectorAll(".costHeader").forEach((el) => { el.textContent = t.costHeader; });
+      renderMaxAttributesTable(lang);
+    }
+
+    document.querySelectorAll('#attributesTable input, #skillsTable input').forEach(input => {
+      input.addEventListener('input', recalcAll);
+      input.addEventListener('change', recalcAll);
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      document.querySelectorAll('#attributesTable input, #skillsTable input').forEach(input => {
+        input.value = 0;
+      });
+      recalcAll();
+    });
+
+    recalcAll();
+    applyLanguage(currentLanguage);
+    languageSelect.addEventListener("change", (event) => {
+      applyLanguage(event.target.value);
+    });
+  </script>
+</body>
+</html>

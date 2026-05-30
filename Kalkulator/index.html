@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
+<html lang="pl">
+<!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kozie Liczydła</title>
+  <!-- Lokalna sekcja stylów dla bieżącego widoku / Local style section for current view -->
+<style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, rgba(0, 255, 128, 0.06), transparent 25%),
+             radial-gradient(circle at 80% 0%, rgba(0, 255, 128, 0.08), transparent 35%),
+             #031605;
+      --panel: #000;
+      --border: #16c60c;
+      --text: #9cf09c;
+      --accent: #16c60c;
+      --accent-dark: #0d7a07;
+      --glow: 0 0 25px rgba(22, 198, 12, 0.45);
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Consolas", "Fira Code", "Source Code Pro", monospace;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    main {
+      width: min(860px, 100%);
+      background: var(--panel);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--glow);
+      padding: 32px 32px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .logo {
+      max-width: clamp(220px, 40vw, 320px);
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .actions {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px 20px;
+      align-items: start;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stack.right {
+      align-items: stretch;
+    }
+
+    .btn {
+      appearance: none;
+      border: 2px solid var(--border);
+      background: rgba(22, 198, 12, 0.08);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      text-decoration: none;
+      font-weight: 600;
+      text-align: center;
+      display: block;
+      width: 100%;
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(22, 198, 12, 0.3);
+      background: rgba(22, 198, 12, 0.14);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      background: rgba(22, 198, 12, 0.22);
+    }
+
+    .secretCtaWrap {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 4px;
+    }
+
+    .btn.secretCta {
+      width: auto;
+      border-color: #ff3b30;
+      background: rgba(255, 59, 48, 0.2);
+      color: #ffe5e3;
+      box-shadow: 0 0 14px rgba(255, 59, 48, 0.35);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 11px;
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .btn.secretCta:hover {
+      box-shadow: 0 0 16px rgba(255, 59, 48, 0.45);
+      background: rgba(255, 59, 48, 0.28);
+    }
+
+    .btn.secretCta:active {
+      background: rgba(255, 59, 48, 0.36);
+    }
+
+    .secret-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .secret-overlay.is-open {
+      display: flex;
+    }
+
+    .secret-dialog {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      background: #000;
+      box-shadow: var(--glow);
+      padding: 12px 12px 8px;
+      max-width: min(92vw, 640px);
+    }
+
+    .secret-dialog img {
+      display: block;
+      width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .secret-close {
+      margin: 10px 0 0 auto;
+      width: auto;
+    }
+
+    .note {
+      margin: 0;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<!-- Główna sekcja widoczna dla użytkownika / Main section visible to the user -->
+<body>
+  <!-- Główna zawartość modułu / Main module content -->
+<main>
+    <img
+      class="logo"
+      src="Skull.png"
+      alt="Logo Kozi przybornik"
+      width="1024"
+      height="1536"
+    >
+
+    <div class="actions">
+      <div class="stack">
+        <a class="btn" href="KalkulatorXP.html">Kalkulator PD</a>
+      </div>
+      <div class="stack right">
+        <a class="btn" href="TworzeniePostaci.html">Tworzenie Postaci</a>
+
+      </div>
+    </div>
+    <div class="secretCtaWrap">
+      <button class="btn secretCta" id="secretButton" type="button">Tajny przycisk!</button>
+    </div>
+  </main>
+
+  <div class="secret-overlay" id="secretOverlay" aria-hidden="true">
+    <div class="secret-dialog" role="dialog" aria-modal="true" aria-label="Tajny gif kozy">
+      <img src="Koza.gif" alt="Animowany gif kozy">
+      <button class="btn secretCta secret-close" id="secretCloseButton" type="button">Zamknij</button>
+    </div>
+  </div>
+
+  <!-- Skrypt odpowiedzialny za interakcję strony / Script responsible for page interactions -->
+<script>
+    const secretButton = document.getElementById('secretButton');
+    const secretOverlay = document.getElementById('secretOverlay');
+    const secretCloseButton = document.getElementById('secretCloseButton');
+
+    function toggleSecretOverlay(forceOpen) {
+      const shouldOpen = typeof forceOpen === 'boolean'
+        ? forceOpen
+        : !secretOverlay.classList.contains('is-open');
+
+      secretOverlay.classList.toggle('is-open', shouldOpen);
+      secretOverlay.setAttribute('aria-hidden', String(!shouldOpen));
+    }
+
+    secretButton.addEventListener('click', () => toggleSecretOverlay());
+    secretCloseButton.addEventListener('click', () => toggleSecretOverlay(false));
+
+    secretOverlay.addEventListener('click', (event) => {
+      if (event.target === secretOverlay) {
+        toggleSecretOverlay(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && secretOverlay.classList.contains('is-open')) {
+        toggleSecretOverlay(false);
+      }
+    });
+  </script>
+</body>
+</html>

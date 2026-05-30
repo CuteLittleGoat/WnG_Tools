@@ -1,0 +1,248 @@
+/* Plik stylów modułu: układ, kolory i responsywność interfejsu / Module stylesheet: layout, colors, and responsive interface behavior */
+:root{
+  --bg:#031605;
+  --bg-grad:radial-gradient(circle at 20% 20%, rgba(0, 255, 128, 0.06), transparent 25%),
+             radial-gradient(circle at 80% 0%, rgba(0, 255, 128, 0.08), transparent 35%),
+             #031605;
+  --panel:#000;
+  --panel2:#000;
+  --text:#9cf09c;
+  --text2:#4FAF4F;
+  --muted:#4a8b4a;
+  --code:#D2FAD2;
+  --red:#d74b4b;
+  --border:#16c60c;
+  --accent:#16c60c;
+  --accent-dark:#0d7a07;
+
+  --b:rgba(22,198,12,.35);
+  --b2:rgba(22,198,12,.2);
+  --div:rgba(22,198,12,.18);
+
+  --hbg:rgba(22,198,12,.06);
+  --zebra:rgba(22,198,12,.04);
+  --hover:rgba(22,198,12,.08);
+
+  --glow:0 0 25px rgba(22, 198, 12, 0.45);
+  --glowH:0 0 18px rgba(22, 198, 12, 0.35);
+
+  --header-row-height:36px;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:"Consolas","Fira Code","Source Code Pro",monospace;
+}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg-grad);
+  color:var(--text);
+  line-height:1.45;
+  letter-spacing:.03em;
+}
+
+.app{min-height:100%; display:flex; flex-direction:column}
+.topbar{
+  padding:14px 16px;
+  border-bottom:1px solid var(--div);
+  background:linear-gradient(180deg, rgba(22,198,12,.04), transparent);
+  display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+}
+.brand{display:flex; gap:12px; align-items:center}
+.sigil{
+  width:44px; height:44px; display:grid; place-items:center;
+  border:1px solid var(--b);
+  background:rgba(22,198,12,.04);
+  box-shadow: inset 0 0 0 1px rgba(22,198,12,.08);
+}
+.title{
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-weight:600;
+  text-shadow:var(--glowH);
+}
+.actions{display:flex; gap:10px; flex-wrap:wrap}
+.language-switcher select{
+  min-width:140px;
+  padding:8px 12px;
+  border-radius:6px;
+  border:1px solid var(--b);
+  background:#0b0b0b;
+  color:var(--text);
+}
+.language-switcher select:focus{outline:none; box-shadow:0 0 0 3px rgba(22,198,12,.18)}
+.btn{
+  border-radius:4px;
+  padding:10px 12px;
+  border:1px solid var(--b);
+  cursor:pointer;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  font-weight:600;
+  font-size:12px;
+  background:rgba(22,198,12,.08);
+  color:var(--text);
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn.primary{
+  background:var(--text);
+  color:var(--bg);
+  border-color:rgba(22,198,12,.35);
+}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.btn.secondary:hover{background:rgba(22,198,12,.12)}
+.btn.primary:hover{filter:brightness(1.08)}
+
+.main{flex:1; display:grid; grid-template-columns:360px 1fr; gap:12px; padding:12px}
+.panel{
+  border:1px solid var(--b);
+  background:var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(22,198,12,.08);
+  border-radius:4px;
+  overflow:hidden;
+}
+.panelHeader{
+  padding:10px 12px;
+  background:rgba(22,198,12,.04);
+  border-bottom:1px solid var(--div);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  display:flex; gap:10px; align-items:center;
+}
+.panelBody{padding:12px}
+.caret{color:rgba(22,198,12,.65)}
+.panelTitle{color:var(--code)}
+.hint{margin-top:4px; color:var(--text2); font-size:12px}
+.muted{color:var(--muted)}
+
+.totalBox{
+  margin-top:14px;
+  padding:12px;
+  border:1px solid var(--b);
+  background:rgba(22,198,12,.04);
+  border-radius:6px;
+  box-shadow:var(--glow);
+}
+.metricLabel{letter-spacing:.12em; text-transform:uppercase; font-size:12px; color:var(--code)}
+.metricValue{font-size:28px; margin-top:6px; color:var(--text)}
+
+.workspace{
+  border:1px solid var(--b);
+  background:var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(22,198,12,.08);
+  border-radius:4px;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.tabs{
+  display:flex; gap:6px; flex-wrap:wrap;
+  padding:10px 10px;
+  border-bottom:1px solid var(--div);
+  background:rgba(22,198,12,.03);
+}
+.tab{
+  padding:8px 10px;
+  border:1px solid var(--b2);
+  background:rgba(22,198,12,.05);
+  color:var(--text);
+  border-radius:4px;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.tab.active{
+  background:rgba(22,198,12,.10);
+  border-color:var(--b);
+  box-shadow:0 0 0 2px rgba(22,198,12,.10);
+}
+
+.tableWrap{flex:1; display:flex; flex-direction:column; position:relative; background:linear-gradient(180deg, rgba(22,198,12,.03), transparent)}
+.tableFrame{
+  flex:1;
+  border-top:1px solid var(--div);
+  border-bottom:1px solid var(--div);
+  background:var(--panel);
+  box-shadow: inset 0 0 0 1px rgba(22,198,12,.06);
+  border-radius:6px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.tableViewport{flex:1; overflow:auto; scrollbar-width:thin; padding:12px}
+.calcGrid{display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:12px}
+.calcCard{border:1px solid var(--b); background:var(--panel2); border-radius:6px; box-shadow:var(--glow); overflow:hidden}
+
+.referenceCard{
+  grid-column:1 / -1;
+}
+.referenceTableWrap{
+  padding:10px;
+}
+.referenceTable{
+  table-layout:fixed;
+}
+.referenceTable thead th,
+.referenceTable tbody th,
+.referenceTable td{
+  text-align:center;
+  vertical-align:middle;
+}
+.referenceTable tbody th{
+  color:var(--code);
+  font-weight:600;
+}
+.referenceTable tbody th:first-child{
+  text-align:left;
+}
+
+.cardHeader{
+  padding:10px 12px;
+  border-bottom:1px solid var(--div);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--code);
+}
+
+.dataTable{width:100%; border-collapse:collapse; font-size:13px; border:1px solid var(--div); box-shadow:var(--glow)}
+.dataTable thead th{
+  background:linear-gradient(180deg, rgba(22,198,12,.08), rgba(22,198,12,.03));
+  color:var(--code);
+  padding:10px 9px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  border-bottom:1px solid var(--div);
+}
+.dataTable tbody tr:nth-child(even){background:var(--zebra)}
+.dataTable tbody tr:hover{background:var(--hover)}
+.dataTable th,
+.dataTable td{
+  vertical-align:top;
+  padding:8px 9px;
+  border-bottom:1px solid var(--div);
+  text-align:center;
+}
+.dataTable td.num{text-align:right; color:var(--code)}
+.dataTable td.cost{
+  text-align:center;
+  vertical-align:middle;
+}
+
+.input{
+  width:100%;
+  padding:10px 10px;
+  border-radius:4px;
+  border:1px solid var(--b);
+  background:var(--bg);
+  color:var(--text);
+  outline:none;
+  text-align:center;
+}
+.input:focus{box-shadow:0 0 0 3px rgba(22,198,12,.18)}
+
+@media (max-width: 980px){
+  .main{grid-template-columns:1fr}
+}
