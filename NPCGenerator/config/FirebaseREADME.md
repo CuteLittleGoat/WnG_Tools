@@ -4,7 +4,9 @@
 Dokument zawiera pełny skrypt Node.js tworzący strukturę Firestore używaną przez ulubione profile NPC.
 
 ## 1) Konfiguracja `config/firebase-config.js`
-Skopiuj wartości web config z Firebase Console i wklej do `NPCGenerator/config/firebase-config.js` jako `window.firebaseConfig`.
+Utwórz własny projekt Firebase i bazę Firestore dla grupy. Skopiuj wartości web config z Firebase Console i zastąp nimi angielskie placeholdery w `NPCGenerator/config/firebase-config.js` jako `window.firebaseConfig`. Nie zapisuj haseł, tokenów ani plików kont usługowych w repozytorium.
+
+Ten plik obsługuje Firestore ulubionych NPC. Dane DataVault używane przez `NPCGenerator` są konfigurowane osobno we wspólnym pliku `shared/firebase-config.js`.
 
 ## 2) Struktura Firestore (drzewko + typy)
 ```text
@@ -85,7 +87,9 @@ node NPCGenerator/config/init-firestore-structure.js
 This file provides a full Node.js script that creates the Firestore structure for NPC favorites.
 
 ## 1) `config/firebase-config.js`
-Copy Firebase Web config values and paste into `NPCGenerator/config/firebase-config.js` as `window.firebaseConfig`.
+Create your own Firebase project and Firestore database for the group. Copy Firebase Web config values and replace the English placeholders in `NPCGenerator/config/firebase-config.js` as `window.firebaseConfig`. Do not store passwords, tokens, or service-account files in the repository.
+
+This file configures NPC favorites Firestore. DataVault data used by `NPCGenerator` is configured separately in the shared `shared/firebase-config.js` file.
 
 ## 2) Firestore structure (tree + types)
 ```text

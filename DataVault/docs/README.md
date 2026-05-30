@@ -62,7 +62,7 @@ Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) prze
 - Przycisk „WYLOGUJ / ZABLOKUJ DANE” nie jest dostępny w interfejsie.
 
 ## Wspólna sesja z NPCGenerator
-DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wh40k-data-slate-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
+DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wg-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
 
 ## Okno dostępu K.O.Z.A.
 Okno hasła używa narracji K.O.Z.A. i Ducha Maszyny:
@@ -157,7 +157,7 @@ Runtime is loaded from Firebase Realtime Database (`/datavault/live`) through Fi
 - The “LOG OUT / LOCK DATA” button is not available in the interface.
 
 ## Shared session with NPCGenerator
-DataVault and NPCGenerator use the same named private-data app (`wh40k-data-slate-private-data`), so sign-in in one module is reused in the other.
+DataVault and NPCGenerator use the same named private-data app (`wg-private-data`), so sign-in in one module is reused in the other.
 
 ## K.O.Z.A. access window
 The password gate uses K.O.Z.A./Machine Spirit wording:

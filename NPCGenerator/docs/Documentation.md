@@ -12,7 +12,7 @@ Aktualny przepływ danych wygląda następująco:
 
 1. Strona ładuje `../shared/firebase-config.js`.
 2. Strona ładuje `../shared/firebase-data-loader.js`.
-3. Loader inicjalizuje nazwaną aplikację Firebase `wh40k-data-slate-private-data`.
+3. Loader inicjalizuje nazwaną aplikację Firebase `wg-private-data`.
 4. Użytkownik przechodzi ekran dostępu K.O.Z.A. i loguje się hasłem technicznego konta Firebase Authentication.
 5. Po autoryzacji loader odczytuje Realtime Database ze ścieżki `datavault/live`.
 6. Jeżeli odczytany obiekt jest wrapperem `datavault-firebase-import-v1`, loader parsuje pole `dataJson`.
@@ -488,7 +488,7 @@ NPCGenerator uruchamia przepływ `startPrivateDataFlow()`, który:
 
 Moduł nie używa publicznego `data.json` ani bezpośredniego REST `fetch` do `/datavault/live.json`.
 
-`shared/firebase-data-loader.js` używa nazwanej aplikacji Firebase `wh40k-data-slate-private-data` dla Auth + RTDB (`/datavault/live`) i nie korzysta z beznazwowego `getApp()`.
+`shared/firebase-data-loader.js` używa nazwanej aplikacji Firebase `wg-private-data` dla Auth + RTDB (`/datavault/live`) i nie korzysta z beznazwowego `getApp()`.
 
 ### 16.2. Ulubione
 Ulubione są zapisywane w Firestore. Inicjalizacja ulubionych używa nazwanej aplikacji Firebase `generator-npc-favorites` przez helper `getOrCreateNamedFirebaseApp(name, config)`.

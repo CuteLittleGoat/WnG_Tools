@@ -46,7 +46,7 @@ Jeżeli kopiujesz aplikację dla innej grupy lub na inną domenę/serwer, **musi
 
 Kroki:
 1. Otwórz plik `Main/ZmienneHiperlacza.md`.
-2. Podmień adresy URL dla pozycji odpowiadających mapie i obrazkom na nowe adresy docelowe.
+2. Zastąp angielskie placeholdery `INSERT_YOUR_MAP_LINK` i `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` własnymi adresami URL przy kluczach `Map` i `Images`.
 3. Zapisz plik.
 4. Odśwież `Main/index.html` i kliknij **Mapa** oraz **Obrazki**.
 5. Sprawdź, czy otwierają właściwe strony dla nowej grupy.
@@ -117,7 +117,7 @@ If you copy the app for a different group or another domain/server, you **must u
 
 Steps:
 1. Open `Main/ZmienneHiperlacza.md`.
-2. Replace URLs for map/images entries with new target links.
+2. Replace the English `INSERT_YOUR_MAP_LINK` and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` placeholders with your own URLs under the `Map` and `Images` keys.
 3. Save the file.
 4. Refresh `Main/index.html` and click **Map** and **Images**.
 5. Confirm they open correct destinations for the new group.

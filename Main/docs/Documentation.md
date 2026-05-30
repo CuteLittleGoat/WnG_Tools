@@ -55,7 +55,7 @@ Na tej podstawie JS:
 
 ### 6.2. Wczytywanie konfiguracji linków
 - Parser czyta `Main/ZmienneHiperlacza.md`.
-- Wyszukuje wpisy `Mapa:` i `Obrazki:`.
+- Wyszukuje publiczne wpisy `Map:` i `Images:` oraz zachowuje zgodność wsteczną z `Mapa:` i `Obrazki:`.
 - Podmienia `href` odpowiednich przycisków.
 
 ## 7. Service Worker i PWA
@@ -133,7 +133,7 @@ Inicjalizacja skryptu:
 - **Node.js bootstrap:** nie dotyczy modułu Main (backend znajduje się w module Infoczytnik).
 
 ## 14. Znane ograniczenia
-- Linki zewnętrzne modułu Main są utrzymywane w pliku `Main/ZmienneHiperlacza.md` (Mapa/Obrazki); przy zmianie środowiska wdrożeniowego trzeba zaktualizować ich wartości.
+- Linki zewnętrzne modułu Main są utrzymywane w pliku `Main/ZmienneHiperlacza.md` (`Map`/`Images`); przy zmianie środowiska wdrożeniowego trzeba zaktualizować ich wartości.
 - Dotyczy to szczególnie wdrożeń dla nowej grupy użytkowników, gdzie adresy kanałów zewnętrznych różnią się od oryginału.
 ## 16. Konfiguracja multi-tenant
 - `Main/index.html` zawiera jawne komentarze `WAŻNE/IMPORTANT` przy:
@@ -141,7 +141,7 @@ Inicjalizacja skryptu:
   - przyciskach `Mapa` i `Obrazki`,
   - domyślnych wartościach obiektu `links`.
 - Przy wdrożeniu dla nowej grupy trzeba:
-  1. podmienić wpisy `Mapa:` i `Obrazki:` w `Main/ZmienneHiperlacza.md`,
+  1. zastąpić angielskie placeholdery we wpisach `Map:` i `Images:` w `Main/ZmienneHiperlacza.md`,
   2. zweryfikować wszystkie hiperłącza modułów (lokalne i zewnętrzne),
   3. potwierdzić działanie przy `admin=1` i bez parametru.
 

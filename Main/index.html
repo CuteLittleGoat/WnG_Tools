@@ -199,11 +199,13 @@
     const linkConfigPath = "ZmienneHiperlacza.md";
 
     const applyDynamicLinks = (links) => {
-      if (mapLink && links.mapa) {
-        mapLink.href = links.mapa;
+      const configuredMapLink = links.map || links.mapa;
+      const configuredImagesLink = links.images || links.obrazki;
+      if (mapLink && configuredMapLink) {
+        mapLink.href = configuredMapLink;
       }
-      if (imagesLink && links.obrazki) {
-        imagesLink.href = links.obrazki;
+      if (imagesLink && configuredImagesLink) {
+        imagesLink.href = configuredImagesLink;
       }
     };
 

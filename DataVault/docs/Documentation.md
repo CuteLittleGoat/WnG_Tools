@@ -1028,8 +1028,8 @@ Parser nadal generuje `data.json` oraz wrapper `firebase-import.json` (`schemaVe
 ## Named Firebase app for private data
 - Warstwa UI bramki dostępu (`#accessGate`) zawiera slot ikony `.accessGate__iconSlot` o stałym rozmiarze `72px × 72px` oraz obraz `.accessGate__icon` (`object-fit: contain`) z plikiem `../IkonaPowiadomien2.png`.
 - Cel techniczny: eliminacja CLS (layout shift) w karcie logowania zanim obraz ikony zostanie w pełni wyrenderowany.
-- Private loader (`shared/firebase-data-loader.js`) tworzy/odzyskuje wyłącznie nazwaną aplikację `wh40k-data-slate-private-data` (wyszukiwanie po `getApps().find(...)`).
-- Usunięto ryzykowny fallback `getApp()` bez nazwy, który mógł wskazać projekt favorites zamiast `wh40k-data-slate`.
+- Private loader (`shared/firebase-data-loader.js`) tworzy/odzyskuje wyłącznie nazwaną aplikację `wg-private-data` (wyszukiwanie po `getApps().find(...)`).
+- Usunięto ryzykowny fallback `getApp()` bez nazwy, który mógł wskazać projekt favorites zamiast `wg-private-data`.
 - Debug auth (`debugAuthState`) loguje teraz także `appName`, `projectId`, `databaseURL` (bez hasła i bez payloadu danych), co ułatwia diagnostykę konfliktów projektów Firebase.
 
 
