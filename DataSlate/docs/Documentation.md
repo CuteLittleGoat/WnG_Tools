@@ -5,16 +5,19 @@
 Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. DataSlate nadal używa Firestore do komunikacji panel GM → ekran gracza przez dokument `dataslate/current`. Zwykły ping i audio DataSlate pozostają częścią komunikacji Firestore oraz lokalnych assetów modułu, a nie Web Push.
 
 ## 1. Zakres modułu
-Moduł DataSlate składa się z dwóch ekranów roboczych:
-- `GM_test.html` — panel przygotowania i publikacji komunikatów.
-- `Infoczytnik_test.html` — ekran odczytu komunikatów dla graczy.
+Główną ścieżkę produkcyjnego uruchamiania DataSlate tworzą dwa ekrany:
+- `GM.html` — panel przygotowania i publikacji komunikatów.
+- `DataSlate.html` — ekran odczytu komunikatów dla graczy.
 
-Pliki produkcyjne (`GM.html`, `DataSlate.html`) są utrzymywane osobno i nie są edytowane automatycznie. Funkcjonalnie punktem rozwoju są pliki `_test`.
+Pliki testowe (`GM_test.html`, `Infoczytnik_test.html`) oraz backupowe (`GM_backup.html`, `Infoczytnik_backup.html`) celowo pozostają w wersji Release. Służą użytkownikom jako narzędzia pomocnicze do testowania własnych modyfikacji i jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną modułu. Funkcjonalnie punktem rozwoju pozostają pliki `_test`.
 
 ## 2. Struktura katalogów i odpowiedzialność plików
-- `index.html` — menu modułu.
-- `GM_test.html` — logika GM: edycja treści, import danych, podgląd tła, publikacja.
-- `Infoczytnik_test.html` — ekran odczytu publikowanych treści.
+- `index.html` — launcher modułu z linkami do widoków produkcyjnych i pomocniczych widoków testowych.
+- `GM.html` — produkcyjny panel GM.
+- `DataSlate.html` — produkcyjny ekran odczytu dla graczy.
+- `GM_test.html` — pomocnicza logika GM: edycja treści, import danych, podgląd tła, publikacja.
+- `Infoczytnik_test.html` — pomocniczy ekran odczytu publikowanych treści.
+- `GM_backup.html` i `Infoczytnik_backup.html` — zachowane pliki referencyjne dla użytkowników eksperymentujących z własnymi zmianami.
 - `assets/data/data.json` — lokalny snapshot treści (źródło dla importów/odczytu lokalnego).
 - `assets/data/DataSlate_manifest.xlsx` — arkusz źródłowy dla importu treści i układów.
 - `assets/backgrounds/*` — tła ekranów (DataSlate, Pergamin, WnG, Notatnik, Litannie itp.).

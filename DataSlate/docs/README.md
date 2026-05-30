@@ -8,10 +8,13 @@
 Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. Komunikaty GM → ekran gracza, zwykły ping oraz audio DataSlate pozostają częścią komunikacji Firestore i lokalnych assetów modułu.
 
 ### Co otworzyć podczas sesji
-1. Ekran graczy: `DataSlate/Infoczytnik_test.html`.
-2. Ekran prowadzącego: `DataSlate/GM_test.html`.
+1. Ekran graczy: `DataSlate/DataSlate.html`.
+2. Ekran prowadzącego: `DataSlate/GM.html`.
 
 > Najwygodniej uruchomić oba okna równocześnie (osobne urządzenia albo dwa monitory).
+
+### Pomocnicze pliki testowe i backupowe
+Pliki `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` pozostają w wersji Release celowo. Służą jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje oraz jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką uruchamiania DataSlate podczas sesji.
 
 ### Szybki start (pierwsza wiadomość)
 1. W panelu GM wybierz **Tło** i **Logo**.
@@ -98,10 +101,13 @@ Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYK�
 The Release version does not include Web Push and does not require push-notification configuration. GM → player screen messages, standard ping and DataSlate audio remain part of Firestore communication and local module assets.
 
 ### What to open during play
-1. Player screen: `DataSlate/Infoczytnik_test.html`.
-2. GM screen: `DataSlate/GM_test.html`.
+1. Player screen: `DataSlate/DataSlate.html`.
+2. GM screen: `DataSlate/GM.html`.
 
 > Best setup: both pages open at the same time (separate devices or dual monitor).
+
+### Supporting test and backup files
+The `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, and `Infoczytnik_backup.html` files intentionally remain in the Release. They are helper tools for users testing their own modifications and reference points for experiments. They are not the main DataSlate entry points for regular sessions.
 
 ### Quick start (first message)
 1. In GM panel choose **Background** and **Logo**.

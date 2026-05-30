@@ -2613,3 +2613,262 @@ W module `Main` zmieniono publiczną etykietę przycisku prowadzącego do zewnę
 ### Ryzyka i następne kroki
 
 - Klucz konfiguracyjny `Map:` oraz techniczny atrybut `data-map-link` celowo pozostają bez zmian dla zachowania kompatybilności i minimalnego zakresu modyfikacji. Jeżeli właściciel zdecyduje o pełnej migracji nazw technicznych na `VTT`, należy osobno rozszerzyć parser i zaktualizować konfigurację.
+
+## Aktualizacja — 2026-05-30 — zachowanie pomocniczych plików testowych i backupowych DataSlate
+
+### Oryginalny pełny prompt użytkownika
+
+Prompt został przesłany dwukrotnie w identycznym brzmieniu. Poniżej zapisano pełną treść jednego z dwóch identycznych bloków, bez skracania:
+
+```text
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj porządkowe domknięcie aktualnego etapu Release po zmianie wymagań dotyczących plików testowych i backupowych DataSlate.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Tym razem WOLNO zmodyfikować `AGENTS.md`, ponieważ użytkownik wyraźnie zmienił wymaganie projektowe i poprosił o zapisanie go w instrukcjach.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie usuwaj plików testowych i backupowych DataSlate.
+- Nie czyść teraz Firebase.
+- Nie zmieniaj teraz Web Push, chyba że znajdziesz martwą wzmiankę w dokumentacji związaną bezpośrednio z bieżącym porządkiem.
+- Nie dodawaj neutralnych makiet XLSX.
+- Nie tłumacz generowanych wyników `NameGenerator`.
+- Nie wykonuj dużego refaktoru.
+- Nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+NOWA DECYZJA WŁAŚCICIELA:
+Wymaganie dotyczące starych plików testowych i backupowych DataSlate ulega zmianie.
+
+Pliki testowe i backupowe w katalogu `DataSlate/` mają POZOSTAĆ w wersji Release. Mają służyć innym użytkownikom jako materiał do testowania własnych modyfikacji i jako punkt odniesienia przy eksperymentach.
+
+W szczególności NIE WOLNO usuwać:
+- `DataSlate/GM_test.html`
+- `DataSlate/Infoczytnik_test.html`
+- `DataSlate/GM_backup.html`
+- `DataSlate/Infoczytnik_backup.html`
+
+Jeżeli w dokumentacji lub `AGENTS.md` istnieją starsze zapisy mówiące, że te pliki mają zostać usunięte, należy je zmienić na nową decyzję: te pliki zostają w Release.
+
+CEL ETAPU:
+Domknąć porządek po ostatnich etapach bez usuwania plików testowych i backupowych DataSlate.
+
+Zakres:
+1. Zaktualizować `AGENTS.md`, żeby odzwierciedlał nowe wymaganie.
+2. Zaktualizować `Analizy/Release.md`, zapisując zmianę decyzji właściciela.
+3. Poprawić `DataSlate/index.html`, żeby nie wyglądał jak przypadkowa stara strona testowa, tylko jak świadomy launcher DataSlate.
+4. Zachować linki do wersji testowych, ale opisać je jako świadomie pozostawione narzędzia testowe.
+5. Usunąć lub poprawić stary, mylący adres projektu `WrathAndGlory`, jeżeli nadal występuje.
+6. Zaktualizować placeholder `INSERT_YOUR_MAP_LINK` na `INSERT_YOUR_VTT_LINK` w instrukcjach, jeżeli nadal występuje w aktualnych publicznych instrukcjach.
+
+SZCZEGÓŁOWE ZADANIA
+
+1. Aktualizacja `AGENTS.md`
+
+W `AGENTS.md` znajdź zapisy dotyczące plików testowych, backupowych, draftów lub czyszczenia DataSlate.
+
+Zmień wymaganie dla DataSlate tak, aby było jasne, że:
+
+- pliki testowe i backupowe DataSlate mają zostać w Release;
+- pełnią funkcję pomocniczą dla użytkowników, którzy będą testować własne modyfikacje;
+- nie należy ich usuwać w ramach finalnego czyszczenia publicznej paczki;
+- jeżeli wymagają opisu, należy je opisać w dokumentacji, zamiast usuwać;
+- nadal nie wolno traktować ich jako głównej ścieżki produkcyjnej aplikacji.
+
+Dodaj albo popraw sekcję tak, żeby wymieniała przynajmniej:
+
+- `DataSlate/GM_test.html`
+- `DataSlate/Infoczytnik_test.html`
+- `DataSlate/GM_backup.html`
+- `DataSlate/Infoczytnik_backup.html`
+
+Usuń lub zmień wcześniejsze sformułowania typu:
+- „backupy i testowe pliki HTML nie powinny trafić do finalnej publicznej paczki”
+- „stare pliki testowe i backupowe DataSlate są przeznaczone do skasowania”
+- „usunąć zinwentaryzowane stare pliki DataSlate”
+
+Jeżeli takie sformułowania są historycznym wpisem w `Analizy/Release.md`, nie usuwaj ich. W `Release.md` trzeba dopisać nową sekcję, że decyzja została zmieniona i poprzednie ustalenie jest nieaktualne.
+
+W `AGENTS.md` popraw też przykład placeholderów:
+- zastąp `INSERT_YOUR_MAP_LINK` przez `INSERT_YOUR_VTT_LINK`
+- zostaw `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK`
+
+2. Aktualizacja `DataSlate/index.html`
+
+Nie usuwaj linków do testowych plików.
+
+Popraw stronę wejściową DataSlate tak, aby wyglądała jak świadomy launcher, a nie przypadkowy „test panel”.
+
+Wymagany efekt:
+
+- tytuł strony nie powinien brzmieć `DataSlate test panel`;
+- użyj nazwy w rodzaju `DataSlate launcher` albo `DataSlate panel`;
+- nagłówek powinien jasno mówić, że strona pozwala wybrać produkcyjne lub testowe widoki DataSlate;
+- sekcja produkcyjna ma linkować do:
+  - `GM.html`
+  - `DataSlate.html`
+- sekcja testowa ma zostać, ale jej opis ma jasno mówić, że to widoki pomocnicze dla testowania modyfikacji;
+- linki testowe mają nadal prowadzić do:
+  - `GM_test.html`
+  - `Infoczytnik_test.html`
+- jeżeli strona pokazuje stary adres `https://cutelittlegoat.github.io/WrathAndGlory/DataSlate/`, usuń go albo zastąp neutralnym opisem bez prywatnej/starej ścieżki;
+- nie zmieniaj logiki `GM.html` ani `DataSlate.html` w tym zadaniu;
+- nie zmieniaj zawartości plików testowych i backupowych, chyba że jest to absolutnie konieczne do naprawy martwego linku. Jeżeli nie jest konieczne, zostaw je bez zmian.
+
+3. Dokumentacja
+
+Sprawdź dokumentację DataSlate i ogólne README tylko pod kątem bieżącego wymagania.
+
+Jeżeli dokumentacja mówi, że testowe lub backupowe pliki DataSlate będą usunięte, popraw ją.
+
+Jeżeli dokumentacja w ogóle nie wyjaśnia, czemu testowe pliki istnieją, dodaj krótką informację, że:
+- produkcyjne pliki to `GM.html` i `DataSlate.html`;
+- pliki testowe i backupowe są pozostawione celowo jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje;
+- nie są główną ścieżką uruchamiania DataSlate.
+
+Nie zamieniaj dokumentacji modułu w changelog. Changelog i historia decyzji mają trafić do `Analizy/Release.md`.
+
+4. Aktualizacja `Analizy/Release.md`
+
+Na końcu `Analizy/Release.md` dopisz nową sekcję.
+
+Sekcja musi zawierać:
+- datę;
+- pełny oryginalny prompt użytkownika;
+- zakres prac;
+- nową decyzję właściciela;
+- wyraźną informację, że poprzednie ustalenie o usunięciu testowych i backupowych plików DataSlate zostało zmienione;
+- listę plików DataSlate, które mają pozostać w Release:
+  - `DataSlate/GM_test.html`
+  - `DataSlate/Infoczytnik_test.html`
+  - `DataSlate/GM_backup.html`
+  - `DataSlate/Infoczytnik_backup.html`
+- listę zmienionych plików;
+- opis zmian w `AGENTS.md`;
+- opis zmian w `DataSlate/index.html`;
+- informację, że plików testowych i backupowych nie usunięto;
+- informację, że nie ruszano Firebase;
+- informację, że nie ruszano Web Push;
+- informację, że nie dodawano makiet XLSX;
+- wyniki testów;
+- ryzyka i następne kroki.
+
+5. Testy i wyszukiwania po zmianach
+
+Wykonaj statyczne sprawdzenia:
+
+- `git status --short`
+- wyszukiwanie `INSERT_YOUR_MAP_LINK`
+- wyszukiwanie `INSERT_YOUR_VTT_LINK`
+- wyszukiwanie `DataSlate test panel`
+- wyszukiwanie `WrathAndGlory`
+- wyszukiwanie `GM_test.html`
+- wyszukiwanie `Infoczytnik_test.html`
+- wyszukiwanie `GM_backup.html`
+- wyszukiwanie `Infoczytnik_backup.html`
+- wyszukiwanie sformułowań sugerujących usunięcie testowych/backupowych plików DataSlate
+- `git diff --check`
+
+Oczekiwane wyniki:
+- `INSERT_YOUR_MAP_LINK` nie powinno pozostawać w aktualnych instrukcjach Release, chyba że jest w historycznym wpisie `Analizy/Release.md`;
+- `INSERT_YOUR_VTT_LINK` powinno występować jako aktualny placeholder;
+- `DataSlate test panel` nie powinno pozostać jako tytuł produkcyjnej strony wejściowej;
+- `WrathAndGlory` nie powinno pozostać jako aktualny adres publicznego modułu, chyba że jest historycznym wpisem w `Analizy/Release.md`;
+- linki do `GM_test.html` i `Infoczytnik_test.html` mogą pozostać w `DataSlate/index.html`, bo są teraz celowo wspierane;
+- pliki `GM_backup.html` i `Infoczytnik_backup.html` mają nadal istnieć w repozytorium;
+- starsze wzmianki o usuwaniu tych plików mogą pozostać wyłącznie w historycznych sekcjach `Analizy/Release.md`, ale muszą być nadpisane nową decyzją w najnowszej sekcji.
+
+Jeżeli środowisko pozwala, sprawdź przez lokalny HTTP:
+- `DataSlate/index.html`
+- `DataSlate/GM.html`
+- `DataSlate/DataSlate.html`
+- `DataSlate/GM_test.html`
+- `DataSlate/Infoczytnik_test.html`
+
+Jeżeli nie da się wykonać testu przeglądarkowego, opisz to w `Analizy/Release.md`.
+
+6. Wynik końcowy odpowiedzi
+
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- że nowa decyzja została zapisana;
+- że pliki testowe i backupowe DataSlate zostały zachowane;
+- co zmieniono w `AGENTS.md`;
+- co zmieniono w `DataSlate/index.html`;
+- czy usunięto/poprawiono stary adres `WrathAndGlory`;
+- czy placeholder `INSERT_YOUR_MAP_LINK` został zastąpiony przez `INSERT_YOUR_VTT_LINK` w aktualnych instrukcjach;
+- jakie testy statyczne wykonano;
+- jaki jest proponowany następny krok.
+```
+
+### Zakres prac
+
+- Przeczytano aktualne `AGENTS.md` oraz `Analizy/Release.md` przed rozpoczęciem zmian.
+- Zaktualizowano obowiązujące instrukcje Release w `AGENTS.md` zgodnie z nową decyzją właściciela.
+- Przekształcono `DataSlate/index.html` z przypadkowo wyglądającego panelu testowego w świadomy launcher DataSlate.
+- Sprawdzono i zaktualizowano dokumentację użytkową oraz techniczną DataSlate wyłącznie w zakresie rozróżnienia ścieżki produkcyjnej od zachowanych materiałów pomocniczych.
+- Wykonano wymagane wyszukiwania statyczne, test istnienia zachowanych plików, kontrolę whitespace oraz testy dostępności przez lokalny HTTP.
+
+### Ustalenia i wnioski
+
+- Poprzednie ustalenie, zgodnie z którym testowe i backupowe pliki DataSlate miały zostać usunięte albo wykluczone z finalnej paczki publicznej, zostało zmienione. Starsze wpisy w niniejszym dzienniku pozostają historycznym zapisem wcześniejszych decyzji, ale nie są już obowiązującym wymaganiem.
+- Główną ścieżką produkcyjną DataSlate są `DataSlate/GM.html` oraz `DataSlate/DataSlate.html`.
+- Widoki testowe i backupy pozostają celowo dostępne jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje i jako punkt odniesienia podczas eksperymentów. Nie należy traktować ich jako głównej ścieżki uruchamiania modułu.
+- Stary adres `https://cutelittlegoat.github.io/WrathAndGlory/DataSlate/` został usunięty z bieżącego launchera i zastąpiony neutralną instrukcją użycia własnego wdrożenia.
+- Placeholder `INSERT_YOUR_MAP_LINK` został zastąpiony przez `INSERT_YOUR_VTT_LINK` w aktualnych instrukcjach `AGENTS.md`. Starsze wystąpienia `INSERT_YOUR_MAP_LINK` pozostają wyłącznie w historycznych sekcjach niniejszego dziennika.
+- Nie zmieniono konfiguracji Firebase ani integracji Firestore.
+- Nie zmieniono Web Push.
+- Nie dodano neutralnych makiet XLSX.
+- Nie zmieniono generowanych wyników `NameGenerator`.
+
+### Decyzje i wymagania
+
+W wersji Release mają pozostać następujące pliki:
+
+- `DataSlate/GM_test.html`;
+- `DataSlate/Infoczytnik_test.html`;
+- `DataSlate/GM_backup.html`;
+- `DataSlate/Infoczytnik_backup.html`.
+
+Plików tych nie należy usuwać podczas finalnego czyszczenia publicznej paczki. Jeżeli wymagają dodatkowego kontekstu, należy wyjaśnić ich rolę w dokumentacji. Pliki produkcyjne `GM.html` i `DataSlate.html` pozostają podstawowymi punktami wejścia do regularnego użycia DataSlate.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `AGENTS.md` | Zastąpiono starszą zasadę usuwania plików testowych i backupowych DataSlate nową decyzją o ich zachowaniu; wymieniono cztery chronione pliki; zmieniono przykłady placeholderów z `INSERT_YOUR_MAP_LINK` na `INSERT_YOUR_VTT_LINK`. |
+| `DataSlate/index.html` | Zmieniono tytuł i nagłówek na `DataSlate launcher`, doprecyzowano rozdział widoków produkcyjnych i pomocniczych widoków testowych oraz usunięto stary adres `WrathAndGlory`. |
+| `DataSlate/docs/README.md` | W instrukcji PL/EN wskazano `GM.html` i `DataSlate.html` jako pliki używane podczas sesji oraz opisano celowo zachowane pliki testowe i backupowe. |
+| `DataSlate/docs/Documentation.md` | W dokumentacji technicznej rozróżniono produkcyjne punkty wejścia, pomocnicze widoki testowe i zachowane backupy. |
+| `Analizy/Release.md` | Dopisano niniejszy wpis dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+- `AGENTS.md`: usunięto aktualne sformułowanie sugerujące wykluczenie backupów i testowych plików HTML DataSlate z publicznej paczki. Zastąpiono je jednoznaczną regułą ich zachowania, funkcją pomocniczą oraz listą czterech chronionych plików. Poprawiono również dwa aktualne przykłady placeholdera VTT.
+- `DataSlate/index.html`: produkcyjne przyciski nadal kierują do `GM.html` i `DataSlate.html`. Linki pomocnicze nadal kierują do `GM_test.html` i `Infoczytnik_test.html`, ale sekcja testowa otrzymała wyraźny opis przeznaczenia. Usunięto stary adres projektu i zastąpiono go neutralną informacją o użyciu własnego wdrożenia.
+- `DataSlate/docs/README.md`: instrukcja użytkowa PL/EN wskazuje teraz pliki produkcyjne jako podstawową ścieżkę sesji, a pliki testowe i backupowe jako świadomie zachowane materiały pomocnicze.
+- `DataSlate/docs/Documentation.md`: techniczny opis struktury katalogu wymienia pliki produkcyjne, testowe i backupowe z ich aktualnymi rolami.
+- Nie zmodyfikowano zawartości `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html` ani `DataSlate/Infoczytnik_backup.html`.
+
+### Testy
+
+- `git status --short` — wykonano; przed dopisaniem niniejszego dziennika widoczne były wyłącznie oczekiwane zmiany w `AGENTS.md`, `DataSlate/index.html`, `DataSlate/docs/README.md` oraz `DataSlate/docs/Documentation.md`.
+- `rg -n -F 'INSERT_YOUR_MAP_LINK' . || true` — wykonano; stare wystąpienia pozostały wyłącznie w historycznych wpisach `Analizy/Release.md`.
+- `rg -n -F 'INSERT_YOUR_VTT_LINK' . || true` — wykonano; potwierdzono aktualny placeholder w `AGENTS.md`, plikach modułu `Main` i historycznym opisie ostatniej migracji.
+- `rg -n -F 'DataSlate test panel' . || true` — wykonano; brak wystąpień po zmianie launchera.
+- `rg -n -F 'WrathAndGlory' . || true` — wykonano; brak wystąpień po usunięciu starego adresu z launchera.
+- Wyszukiwania `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` — wykonano; potwierdzono aktualne odniesienia w instrukcjach i dokumentacji oraz historyczne wpisy w dzienniku.
+- Wyszukiwanie sformułowań sugerujących usunięcie testowych i backupowych plików DataSlate — wykonano; takie sformułowania pozostały wyłącznie w historycznych sekcjach `Analizy/Release.md`, które zgodnie z zasadami dziennika nie zostały usunięte.
+- Test `test -f` dla `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html` i `DataSlate/Infoczytnik_backup.html` — zaliczony; wszystkie cztery pliki istnieją.
+- `git diff --check` — zaliczony; brak błędów whitespace.
+- `python3 -m http.server 8770` oraz `curl` dla `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `DataSlate/GM_test.html` i `DataSlate/Infoczytnik_test.html` — zaliczone; każdy widok zwrócił HTTP 200.
+- `curl -fsS http://127.0.0.1:8770/DataSlate/index.html | rg -n 'DataSlate launcher|Production versions|Supporting test views|GM_test\\.html|Infoczytnik_test\\.html|Use this launcher from your own deployment'` — zaliczony; potwierdzono nowy tytuł launchera, sekcje i zachowane linki pomocnicze.
+- Nie wykonano zrzutu ekranu przeglądarki: środowisko nie zawiera binariów Chromium, Chrome ani Firefox oraz nie ma zainstalowanego Playwright/Puppeteer.
+
+### Ryzyka i następne kroki
+
+1. Pełne testy funkcjonalne DataSlate przez Firestore wymagają własnej konfiguracji Firebase nowej grupy. W tym zadaniu celowo nie czyszczono ani nie modyfikowano Firebase.
+2. Następny zalecany krok to osobny, kontrolowany etap czyszczenia prywatnych konfiguracji Firebase i usuwania Web Push z wersji Release, bez naruszania komunikacji Firestore DataSlate i bez usuwania zachowanych materiałów testowych oraz backupowych.
+3. W środowisku z przeglądarką warto dodatkowo wykonać ręczny test wizualny launchera oraz pełny przepływ GM → Firestore → ekran gracza dla widoków produkcyjnych i pomocniczych.
