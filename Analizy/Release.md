@@ -1850,3 +1850,54 @@ Na końcu odpowiedzi podaj krótkie podsumowanie:
 4. Neutralna nazwa named-app `wg-private-data` zmienia klucz lokalnej sesji Firebase względem prywatnego wdrożenia właściciela; po wpisaniu własnej konfiguracji użytkownik powinien zalogować się ponownie.
 5. Neutralne makiety XLSX nadal wymagają dostarczenia i walidacji w osobnym etapie.
 6. Pliki testowe, backupowe i robocze nadal wymagają osobnej decyzji lub czyszczenia przed finalną publiczną paczką.
+
+## Aktualizacja — 2026-05-30 — tytuły kart przeglądarki
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Trzeba zmienić tytuły kart, jakie są wyświetlane w przeglądarce.\nObecnie, po przetłumaczeniu, jest np "Goat Toolkit". Zmień to na "Cute Little Goat’s Toolbox"\nPodobnie w zakładce z kalkulatorami. Zamiast "Goat" itp ma być "Cute Little Goat’s"\nDodatkowo w zakładce "Audio" jest wciąż nazwa po polsku "Kozie Audio". Zmień na "Cute Little Goat’s Audio"\n\nDopisz tę zmianę do Release.md
+```
+
+### Zakres prac
+
+Zmieniono tytuły kart przeglądarki w publicznej stronie głównej, stronie wejściowej Calculators oraz module Audio. Dopisano niniejszą sekcję do append-only dziennika Release. Nie zmieniano treści interfejsu, logiki modułów, konfiguracji Firebase ani pozostałych plików HTML.
+
+### Ustalenia i wnioski
+
+- `Main/index.html` nadal wyświetlał w karcie przeglądarki tytuł `Goat Toolkit`.
+- `Calculators/index.html` nadal wyświetlał w karcie przeglądarki tytuł `Goat Calculators`.
+- `Audio/index.html` nadal wyświetlał w karcie przeglądarki polski tytuł `Kozie Audio`.
+- Zgodnie z nową decyzją właściciela publiczne tytuły tych kart mają używać formy dzierżawczej `Cute Little Goat’s`.
+
+### Decyzje i wymagania
+
+- Tytuł karty strony głównej ma brzmieć `Cute Little Goat’s Toolbox`.
+- Tytuł karty strony wejściowej kalkulatorów ma brzmieć `Cute Little Goat’s Calculators`.
+- Tytuł karty modułu Audio ma brzmieć `Cute Little Goat’s Audio`.
+- Zakres tego zadania obejmuje wyłącznie wskazane tytuły kart przeglądarki.
+
+### Zmienione pliki
+
+- `Main/index.html` — zaktualizowano element `<title>` strony głównej.
+- `Calculators/index.html` — zaktualizowano element `<title>` strony wejściowej kalkulatorów.
+- `Audio/index.html` — zaktualizowano element `<title>` modułu Audio.
+- `Analizy/Release.md` — dopisano niniejszą append-only sekcję dokumentującą zmianę.
+
+### Szczegóły zmian w kodzie
+
+- W `Main/index.html` zmieniono `<title>Goat Toolkit</title>` na `<title>Cute Little Goat’s Toolbox</title>`.
+- W `Calculators/index.html` zmieniono `<title>Goat Calculators</title>` na `<title>Cute Little Goat’s Calculators</title>`.
+- W `Audio/index.html` zmieniono `<title>Kozie Audio</title>` na `<title>Cute Little Goat’s Audio</title>`.
+
+### Testy
+
+- `rg -n '<title>Goat Toolkit</title>|<title>Goat Calculators</title>|<title>Kozie Audio</title>' Main Calculators Audio` — zaliczony: stare tytuły nie występują już we wskazanych modułach.
+- Skrypt walidacyjny Python sprawdzający dokładnie po jednym oczekiwanym nowym elemencie `<title>` w `Main/index.html`, `Calculators/index.html` i `Audio/index.html` — zaliczony.
+- `git diff --check` — zaliczony: brak błędów whitespace.
+- `python3 -m http.server 8765` oraz skrypt walidacyjny Python pobierający strony przez HTTP — zaliczony: serwer zwrócił oczekiwane nowe tytuły dla `Main/index.html`, `Calculators/index.html` i `Audio/index.html`.
+
+### Ryzyka i następne kroki
+
+- Zmiana dotyczy wyłącznie tytułów kart przeglądarki. Nie zmieniano tekstów alternatywnych logo ani innych elementów brandingu, ponieważ nie należały do wskazanego zakresu.
+- Pozostałe tytuły kart innych modułów mogą zostać ujednolicone w osobnym zadaniu, jeżeli właściciel wybierze dla nich docelowe brzmienie.
