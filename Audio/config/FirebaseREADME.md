@@ -6,7 +6,9 @@ Ten plik zawiera kompletny, gotowy do skopiowania skrypt Node.js, który tworzy 
 ## 1) Konfiguracja Firebase Web (`config/firebase-config.js`)
 1. Wejdź do Firebase Console → **Project settings** → **Your apps** → aplikacja Web (`</>`).
 2. Skopiuj wartości `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`.
-3. Wklej do `Audio/config/firebase-config.js` jako `window.firebaseConfig`.
+3. Zastąp angielskie placeholdery w `Audio/config/firebase-config.js` własnymi wartościami jako `window.firebaseConfig`.
+
+Utwórz własny projekt Firebase i bazę Firestore dla grupy. Nie zapisuj haseł, tokenów ani plików kont usługowych w repozytorium. Audio używa Firestore do synchronizacji ulubionych i ustawień.
 
 ## 2) Struktura Firestore (drzewko + typy pól)
 ```text
@@ -99,7 +101,9 @@ This file includes a full copy-paste Node.js script that creates the required Fi
 ## 1) Firebase Web config (`config/firebase-config.js`)
 1. Open Firebase Console → **Project settings** → **Your apps** → Web app (`</>`).
 2. Copy `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`.
-3. Paste into `Audio/config/firebase-config.js` as `window.firebaseConfig`.
+3. Replace the English placeholders in `Audio/config/firebase-config.js` with your own values as `window.firebaseConfig`.
+
+Create your own Firebase project and Firestore database for the group. Do not store passwords, tokens, or service-account files in the repository. Audio uses Firestore to synchronize favorites and settings.
 
 ## 2) Firestore structure (tree + field types)
 ```text

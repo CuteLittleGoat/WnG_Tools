@@ -5,7 +5,7 @@ import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.6.0
 
 const FIREBASE_IMPORT_SCHEMA_VERSION = "datavault-firebase-import-v1";
 const DATA_PATH = "datavault/live";
-const PRIVATE_DATA_APP_NAME = "wh40k-data-slate-private-data";
+const PRIVATE_DATA_APP_NAME = "wg-private-data";
 let app;
 let auth;
 let database;
@@ -136,7 +136,7 @@ function getReadableAccessError(error, lang='pl'){
   if(code.includes('MISSING_DATA_ACCESS_EMAIL')) return lang==='en'?'The Machine Spirit detected a configuration fault: Firebase access email is missing.':'Duch Maszyny wykrył usterkę konfiguracji: brakuje technicznego e-maila dostępu Firebase.';
   if(code.includes('auth/invalid-credential')||code.includes('auth/wrong-password')||code.includes('auth/user-not-found')) return lang==='en'?'The angered Machine Spirit replies: the Litany of Access was rejected.':'Rozgniewany Duch Maszyny odpowiada: Litania Dostępu została odrzucona.';
   if(code.includes('auth/invalid-api-key')) return lang==='en'?'The Machine Spirit detected a false access sigil: invalid Firebase apiKey.':'Duch Maszyny wykrył fałszywy znak dostępu: nieprawidłowy apiKey Firebase.';
-  if(code.includes('auth/configuration-not-found')) return lang==='en'?'Firebase Authentication is not configured for the Firebase app currently used. Check that NPCGenerator uses the private data app wh40k-data-slate-private-data, not the old favorites Firebase project.':'Firebase Authentication nie jest poprawnie skonfigurowane dla aktualnie użytej aplikacji Firebase. Sprawdź, czy NPCGenerator używa aplikacji wh40k-data-slate-private-data, a nie starego projektu favorites.';
+  if(code.includes('auth/configuration-not-found')) return lang==='en'?'Firebase Authentication is not configured for the Firebase app currently used. Check that NPCGenerator uses the private data app wg-private-data, not the old favorites Firebase project.':'Firebase Authentication nie jest poprawnie skonfigurowane dla aktualnie użytej aplikacji Firebase. Sprawdź, czy NPCGenerator używa aplikacji wg-private-data, a nie starego projektu favorites.';
   if(code.includes('auth/operation-not-allowed')) return lang==='en'?'The Machine Spirit rejected the rite: email/password sign-in is disabled for this Firebase project.':'Duch Maszyny odrzucił rytuał: logowanie e-mail/hasło jest wyłączone w tym projekcie Firebase.';
   if(code.includes('NOT_AUTHENTICATED')) return lang==='en'?'The Machine Spirit denies access: the Rite of Authentication has not been completed. If this appears after entering the password, the Auth session was not detected after login.':'Duch Maszyny odmawia dostępu: Rytuał Uwierzytelnienia nie został ukończony. Jeżeli widzisz to po wpisaniu hasła, aplikacja nie wykryła sesji Auth po logowaniu.';
   if(code.includes('permission_denied')||code.includes('PERMISSION_DENIED')||code.includes('permission-denied')) return lang==='en'?'The Machine Spirit denies access: no authorization to read K.O.Z.A. classified data.':'Duch Maszyny odmawia dostępu: brak autoryzacji do odczytu danych z klauzulą tajności K.O.Z.A.';

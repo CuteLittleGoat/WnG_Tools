@@ -4,7 +4,9 @@
 Ten plik zawiera kompletny skrypt Node.js do utworzenia dokumentu `dataslate/current` z pełną strukturą wiadomości.
 
 ## 1) Konfiguracja `config/firebase-config.js`
-Skopiuj dane z Firebase Console (aplikacja Web) i wklej do `DataSlate/config/firebase-config.js` jako `window.firebaseConfig`.
+Utwórz własny projekt Firebase i bazę Firestore dla grupy. Skopiuj dane z Firebase Console (aplikacja Web) i zastąp nimi angielskie placeholdery w `DataSlate/config/firebase-config.js` jako `window.firebaseConfig`. Nie zapisuj haseł, tokenów ani plików kont usługowych w repozytorium.
+
+Firestore DataSlate zachowuje komunikację panel GM → ekran gracza przez dokument `dataslate/current`.
 
 ## 2) Struktura Firestore (drzewko + typy)
 ```text
@@ -76,7 +78,9 @@ node DataSlate/config/init-firestore-structure.js
 This file provides a full Node.js script to create `dataslate/current` with the complete message payload structure.
 
 ## 1) `config/firebase-config.js`
-Copy Firebase Web config values and paste into `DataSlate/config/firebase-config.js` as `window.firebaseConfig`.
+Create your own Firebase project and Firestore database for the group. Copy Firebase Web config values and replace the English placeholders in `DataSlate/config/firebase-config.js` as `window.firebaseConfig`. Do not store passwords, tokens, or service-account files in the repository.
+
+DataSlate Firestore preserves GM panel → player screen communication through the `dataslate/current` document.
 
 ## 2) Firestore structure (tree + types)
 ```text

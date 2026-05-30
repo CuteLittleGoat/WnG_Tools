@@ -43,12 +43,12 @@ https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js
 - Format:
 ```js
 window.firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
 };
 ```
 

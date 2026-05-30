@@ -4,7 +4,9 @@
 Ten plik zawiera pełny skrypt Node.js do utworzenia dokumentu `character_builder/current` wraz z kompletną strukturą pól.
 
 ## 1) Konfiguracja `config/firebase-config.js`
-Skopiuj dane z Firebase Console → **Project settings** → **Your apps** → Web app (`</>`), a następnie wklej do `Calculators/config/firebase-config.js` jako `window.firebaseConfig`.
+Utwórz własny projekt Firebase i bazę Firestore dla grupy. Skopiuj dane z Firebase Console → **Project settings** → **Your apps** → Web app (`</>`), a następnie zastąp nimi angielskie placeholdery w `Calculators/config/firebase-config.js` jako `window.firebaseConfig`. Nie zapisuj haseł, tokenów ani plików kont usługowych w repozytorium.
+
+Firestore w tym module obsługuje zapis i odczyt danych Character Creation między urządzeniami.
 
 ## 2) Struktura Firestore (drzewko + typy)
 ```text
@@ -90,7 +92,9 @@ node Calculators/config/init-firestore-character-builder.js
 This file contains a full Node.js script to create `character_builder/current` with the complete field structure.
 
 ## 1) `config/firebase-config.js`
-Copy web config values from Firebase Console and paste them into `Calculators/config/firebase-config.js` as `window.firebaseConfig`.
+Create your own Firebase project and Firestore database for the group. Copy web config values from Firebase Console and replace the English placeholders in `Calculators/config/firebase-config.js` as `window.firebaseConfig`. Do not store passwords, tokens, or service-account files in the repository.
+
+Firestore in this module supports cross-device Character Creation save and load.
 
 ## 2) Firestore structure (tree + types)
 ```text

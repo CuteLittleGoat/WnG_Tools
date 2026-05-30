@@ -6,9 +6,11 @@ Ten dokument dotyczy wyłącznie wspólnego źródła prywatnych danych DataVaul
 Ten plik zawiera pełny skrypt Node.js tworzący strukturę **Realtime Database** wymaganą przez wspólny loader danych (`shared/firebase-data-loader.js`).
 
 ## 1) Konfiguracja `shared/firebase-config.js`
-Uzupełnij:
+Utwórz własny projekt Firebase dla grupy i zastąp angielskie placeholdery w tym pliku własnymi wartościami:
 - `window.WG_FIREBASE_CONFIG` (web config Firebase),
 - `window.WG_DATA_ACCESS_EMAIL` (email użytkownika technicznego z Firebase Authentication).
+
+`DataVault` i `NPCGenerator` używają tej wspólnej konfiguracji do odczytu danych przez `shared/firebase-data-loader.js`. Nie zapisuj hasła użytkownika technicznego w repozytorium — użytkownik wpisuje je podczas logowania w aplikacji.
 
 ## 2) Struktura Realtime Database (drzewko + typy)
 ```text
@@ -89,9 +91,11 @@ This document applies only to the shared private DataVault data source used by m
 This file includes a full Node.js script that creates the **Realtime Database** structure required by the shared data loader.
 
 ## 1) `shared/firebase-config.js`
-Fill in:
+Create your own Firebase project for the group and replace the English placeholders in this file with your own values:
 - `window.WG_FIREBASE_CONFIG` (Firebase web config),
 - `window.WG_DATA_ACCESS_EMAIL` (technical user email from Firebase Authentication).
+
+`DataVault` and `NPCGenerator` use this shared config to read data through `shared/firebase-data-loader.js`. Do not store the technical user's password in the repository — the user enters it when signing in through the app.
 
 ## 2) Realtime Database structure (tree + field types)
 ```text

@@ -6,10 +6,10 @@
 // WAŻNE WDROŻENIE: Każda grupa (każdy serwer) powinna mieć własny projekt Firebase i własny komplet kluczy poniżej.
 // IMPORTANT DEPLOYMENT: Each group (each server) should use its own Firebase project and its own full key set below.
 window.firebaseConfig = {
-  apiKey: "AIzaSyA4m8ZkI-L9MYgKcbAtt8gJaTtr2TlCN5s",
-  authDomain: "audiorpg-2eb6f.firebaseapp.com",
-  projectId: "audiorpg-2eb6f",
-  storageBucket: "audiorpg-2eb6f.firebasestorage.app",
-  messagingSenderId: "848367463263",
-  appId: "1:848367463263:web:500bdf5c394ac786e2e4ea"
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
 };

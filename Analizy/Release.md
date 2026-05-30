@@ -1277,3 +1277,576 @@ Nie wykonano interaktywnego testu w przeglądarce, ponieważ etap ograniczono do
 #### Uzupełnienie dokumentacji etapu językowego
 
 Po statycznym wyszukiwaniu zaktualizowano również dokumentację modułów Audio, DataVault, NPCGenerator, NameGenerator i Calculators, ponieważ zawierała nieaktualne opisy ukrytych selektorów albo polskiego języka startowego. Dokumentacja opisuje teraz widoczny selektor PL/EN i domyślny język angielski. Zmienione pliki dokumentacji: `Audio/docs/README.md`, `Audio/docs/Documentation.md`, `DataVault/docs/README.md`, `DataVault/docs/Documentation.md`, `NPCGenerator/docs/README.md`, `NPCGenerator/docs/Documentation.md`, `NameGenerator/docs/README.md`, `NameGenerator/docs/Documentation.md`, `Calculators/docs/Documentation.md`.
+
+## Aktualizacja — 2026-05-30 — etap 3 Release: czyszczenie Firebase i linków Main
+
+### Oryginalny pełny prompt użytkownika
+
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj trzeci etap prac Release: wyczyszczenie prywatnych konfiguracji Firebase oraz prywatnych linków w module Main i zastąpienie ich czytelnymi placeholderami po angielsku.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie usuwaj jeszcze Web Push.
+- Nie zmieniaj jeszcze logiki Web Push.
+- Nie dodawaj jeszcze neutralnych makiet XLSX.
+- Nie usuwaj jeszcze plików testowych, backupowych, `Old`, `Draft` ani innych plików roboczych.
+- Nie tłumacz teraz generowanych wyników `NameGenerator`.
+- Nie wykonuj zmian niezwiązanych z czyszczeniem konfiguracji Firebase i prywatnych linków.
+- Nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+CEL ETAPU:
+Publiczna wersja repozytorium nie może zawierać prywatnych konfiguracji Firebase właściciela ani prywatnych linków właściciela do mapy, obrazków, Discorda lub innych usług grupy. Kod integracji Firebase ma pozostać konfigurowalny. Należy usunąć konkretne wartości projektu właściciela i zastąpić je placeholderami po angielsku.
+
+NIE WOLNO:
+- usuwać całej integracji Firebase;
+- usuwać komunikacji Firestore DataSlate GM -> ekran gracza;
+- usuwać komunikacji DataVault / NPCGenerator przez wspólny loader;
+- usuwać fallbacków lokalnych;
+- usuwać albo zmieniać Web Push w tym etapie;
+- wpisywać prawdziwych sekretów, haseł, tokenów lub danych właściciela do dokumentacji lub `Release.md`.
+
+ZAKRES PLIKÓW DO SPRAWDZENIA I POPRAWY
+
+Sprawdź i w razie potrzeby popraw przede wszystkim:
+
+- `shared/firebase-config.js`
+- `Audio/config/firebase-config.js`
+- `NPCGenerator/config/firebase-config.js`
+- `DataSlate/config/firebase-config.js`
+- `Calculators/config/firebase-config.js`
+- `Main/ZmienneHiperlacza.md`
+
+Sprawdź także dokumentację powiązaną z konfiguracją Firebase i linkami:
+
+- `shared/FirebaseREADME.md`
+- `Audio/config/FirebaseREADME.md`
+- `NPCGenerator/config/FirebaseREADME.md`
+- `DataSlate/config/FirebaseREADME.md`
+- `Calculators/config/FirebaseREADME.md`
+- `Main/docs/README.md`
+- `Main/docs/Documentation.md`
+- dokumentacje modułów, jeżeli zawierają konkretne stare wartości albo nieaktualne instrukcje konfiguracji.
+
+PLACEHOLDERY
+
+Wszystkie placeholdery mają być po angielsku.
+
+Dla wspólnego DataVault / NPCGenerator użyj struktury w stylu:
+
+window.WG_FIREBASE_CONFIG = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  databaseURL: "INSERT_YOUR_DATABASE_URL",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+
+window.WG_DATA_ACCESS_EMAIL = "INSERT_YOUR_TECHNICAL_USER_EMAIL";
+
+Dla modułów korzystających z Firestore użyj struktury w stylu:
+
+window.firebaseConfig = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+
+Jeżeli dany moduł wymaga `databaseURL`, zachowaj pole `databaseURL` i użyj:
+
+databaseURL: "INSERT_YOUR_DATABASE_URL"
+
+Nie dodawaj hasła użytkownika technicznego do repozytorium. Hasło ma wpisywać użytkownik podczas logowania w aplikacji.
+
+Dla `Main/ZmienneHiperlacza.md` użyj angielskich kluczy i placeholderów, np.:
+
+Map: INSERT_YOUR_MAP_LINK
+Images: INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK
+
+Jeżeli kod `Main/index.html` zachowuje zgodność wsteczną z polskimi kluczami, nie usuwaj tej zgodności, chyba że jest to konieczne. W tym etapie wystarczy, aby publiczny plik konfiguracyjny miał angielskie klucze i placeholdery.
+
+SZCZEGÓŁOWE ZADANIA
+
+1. Inwentaryzacja przed zmianami
+
+Wyszukaj w repozytorium potencjalne prywatne konfiguracje i linki, w szczególności:
+- realne wartości `apiKey`;
+- `authDomain`;
+- `databaseURL`;
+- `projectId`;
+- `storageBucket`;
+- `messagingSenderId`;
+- `appId`;
+- techniczne adresy e-mail;
+- prywatne URL-e;
+- linki Discord;
+- linki do mapy;
+- polskie placeholdery typu `TU_WSTAW`.
+
+Nie wklejaj znalezionych prawdziwych wartości do odpowiedzi ani do `Release.md`. W dzienniku opisz je ogólnie, np. „usunięto realną konfigurację Firebase właściciela”.
+
+2. Czyszczenie `shared/firebase-config.js`
+
+Usuń konkretne wartości właściciela i zastąp je angielskimi placeholderami.
+
+Zachowaj:
+- nazwę `window.WG_FIREBASE_CONFIG`;
+- nazwę `window.WG_DATA_ACCESS_EMAIL`;
+- strukturę oczekiwaną przez `shared/firebase-data-loader.js`.
+
+Nie zmieniaj logiki loadera, chyba że jest to absolutnie konieczne do poprawnej obsługi placeholderów. Jeżeli zmieniasz loader, opisz dokładnie dlaczego.
+
+3. Czyszczenie konfiguracji Firestore modułów
+
+Wyczyść i zastąp placeholderami konfiguracje w:
+
+- `Audio/config/firebase-config.js`
+- `NPCGenerator/config/firebase-config.js`
+- `DataSlate/config/firebase-config.js`
+- `Calculators/config/firebase-config.js`
+
+Zachowaj nazwy globalnych zmiennych oczekiwane przez moduły.
+
+Nie usuwaj funkcji synchronizacji ulubionych Audio/NPC.
+
+Nie usuwaj funkcji komunikacji DataSlate przez Firestore.
+
+Nie usuwaj funkcji synchronizacji CharacterCreation przez Firestore.
+
+4. Czyszczenie `Main/ZmienneHiperlacza.md`
+
+Zastąp prywatne linki właściciela angielskimi placeholderami.
+
+Upewnij się, że `Main/index.html` nadal potrafi obsłużyć plik po tej zmianie.
+
+Nie wykonuj dodatkowego tłumaczenia UI, jeżeli nie jest związane z placeholderami.
+
+5. Dokumentacja
+
+Zaktualizuj dokumentację tylko w zakresie konfiguracji Firebase i prywatnych linków.
+
+Dokumentacja powinna jasno mówić:
+- gdzie użytkownik ma wkleić własne wartości Firebase;
+- że wartości w plikach są placeholderami;
+- że hasła nie wolno zapisywać w repozytorium;
+- że trzeba utworzyć własny projekt Firebase;
+- które moduły używają Firestore;
+- że DataVault i NPCGenerator używają wspólnej konfiguracji `shared/firebase-config.js`;
+- że DataSlate Firestore służy do komunikacji GM -> ekran gracza;
+- że `Main/ZmienneHiperlacza.md` zawiera linki użytkownika do własnej mapy i obrazków.
+
+Nie opisuj Web Push jako aktualnie konfigurowanej funkcji Release. Web Push będzie usuwany osobno w kolejnym etapie.
+
+Jeżeli dokumentacja zawiera prawdziwe stare wartości właściciela albo polskie placeholdery `TU_WSTAW`, zastąp je angielskimi placeholderami.
+
+6. Czego nie robić z Web Push
+
+W tym etapie nie usuwaj:
+- `DataSlate/config/web-push-config.js`;
+- logiki Web Push;
+- elementów UI Web Push;
+- backendu Web Push;
+- dokumentacji Web Push, chyba że zawiera bezpośrednio prywatną wartość Firebase lub prywatny link niezwiązany z samym Web Push.
+
+Jeżeli podczas skanowania znajdziesz aktywne endpointy Web Push albo klucze VAPID, nie przepisuj ich do `Release.md`. Zanotuj ogólnie, że pozostają do osobnego etapu usuwania Web Push.
+
+7. Testy po zmianach
+
+Po zakończeniu zmian wykonaj statyczne testy:
+
+- `git status --short`;
+- wyszukiwanie realnych wartości Firebase;
+- wyszukiwanie `TU_WSTAW`;
+- wyszukiwanie `INSERT_YOUR`;
+- wyszukiwanie prywatnych URL-i;
+- wyszukiwanie technicznych adresów e-mail;
+- wyszukiwanie nazw starych projektów Firebase, jeżeli były widoczne przed zmianą;
+- `git diff --check`.
+
+Sprawdź, czy podstawowe pliki nadal istnieją i dają się pobrać przez lokalny HTTP, jeżeli środowisko pozwala:
+
+- `Main/index.html`
+- `Audio/index.html`
+- `DataVault/index.html`
+- `DiceRoller/index.html`
+- `NPCGenerator/index.html`
+- `NameGenerator/index.html`
+- `DataSlate/index.html`
+- `DataSlate/GM.html`
+- `DataSlate/DataSlate.html`
+- `Calculators/index.html`
+- `Calculators/XPCalculator.html`
+- `Calculators/CharacterCreation.html`
+
+Jeżeli środowisko pozwala na statyczne sprawdzenie JS, wykonaj przynajmniej:
+- `node --check DataVault/app.js`
+- `node --check DiceRoller/script.js`
+- `node --check NameGenerator/script.js`
+
+Jeżeli któryś test nie może zostać wykonany, opisz powód w `Analizy/Release.md`.
+
+8. Aktualizacja `Analizy/Release.md`
+
+Na końcu dopisz do `Analizy/Release.md` nową sekcję.
+
+Sekcja musi zawierać:
+- datę;
+- pełny oryginalny prompt użytkownika;
+- zakres prac;
+- listę zmienionych plików;
+- opis usuniętych typów prywatnych wartości, bez podawania samych wartości;
+- listę plików, w których wstawiono placeholdery;
+- informację, że placeholdery są po angielsku;
+- informację, że nie usunięto integracji Firebase;
+- informację, że nie naruszono Firestore DataSlate;
+- informację, że nie usuwano jeszcze Web Push;
+- informację, że nie dodawano jeszcze makiet XLSX;
+- informację, że nie usuwano plików testowych i backupowych;
+- wyniki testów;
+- pozostałe ryzyka;
+- następne kroki.
+
+W ryzykach i następnych krokach zapisz, że kolejnym logicznym etapem po czyszczeniu Firebase powinno być osobne usunięcie Web Push z Release bez naruszenia komunikacji Firestore DataSlate.
+
+9. Wynik końcowy odpowiedzi
+
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- które konfiguracje wyczyszczono;
+- gdzie wstawiono placeholdery;
+- czy zostały znalezione pozostałe prywatne wartości;
+- czego celowo nie ruszano;
+- czy testy statyczne przeszły;
+- jaki jest proponowany następny krok.
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj trzeci etap prac Release: wyczyszczenie prywatnych konfiguracji Firebase oraz prywatnych linków w module Main i zastąpienie ich czytelnymi placeholderami po angielsku.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie usuwaj jeszcze Web Push.
+- Nie zmieniaj jeszcze logiki Web Push.
+- Nie dodawaj jeszcze neutralnych makiet XLSX.
+- Nie usuwaj jeszcze plików testowych, backupowych, `Old`, `Draft` ani innych plików roboczych.
+- Nie tłumacz teraz generowanych wyników `NameGenerator`.
+- Nie wykonuj zmian niezwiązanych z czyszczeniem konfiguracji Firebase i prywatnych linków.
+- Nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+CEL ETAPU:
+Publiczna wersja repozytorium nie może zawierać prywatnych konfiguracji Firebase właściciela ani prywatnych linków właściciela do mapy, obrazków, Discorda lub innych usług grupy. Kod integracji Firebase ma pozostać konfigurowalny. Należy usunąć konkretne wartości projektu właściciela i zastąpić je placeholderami po angielsku.
+
+NIE WOLNO:
+- usuwać całej integracji Firebase;
+- usuwać komunikacji Firestore DataSlate GM -> ekran gracza;
+- usuwać komunikacji DataVault / NPCGenerator przez wspólny loader;
+- usuwać fallbacków lokalnych;
+- usuwać albo zmieniać Web Push w tym etapie;
+- wpisywać prawdziwych sekretów, haseł, tokenów lub danych właściciela do dokumentacji lub `Release.md`.
+
+ZAKRES PLIKÓW DO SPRAWDZENIA I POPRAWY
+
+Sprawdź i w razie potrzeby popraw przede wszystkim:
+
+- `shared/firebase-config.js`
+- `Audio/config/firebase-config.js`
+- `NPCGenerator/config/firebase-config.js`
+- `DataSlate/config/firebase-config.js`
+- `Calculators/config/firebase-config.js`
+- `Main/ZmienneHiperlacza.md`
+
+Sprawdź także dokumentację powiązaną z konfiguracją Firebase i linkami:
+
+- `shared/FirebaseREADME.md`
+- `Audio/config/FirebaseREADME.md`
+- `NPCGenerator/config/FirebaseREADME.md`
+- `DataSlate/config/FirebaseREADME.md`
+- `Calculators/config/FirebaseREADME.md`
+- `Main/docs/README.md`
+- `Main/docs/Documentation.md`
+- dokumentacje modułów, jeżeli zawierają konkretne stare wartości albo nieaktualne instrukcje konfiguracji.
+
+PLACEHOLDERY
+
+Wszystkie placeholdery mają być po angielsku.
+
+Dla wspólnego DataVault / NPCGenerator użyj struktury w stylu:
+
+window.WG_FIREBASE_CONFIG = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  databaseURL: "INSERT_YOUR_DATABASE_URL",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+
+window.WG_DATA_ACCESS_EMAIL = "INSERT_YOUR_TECHNICAL_USER_EMAIL";
+
+Dla modułów korzystających z Firestore użyj struktury w stylu:
+
+window.firebaseConfig = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+
+Jeżeli dany moduł wymaga `databaseURL`, zachowaj pole `databaseURL` i użyj:
+
+databaseURL: "INSERT_YOUR_DATABASE_URL"
+
+Nie dodawaj hasła użytkownika technicznego do repozytorium. Hasło ma wpisywać użytkownik podczas logowania w aplikacji.
+
+Dla `Main/ZmienneHiperlacza.md` użyj angielskich kluczy i placeholderów, np.:
+
+Map: INSERT_YOUR_MAP_LINK
+Images: INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK
+
+Jeżeli kod `Main/index.html` zachowuje zgodność wsteczną z polskimi kluczami, nie usuwaj tej zgodności, chyba że jest to konieczne. W tym etapie wystarczy, aby publiczny plik konfiguracyjny miał angielskie klucze i placeholdery.
+
+SZCZEGÓŁOWE ZADANIA
+
+1. Inwentaryzacja przed zmianami
+
+Wyszukaj w repozytorium potencjalne prywatne konfiguracje i linki, w szczególności:
+- realne wartości `apiKey`;
+- `authDomain`;
+- `databaseURL`;
+- `projectId`;
+- `storageBucket`;
+- `messagingSenderId`;
+- `appId`;
+- techniczne adresy e-mail;
+- prywatne URL-e;
+- linki Discord;
+- linki do mapy;
+- polskie placeholdery typu `TU_WSTAW`.
+
+Nie wklejaj znalezionych prawdziwych wartości do odpowiedzi ani do `Release.md`. W dzienniku opisz je ogólnie, np. „usunięto realną konfigurację Firebase właściciela”.
+
+2. Czyszczenie `shared/firebase-config.js`
+
+Usuń konkretne wartości właściciela i zastąp je angielskimi placeholderami.
+
+Zachowaj:
+- nazwę `window.WG_FIREBASE_CONFIG`;
+- nazwę `window.WG_DATA_ACCESS_EMAIL`;
+- strukturę oczekiwaną przez `shared/firebase-data-loader.js`.
+
+Nie zmieniaj logiki loadera, chyba że jest to absolutnie konieczne do poprawnej obsługi placeholderów. Jeżeli zmieniasz loader, opisz dokładnie dlaczego.
+
+3. Czyszczenie konfiguracji Firestore modułów
+
+Wyczyść i zastąp placeholderami konfiguracje w:
+
+- `Audio/config/firebase-config.js`
+- `NPCGenerator/config/firebase-config.js`
+- `DataSlate/config/firebase-config.js`
+- `Calculators/config/firebase-config.js`
+
+Zachowaj nazwy globalnych zmiennych oczekiwane przez moduły.
+
+Nie usuwaj funkcji synchronizacji ulubionych Audio/NPC.
+
+Nie usuwaj funkcji komunikacji DataSlate przez Firestore.
+
+Nie usuwaj funkcji synchronizacji CharacterCreation przez Firestore.
+
+4. Czyszczenie `Main/ZmienneHiperlacza.md`
+
+Zastąp prywatne linki właściciela angielskimi placeholderami.
+
+Upewnij się, że `Main/index.html` nadal potrafi obsłużyć plik po tej zmianie.
+
+Nie wykonuj dodatkowego tłumaczenia UI, jeżeli nie jest związane z placeholderami.
+
+5. Dokumentacja
+
+Zaktualizuj dokumentację tylko w zakresie konfiguracji Firebase i prywatnych linków.
+
+Dokumentacja powinna jasno mówić:
+- gdzie użytkownik ma wkleić własne wartości Firebase;
+- że wartości w plikach są placeholderami;
+- że hasła nie wolno zapisywać w repozytorium;
+- że trzeba utworzyć własny projekt Firebase;
+- które moduły używają Firestore;
+- że DataVault i NPCGenerator używają wspólnej konfiguracji `shared/firebase-config.js`;
+- że DataSlate Firestore służy do komunikacji GM -> ekran gracza;
+- że `Main/ZmienneHiperlacza.md` zawiera linki użytkownika do własnej mapy i obrazków.
+
+Nie opisuj Web Push jako aktualnie konfigurowanej funkcji Release. Web Push będzie usuwany osobno w kolejnym etapie.
+
+Jeżeli dokumentacja zawiera prawdziwe stare wartości właściciela albo polskie placeholdery `TU_WSTAW`, zastąp je angielskimi placeholderami.
+
+6. Czego nie robić z Web Push
+
+W tym etapie nie usuwaj:
+- `DataSlate/config/web-push-config.js`;
+- logiki Web Push;
+- elementów UI Web Push;
+- backendu Web Push;
+- dokumentacji Web Push, chyba że zawiera bezpośrednio prywatną wartość Firebase lub prywatny link niezwiązany z samym Web Push.
+
+Jeżeli podczas skanowania znajdziesz aktywne endpointy Web Push albo klucze VAPID, nie przepisuj ich do `Release.md`. Zanotuj ogólnie, że pozostają do osobnego etapu usuwania Web Push.
+
+7. Testy po zmianach
+
+Po zakończeniu zmian wykonaj statyczne testy:
+
+- `git status --short`;
+- wyszukiwanie realnych wartości Firebase;
+- wyszukiwanie `TU_WSTAW`;
+- wyszukiwanie `INSERT_YOUR`;
+- wyszukiwanie prywatnych URL-i;
+- wyszukiwanie technicznych adresów e-mail;
+- wyszukiwanie nazw starych projektów Firebase, jeżeli były widoczne przed zmianą;
+- `git diff --check`.
+
+Sprawdź, czy podstawowe pliki nadal istnieją i dają się pobrać przez lokalny HTTP, jeżeli środowisko pozwala:
+
+- `Main/index.html`
+- `Audio/index.html`
+- `DataVault/index.html`
+- `DiceRoller/index.html`
+- `NPCGenerator/index.html`
+- `NameGenerator/index.html`
+- `DataSlate/index.html`
+- `DataSlate/GM.html`
+- `DataSlate/DataSlate.html`
+- `Calculators/index.html`
+- `Calculators/XPCalculator.html`
+- `Calculators/CharacterCreation.html`
+
+Jeżeli środowisko pozwala na statyczne sprawdzenie JS, wykonaj przynajmniej:
+- `node --check DataVault/app.js`
+- `node --check DiceRoller/script.js`
+- `node --check NameGenerator/script.js`
+
+Jeżeli któryś test nie może zostać wykonany, opisz powód w `Analizy/Release.md`.
+
+8. Aktualizacja `Analizy/Release.md`
+
+Na końcu dopisz do `Analizy/Release.md` nową sekcję.
+
+Sekcja musi zawierać:
+- datę;
+- pełny oryginalny prompt użytkownika;
+- zakres prac;
+- listę zmienionych plików;
+- opis usuniętych typów prywatnych wartości, bez podawania samych wartości;
+- listę plików, w których wstawiono placeholdery;
+- informację, że placeholdery są po angielsku;
+- informację, że nie usunięto integracji Firebase;
+- informację, że nie naruszono Firestore DataSlate;
+- informację, że nie usuwano jeszcze Web Push;
+- informację, że nie dodawano jeszcze makiet XLSX;
+- informację, że nie usuwano plików testowych i backupowych;
+- wyniki testów;
+- pozostałe ryzyka;
+- następne kroki.
+
+W ryzykach i następnych krokach zapisz, że kolejnym logicznym etapem po czyszczeniu Firebase powinno być osobne usunięcie Web Push z Release bez naruszenia komunikacji Firestore DataSlate.
+
+9. Wynik końcowy odpowiedzi
+
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- które konfiguracje wyczyszczono;
+- gdzie wstawiono placeholdery;
+- czy zostały znalezione pozostałe prywatne wartości;
+- czego celowo nie ruszano;
+- czy testy statyczne przeszły;
+- jaki jest proponowany następny krok.
+
+### Zakres prac
+
+- Przeczytano aktualne `AGENTS.md` i `Analizy/Release.md` przed analizą i edycją.
+- Zinwentaryzowano aktywne konfiguracje Firebase, adres technicznego użytkownika wspólnego loadera, linki zewnętrzne Main, dokumentację konfiguracji oraz istniejące odwołania Web Push.
+- Usunięto konkretne wartości wdrożeniowe właściciela z konfiguracji Firebase i zastąpiono je czytelnymi placeholderami po angielsku.
+- Zastąpiono prywatne linki Main do mapy i obrazków placeholderami po angielsku.
+- Poprawiono minimalnie obsługę angielskich kluczy `Map` i `Images` w Main przy zachowaniu zgodności wstecznej z `Mapa` i `Obrazki`.
+- Zneutralizowano nazwę nazwanej aplikacji wspólnego loadera Firebase, ponieważ zawierała stary identyfikator projektu właściciela. Model named-app, loader, autoryzacja i fallbacki pozostały zachowane.
+- Zaktualizowano wyłącznie dokumentację związaną z konfiguracją Firebase, wspólnym loaderem i linkami Main.
+
+### Ustalenia i wnioski
+
+- Przed zmianą aktywne pliki konfiguracyjne zawierały realne wartości Firebase właściciela, w tym web config, identyfikatory projektów i techniczny adres e-mail wspólnego loadera. Wartości usunięto bez zapisywania ich w dzienniku.
+- Przed zmianą `Main/ZmienneHiperlacza.md` zawierał prywatne adresy zewnętrzne właściciela. Wartości usunięto bez zapisywania ich w dzienniku.
+- `shared/firebase-data-loader.js` zachował strukturę oczekiwaną przez DataVault i NPCGenerator. Zmieniono wyłącznie nazwę named-app na neutralne `wg-private-data`, aby usunąć pozostałość starego identyfikatora projektu właściciela.
+- Integracja Firebase pozostała konfigurowalna. Nie usunięto synchronizacji Audio/NPC, odczytu DataVault/NPCGenerator przez wspólny loader, synchronizacji Character Creation ani komunikacji Firestore DataSlate panel GM → ekran gracza.
+- Podczas inwentaryzacji potwierdzono obecność plików i odwołań Web Push. Nie ujawniono ich wartości i nie modyfikowano ich w tym etapie.
+- Nie dodawano neutralnych makiet XLSX. Nie usuwano plików testowych, backupowych, `Old`, `Draft` ani innych plików roboczych. Nie tłumaczono generowanych wyników NameGenerator.
+
+### Decyzje i wymagania
+
+- Wszystkie publiczne placeholdery konfiguracyjne w bieżącym etapie są po angielsku.
+- Każda grupa wdrażająca aplikację ma utworzyć własny projekt Firebase i wkleić własne wartości do odpowiednich plików konfiguracyjnych.
+- Hasła, tokeny i pliki kont usługowych nie mogą być zapisywane w repozytorium. Hasło użytkownika technicznego wspólnego loadera wpisuje użytkownik podczas logowania w aplikacji.
+- `DataVault` i `NPCGenerator` nadal korzystają ze wspólnej konfiguracji `shared/firebase-config.js` oraz wspólnego loadera.
+- Firestore DataSlate nadal służy do komunikacji panel GM → ekran gracza przez dokument `dataslate/current`.
+- Web Push pozostaje poza zakresem tego etapu i wymaga osobnego usunięcia w kolejnym etapie Release.
+
+### Zmienione pliki
+
+- `shared/firebase-config.js` — realne wartości Firebase i techniczny e-mail zastąpiono angielskimi placeholderami.
+- `Audio/config/firebase-config.js` — realne wartości Firestore zastąpiono angielskimi placeholderami.
+- `NPCGenerator/config/firebase-config.js` — realne wartości Firestore ulubionych zastąpiono angielskimi placeholderami.
+- `DataSlate/config/firebase-config.js` — realne wartości Firestore zastąpiono angielskimi placeholderami bez naruszenia komunikacji GM → ekran gracza.
+- `Calculators/config/firebase-config.js` — realne wartości Firestore Character Creation zastąpiono angielskimi placeholderami.
+- `Main/ZmienneHiperlacza.md` — prywatne linki zastąpiono angielskimi kluczami `Map`, `Images` i angielskimi placeholderami.
+- `Main/index.html` — przypisanie linków obsługuje angielskie klucze publicznego pliku i zachowuje zgodność wsteczną z polskimi kluczami.
+- `shared/firebase-data-loader.js` — nazwę named-app zawierającą stary identyfikator projektu zastąpiono neutralnym `wg-private-data`; logika loadera i fallbacki pozostały bez zmian.
+- `shared/FirebaseREADME.md`, `Audio/config/FirebaseREADME.md`, `NPCGenerator/config/FirebaseREADME.md`, `DataSlate/config/FirebaseREADME.md`, `Calculators/config/FirebaseREADME.md` — doprecyzowano tworzenie własnego projektu Firebase, zastępowanie placeholderów i zakaz commitowania haseł, tokenów oraz plików kont usługowych; opisano role modułów.
+- `Audio/docs/Documentation.md` — przykładowy format konfiguracji używa angielskich placeholderów.
+- `Main/docs/README.md`, `Main/docs/Documentation.md` — instrukcje linków opisują angielskie klucze i placeholdery oraz zgodność wsteczną parsera.
+- `DataVault/docs/README.md`, `DataVault/docs/Documentation.md`, `NPCGenerator/docs/Documentation.md` — dokumentację wspólnego loadera zaktualizowano do neutralnej nazwy `wg-private-data`.
+- `Analizy/Release.md` — dopisano niniejszą append-only sekcję.
+
+### Szczegóły zmian w kodzie
+
+- `shared/firebase-config.js` zachowuje globalne nazwy `window.WG_FIREBASE_CONFIG` i `window.WG_DATA_ACCESS_EMAIL`, pole `databaseURL` oraz strukturę oczekiwaną przez `shared/firebase-data-loader.js`.
+- Modułowe pliki `firebase-config.js` zachowują globalną nazwę `window.firebaseConfig` i istniejący zestaw pól Firestore.
+- `Main/ZmienneHiperlacza.md` zawiera teraz `Map: INSERT_YOUR_MAP_LINK` i `Images: INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK`.
+- `Main/index.html` wybiera `links.map || links.mapa` oraz `links.images || links.obrazki`. Dzięki temu publiczny plik z angielskimi kluczami działa, a istniejąca zgodność wsteczna pozostaje zachowana.
+- `shared/firebase-data-loader.js` nadal inicjalizuje named-app i nie przywraca ryzykownego fallbacku do beznazwowego `getApp()`. Neutralizacja nazwy aplikacji była konieczna wyłącznie dlatego, że poprzednia nazwa zawierała identyfikator projektu właściciela.
+
+### Testy
+
+- `git status --short` — wykonano przed zmianami i po zmianach; przed zmianami drzewo było czyste, po zmianach lista obejmuje wyłącznie pliki etapu 3 i niniejszy dziennik.
+- Skrypt walidacji placeholderów Python — zaliczony: wymagane angielskie placeholdery istnieją w pięciu konfiguracjach, techniczny e-mail jest placeholderem, a Main zawiera angielskie placeholdery i zgodność wsteczną parsera.
+- Skrypt porównawczy Python względem `HEAD` — zaliczony: brak poprzednich konkretnych wartości właściciela poza `Analizy/Release.md`; skrypt nie wypisywał samych wartości.
+- `rg -n 'TU_WSTAW' --glob '!AGENTS.md' --glob '!Analizy/Release.md' .` — brak trafień w publicznych plikach.
+- `rg -n 'INSERT_YOUR_' shared Audio NPCGenerator DataSlate Calculators Main` — potwierdzono angielskie placeholdery w oczekiwanych konfiguracjach, dokumentacji przykładowej i pliku Main.
+- `rg` dla adresów e-mail poza `Analizy/Release.md` — brak commitowanych adresów e-mail.
+- `rg` dla URL-i Discord poza `AGENTS.md` i `Analizy/Release.md` — brak trafień w publicznych plikach.
+- `git diff --quiet -- DataSlate/config/web-push-config.js DataSlate/config/web-push-config.production.example.js` — zaliczone: pliki konfiguracji Web Push nie zostały zmienione.
+- `git -c core.whitespace=cr-at-eol diff --check` — zaliczone.
+- `node --check DataVault/app.js`, `node --check DiceRoller/script.js`, `node --check NameGenerator/script.js` — zaliczone.
+- `node --check shared/firebase-config.js`, `node --check Audio/config/firebase-config.js`, `node --check NPCGenerator/config/firebase-config.js`, `node --check DataSlate/config/firebase-config.js`, `node --check Calculators/config/firebase-config.js` — zaliczone.
+- `python3 -m http.server 8765` oraz `curl` — pierwsza próba wystartowała zbyt wolno dla natychmiastowego żądania; po dodaniu oczekiwania na gotowość serwera test zaliczono: HTTP 200 dla wszystkich 12 wymaganych stron wejściowych.
+
+### Ryzyka i następne kroki
+
+1. Kolejnym logicznym etapem po czyszczeniu Firebase powinno być osobne usunięcie Web Push z Release bez naruszenia komunikacji Firestore DataSlate panel GM → ekran gracza.
+2. Po wdrożeniu własnego projektu Firebase należy wykonać ręczne testy integracyjne Firestore i RTDB: DataSlate GM → ekran gracza, Audio favorites/settings, NPC favorites, Character Creation save/load oraz wspólny loader DataVault/NPCGenerator.
+3. Placeholdery celowo powodują stan wymagający konfiguracji do czasu wpisania wartości własnej grupy.
+4. Neutralna nazwa named-app `wg-private-data` zmienia klucz lokalnej sesji Firebase względem prywatnego wdrożenia właściciela; po wpisaniu własnej konfiguracji użytkownik powinien zalogować się ponownie.
+5. Neutralne makiety XLSX nadal wymagają dostarczenia i walidacji w osobnym etapie.
+6. Pliki testowe, backupowe i robocze nadal wymagają osobnej decyzji lub czyszczenia przed finalną publiczną paczką.
