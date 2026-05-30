@@ -3698,3 +3698,63 @@ Poniższe pliki są do usunięcia:\nDoZrobienia.md\nIkonaPowiadomien.png\nDataSl
 - Historyczne sekcje `Analizy/Release.md` nadal wymieniają usunięte pliki. Jest to celowe: zgodnie z zasadą dziennika Release starsze wpisy pozostają niezmienione, a niniejsza datowana sekcja rejestruje późniejszą decyzję właściciela.
 - `DataVault/docs/Documentation.md` nadal zawiera obszerną polską część techniczną po angielskim skrócie. Nie zmieniano jej w ramach tego zadania, ponieważ zakres obejmował usunięcie nieaktualnego odwołania do `DetaleLayout.md`, a nie pełne tłumaczenie dokumentacji technicznej.
 - Pozostałych plików z wcześniejszej tabeli rekomendacji nie należy usuwać bez nowej decyzji właściciela.
+
+## Aktualizacja — 2026-05-30 — angielskie nazwy generowane przez NameGenerator
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Zmodyfikuj kod modułu NameGenerator.\nW NameGenerator/docs/translations.md masz tabelę z tłumaczeniami.\nZaktualizuj nazwy zgodnie z przypisaniem w tabeli. Następnie zaktualizuj Analizy/Release.md
+```
+
+### Zakres prac
+
+- Przeczytano bieżący dziennik `Analizy/Release.md` oraz obowiązujący repozytoryjny `AGENTS.md` przed rozpoczęciem edycji.
+- Odczytano tabelę przypisań PL → Eng z `NameGenerator/docs/translations.md`.
+- Zaktualizowano wartości generowane przez `NameGenerator/script.js` zgodnie z tabelą tłumaczeń.
+- Zachowano istniejącą architekturę generatora, wagi losowania, warianty kategorii i mechanizm seedowanego RNG.
+- Wykonano statyczne kontrole kodu oraz test generowania próbek dla każdej opcji generatora.
+
+### Ustalenia i wnioski
+
+- Tabela `NameGenerator/docs/translations.md` zawiera 123 wiersze przypisań, w tym tytuły postaci, tytuły frakcji, prefiksy i rdzenie kryptonimów, nazwy operacji oraz cztery szablony maszyn bojowych.
+- Kod `NameGenerator/script.js` nadal przechowywał polskie wartości wynikowe objęte tabelą. Zastąpiono je przypisanymi odpowiednikami angielskimi.
+- Wpis `Plan` ma identyczną postać po polsku i po angielsku, dlatego pozostaje niezmieniony.
+- Dwa przykłady z końca tabeli (`Operacja Żelazna Zasłona` → `Operation Iron Curtain` i `Popielne Włócznicy` → `Ashen Spearmen`) są wynikami składania przetłumaczonych elementów, a nie osobnymi literałami w kodzie. Po zmianie generator składa je po angielsku z właściwych komponentów.
+- W `HUMAN.lower.titles` istniała już angielska wartość `Foreman`. Po przetłumaczeniu `Brygadzista` → `Foreman` pozostają dwa wpisy `Foreman` z dotychczasowymi wagami `2` i `1`. Jest to celowe zachowanie istniejącego rozkładu losowania: nie zmieniano wag ani struktury danych poza tłumaczeniem wartości wynikowych.
+
+### Decyzje i wymagania
+
+- Generowane wyniki modułu `NameGenerator` mają używać angielskich nazw zgodnie z tabelą `NameGenerator/docs/translations.md`.
+- Należy zachować istniejącą logikę generatora i dotychczasowe wagi losowania.
+- Tabela `NameGenerator/docs/translations.md` pozostaje materiałem referencyjnym dla przypisań zastosowanych w kodzie.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `NameGenerator/script.js` | Zastąpiono polskie tytuły, nazwy i elementy kryptonimów angielskimi odpowiednikami oraz zaktualizowano szyk czterech szablonów nazw maszyn bojowych. |
+| `Analizy/Release.md` | Dopisano niniejszy zapis zakresu, ustaleń, decyzji, implementacji i testów. |
+
+### Szczegóły zmian w kodzie
+
+#### `NameGenerator/script.js`
+
+- **Stan przed zmianą:** słowniki wynikowe nadal zawierały polskie tytuły postaci i frakcji, polskie nazwy używane przez maszyny bojowe, polskie komponenty kryptonimów oddziałów i operacji oraz polskie szablony nazw maszyn bojowych.
+- **Stan po zmianie:** wartości objęte tabelą `NameGenerator/docs/translations.md` zostały zastąpione odpowiednikami angielskimi.
+- **Szablony maszyn bojowych:** zmieniono szyk z polskich formatów `Czołg [typ]`, `Tytan klasy [typ]`, `Rycerz wzorca [typ]`, `Statek powietrzny [typ]` na angielskie formaty `[type] Tank`, `[type]-class Titan`, `[type]-pattern Knight`, `[type] Aircraft`.
+- **Powód:** użytkownik dostarczył tabelę tłumaczeń i polecił zastosować przypisania do nazw generowanych przez moduł.
+
+### Testy
+
+- `python - <<'PY' ... PY` — PASS: sprawdzono wszystkie 123 wiersze tabeli i potwierdzono, że w `NameGenerator/script.js` nie pozostały tłumaczone polskie literały ani stare polskie szablony maszyn bojowych. Wiersz `Plan` pominięto jako celowo identyczny w obu językach.
+- `node --check NameGenerator/script.js` — PASS: parser Node.js nie zgłosił błędów składni JavaScript.
+- `git diff --check` — PASS: brak błędów whitespace.
+- `node <<'NODE' ... NODE` — PASS: uruchomiono moduł w lekkim stubie DOM, wygenerowano 6200 niepustych seedowanych próbek obejmujących każdą opcję `NameGenerator` i potwierdzono angielskie formaty wszystkich czterech rodzajów maszyn bojowych.
+- `(python3 -m http.server 8765 --bind 127.0.0.1 ...); chromium --headless ...` — WARNING: próba wykonania zrzutu ekranu nie mogła zostać zakończona, ponieważ środowisko nie zawiera binariów Chromium, Chrome ani Firefox oraz nie ma lokalnego pakietu Playwright. Serwer lokalny został zatrzymany po kontroli.
+
+### Ryzyka i następne kroki
+
+- Interfejs PL/EN modułu pozostaje bez zmian; zadanie dotyczyło wynikowych nazw generatora. Polskie etykiety interfejsu nadal są potrzebne po przełączeniu selektora na `Polski`.
+- Nazwa tablicy `WAR.nounsPL` stała się historyczna po przetłumaczeniu jej wartości. Nie zmieniano identyfikatora technicznego, ponieważ nie jest widoczny publicznie, a minimalny zakres zmiany ogranicza ryzyko regresji.
+- W przyszłości można rozważyć scalenie dwóch wpisów `Foreman` w `HUMAN.lower.titles` do jednego wpisu o wadze `3`, ale nie jest to wymagane funkcjonalnie i nie wykonano tego w tym zadaniu, aby nie rozszerzać zakresu poza tłumaczenie wartości.

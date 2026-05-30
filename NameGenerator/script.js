@@ -228,10 +228,10 @@ const HUMAN = {
     titles: [
       { v: "Lord", w: 3 },
       { v: "Lady", w: 2 },
-      { v: "Prefekt", w: 2 },
-      { v: "Kanclerz", w: 1 },
-      { v: "Gubernator", w: 1 },
-      { v: "Mistrz Dworu", w: 1 },
+      { v: "Prefect", w: 2 },
+      { v: "Chancellor", w: 1 },
+      { v: "Governor", w: 1 },
+      { v: "Master of the Court", w: 1 },
     ],
   },
   lower: {
@@ -266,10 +266,10 @@ const HUMAN = {
       { v: "ward", w: 1 },
     ],
     titles: [
-      { v: "Brygadzista", w: 2 },
-      { v: "Mistrz Złomu", w: 1 },
-      { v: "Łowca Nagród", w: 1 },
-      { v: "Sumpowy nożownik", w: 1 },
+      { v: "Foreman", w: 2 },
+      { v: "Scrapmaster", w: 1 },
+      { v: "Bounty Hunter", w: 1 },
+      { v: "Sump Knifeman", w: 1 },
       { v: "Foreman", w: 1 },
     ],
   },
@@ -307,12 +307,12 @@ const ASTARTES = {
     { v: "breaker", w: 1 }, { v: "caller", w: 1 }, { v: "sunder", w: 1 }, { v: "mark", w: 1 }, { v: "claw", w: 1 },
   ],
   titles: [
-    { v: "Brat", w: 4 },
-    { v: "Brat Sierżant", w: 2 },
-    { v: "Weteran", w: 1 },
-    { v: "Kapitan", w: 1 },
-    { v: "Kapelan", w: 1 },
-    { v: "Bibliotekarz", w: 1 },
+    { v: "Brother", w: 4 },
+    { v: "Brother-Sergeant", w: 2 },
+    { v: "Veteran", w: 1 },
+    { v: "Captain", w: 1 },
+    { v: "Chaplain", w: 1 },
+    { v: "Librarian", w: 1 },
   ],
 };
 
@@ -376,9 +376,9 @@ const AELDARI = {
       { v: "essar", w: 1 }, { v: "mir", w: 1 }, { v: "niel", w: 2 }, { v: "thir", w: 1 }, { v: "vian", w: 1 }, { v: "rael", w: 1 },
     ],
     titles: [
-      { v: "Widzący", w: 1 },
+      { v: "Seer", w: 1 },
       { v: "Warlock", w: 1 },
-      { v: "Autarcha", w: 1 },
+      { v: "Autarch", w: 1 },
     ],
   },
   drukh: {
@@ -398,9 +398,9 @@ const AELDARI = {
       { v: "malys", w: 1 }, { v: "hesp", w: 1 }, { v: "vecth", w: 1 }, { v: "drah", w: 1 }, { v: "scar", w: 1 },
     ],
     titles: [
-      { v: "Archont", w: 1 },
-      { v: "Sybaryta", w: 1 },
-      { v: "Mistrzyni Wych", w: 1 },
+      { v: "Archon", w: 1 },
+      { v: "Sybarite", w: 1 },
+      { v: "Wych Mistress", w: 1 },
     ],
   },
   harl: {
@@ -420,9 +420,9 @@ const AELDARI = {
       { v: "whisper", w: 1 }, { v: "gleam", w: 1 },
     ],
     titles: [
-      { v: "Wędrowiec Maski", w: 1 },
-      { v: "Wieszcz Cienia", w: 1 },
-      { v: "Błazen Śmierci", w: 1 },
+      { v: "Mask Wanderer", w: 1 },
+      { v: "Shadowseer", w: 1 },
+      { v: "Death Jester", w: 1 },
     ],
   },
 };
@@ -446,9 +446,9 @@ const NECRON = {
     { v: "mose", w: 1 }, { v: "seth", w: 1 }, { v: "nih", w: 1 }, { v: "meph", w: 1 }, { v: "nov", w: 1 },
   ],
   warriorTitles: [
-    { v: "Wojownik", w: 5 },
-    { v: "Nieśmiertelny", w: 2 },
-    { v: "Egzekutor", w: 1 },
+    { v: "Warrior", w: 5 },
+    { v: "Immortal", w: 2 },
+    { v: "Executioner", w: 1 },
   ],
   lordTitles: [
     { v: "Lord", w: 4 },
@@ -503,10 +503,10 @@ const CHAOS = {
       { v: "azar", w: 1 }, { v: "ith", w: 1 }, { v: "ul", w: 1 }, { v: "tor", w: 1 }, { v: "vex", w: 1 },
     ],
     titles: [
-      { v: "Czempion", w: 3 },
-      { v: "Mroczny Apostoł", w: 1 },
-      { v: "Heretyk", w: 1 },
-      { v: "Wybraniec Chaosu", w: 1 },
+      { v: "Champion", w: 3 },
+      { v: "Dark Apostle", w: 1 },
+      { v: "Heretic", w: 1 },
+      { v: "Chosen of Chaos", w: 1 },
     ],
   },
   khorne: {
@@ -526,10 +526,10 @@ const CHAOS = {
       { v: "rax", w: 1 }, { v: "zarr", w: 1 }, { v: "vorn", w: 1 }, { v: "gash", w: 1 }, { v: "rend", w: 2 },
     ],
     titles: [
-      { v: "Rzeźnik", w: 2 },
-      { v: "Czempion Khorne'a", w: 2 },
-      { v: "Rozpruwacz", w: 1 },
-      { v: "Nosiciel Czaszek", w: 1 },
+      { v: "Butcher", w: 2 },
+      { v: "Champion of Khorne", w: 2 },
+      { v: "Ripper", w: 1 },
+      { v: "Skullbearer", w: 1 },
     ],
   },
   nurgle: {
@@ -549,10 +549,10 @@ const CHAOS = {
       { v: "gasp", w: 1 }, { v: "gul", w: 1 }, { v: "mur", w: 1 }, { v: "bog", w: 1 }, { v: "ooze", w: 1 },
     ],
     titles: [
-      { v: "Herold Plugastwa", w: 2 },
-      { v: "Nosiciel Zarazy", w: 2 },
-      { v: "Błogosławiony Nurgle'a", w: 1 },
-      { v: "Rozsiewca Zgnilizny", w: 1 },
+      { v: "Herald of Filth", w: 2 },
+      { v: "Plaguebearer", w: 2 },
+      { v: "Blessed of Nurgle", w: 1 },
+      { v: "Spreader of Rot", w: 1 },
     ],
   },
   tzeent: {
@@ -572,10 +572,10 @@ const CHAOS = {
       { v: "thir", w: 1 }, { v: "vian", w: 1 }, { v: "rael", w: 1 }, { v: "xyr", w: 1 }, { v: "loth", w: 1 },
     ],
     titles: [
-      { v: "Czarownik", w: 3 },
-      { v: "Wyrocznia Przemiany", w: 1 },
-      { v: "Prorok Tzeentcha", w: 1 },
-      { v: "Tkacz Losów", w: 1 },
+      { v: "Sorcerer", w: 3 },
+      { v: "Oracle of Change", w: 1 },
+      { v: "Prophet of Tzeentch", w: 1 },
+      { v: "Weaver of Fates", w: 1 },
     ],
   },
   slaan: {
@@ -595,10 +595,10 @@ const CHAOS = {
       { v: "vane", w: 1 }, { v: "lure", w: 1 }, { v: "kiss", w: 1 }, { v: "rath", w: 1 }, { v: "veil", w: 1 },
     ],
     titles: [
-      { v: "Mistrz Rozkoszy", w: 1 },
-      { v: "Wybraniec Slaanesha", w: 2 },
-      { v: "Kusiciel", w: 1 },
-      { v: "Sybaryta", w: 1 },
+      { v: "Master of Pleasure", w: 1 },
+      { v: "Chosen of Slaanesh", w: 2 },
+      { v: "Tempter", w: 1 },
+      { v: "Sybarite", w: 1 },
     ],
   },
 };
@@ -625,10 +625,10 @@ const SORORITAS = {
     { v: "is", w: 2 }, { v: "a", w: 2 }, { v: "e", w: 1 },
   ],
   titles: [
-    { v: "Siostra", w: 5 },
-    { v: "Siostra Przełożona", w: 1 },
-    { v: "Kanoniczka", w: 1 },
-    { v: "Palatyna", w: 1 },
+    { v: "Sister", w: 5 },
+    { v: "Sister Superior", w: 1 },
+    { v: "Canoness", w: 1 },
+    { v: "Palatine", w: 1 },
   ],
 };
 
@@ -648,10 +648,10 @@ const WAR = {
     { v: "Valkyrie", w: 4 }, { v: "Vendetta", w: 2 }, { v: "Vulture", w: 2 }, { v: "Thunderbolt", w: 2 }, { v: "Lightning", w: 1 },
   ],
   nounsPL: [
-    { v: "Triumf", w: 3 }, { v: "Pokuta", w: 3 }, { v: "Wyrok", w: 2 }, { v: "Odsiecz", w: 1 }, { v: "Błyskawica", w: 1 },
-    { v: "Zemsta", w: 4 }, { v: "Nieugiętość", w: 2 }, { v: "Cisza", w: 1 }, { v: "Przysięga", w: 3 }, { v: "Pochodnia", w: 1 },
-    { v: "Żelazo", w: 2 }, { v: "Grom", w: 2 }, { v: "Litania", w: 1 }, { v: "Żar", w: 1 }, { v: "Świt", w: 1 },
-    { v: "Zmierzch", w: 1 }, { v: "Krucjata", w: 2 }, { v: "Męstwo", w: 1 }, { v: "Zaciętość", w: 1 }, { v: "Czujność", w: 1 },
+    { v: "Triumph", w: 3 }, { v: "Penance", w: 3 }, { v: "Judgment", w: 2 }, { v: "Relief", w: 1 }, { v: "Lightning", w: 1 },
+    { v: "Vengeance", w: 4 }, { v: "Defiance", w: 2 }, { v: "Silence", w: 1 }, { v: "Oath", w: 3 }, { v: "Torch", w: 1 },
+    { v: "Iron", w: 2 }, { v: "Thunder", w: 2 }, { v: "Litany", w: 1 }, { v: "Ember", w: 1 }, { v: "Dawn", w: 1 },
+    { v: "Dusk", w: 1 }, { v: "Crusade", w: 2 }, { v: "Valor", w: 1 }, { v: "Ferocity", w: 1 }, { v: "Vigilance", w: 1 },
   ],
 };
 
@@ -723,27 +723,27 @@ const SHIP = {
 
 const CODEX = {
   unitPrefix: [
-    { v: "Szpony", w: 2 }, { v: "Widma", w: 1 }, { v: "Wilki", w: 1 }, { v: "Kruki", w: 1 }, { v: "Żelazne", w: 2 },
-    { v: "Czarne", w: 2 }, { v: "Popielne", w: 1 }, { v: "Purpurowe", w: 1 }, { v: "Błyszczące", w: 1 }, { v: "Milczące", w: 2 },
-    { v: "Ślepe", w: 1 }, { v: "Ukryte", w: 1 }, { v: "Złamane", w: 1 }, { v: "Siódme", w: 1 }, { v: "Dziewiąte", w: 1 },
+    { v: "Talons", w: 2 }, { v: "Wraiths", w: 1 }, { v: "Wolves", w: 1 }, { v: "Ravens", w: 1 }, { v: "Iron", w: 2 },
+    { v: "Black", w: 2 }, { v: "Ashen", w: 1 }, { v: "Crimson", w: 1 }, { v: "Gleaming", w: 1 }, { v: "Silent", w: 2 },
+    { v: "Blind", w: 1 }, { v: "Hidden", w: 1 }, { v: "Broken", w: 1 }, { v: "Seventh", w: 1 }, { v: "Ninth", w: 1 },
   ],
   unitCore: [
-    { v: "Ostrza", w: 3 }, { v: "Młoty", w: 2 }, { v: "Włócznie", w: 2 }, { v: "Straże", w: 3 }, { v: "Myśliwi", w: 2 },
-    { v: "Łowcy", w: 2 }, { v: "Sępy", w: 1 }, { v: "Wilki", w: 1 }, { v: "Noże", w: 1 }, { v: "Sękate Pięści", w: 1 },
-    { v: "Cienie", w: 2 }, { v: "Wektory", w: 1 }, { v: "Baterie", w: 1 }, { v: "Żniwiarze", w: 2 }, { v: "Włócznicy", w: 1 },
+    { v: "Blades", w: 3 }, { v: "Hammers", w: 2 }, { v: "Spears", w: 2 }, { v: "Guards", w: 3 }, { v: "Hunters", w: 2 },
+    { v: "Stalkers", w: 2 }, { v: "Vultures", w: 1 }, { v: "Wolves", w: 1 }, { v: "Knives", w: 1 }, { v: "Gnarled Fists", w: 1 },
+    { v: "Shadows", w: 2 }, { v: "Vectors", w: 1 }, { v: "Batteries", w: 1 }, { v: "Reapers", w: 2 }, { v: "Spearmen", w: 1 },
   ],
   operationPrefix: [
-    { v: "Operacja", w: 6 },
-    { v: "Protokół", w: 2 },
-    { v: "Dyrektywa", w: 2 },
+    { v: "Operation", w: 6 },
+    { v: "Protocol", w: 2 },
+    { v: "Directive", w: 2 },
     { v: "Plan", w: 1 },
-    { v: "Wariant", w: 1 },
+    { v: "Variant", w: 1 },
   ],
   operationCore: [
-    { v: "Popiół", w: 2 }, { v: "Czarny Świt", w: 2 }, { v: "Martwa Cisza", w: 2 }, { v: "Żelazna Zasłona", w: 2 },
-    { v: "Ostatnia Litania", w: 1 }, { v: "Krwawy Horyzont", w: 1 }, { v: "Próg Nocy", w: 1 }, { v: "Pusty Tron", w: 1 },
-    { v: "Szary Płomień", w: 1 }, { v: "Szkło i Popiół", w: 1 }, { v: "Czysty Wyrok", w: 1 }, { v: "Martwe Niebo", w: 1 },
-    { v: "Pył i Żelazo", w: 1 }, { v: "Długi Zmierzch", w: 1 }, { v: "Pochodnia", w: 1 },
+    { v: "Ash", w: 2 }, { v: "Black Dawn", w: 2 }, { v: "Dead Silence", w: 2 }, { v: "Iron Curtain", w: 2 },
+    { v: "Last Litany", w: 1 }, { v: "Bloody Horizon", w: 1 }, { v: "Threshold of Night", w: 1 }, { v: "Empty Throne", w: 1 },
+    { v: "Grey Flame", w: 1 }, { v: "Glass and Ash", w: 1 }, { v: "Pure Judgment", w: 1 }, { v: "Dead Sky", w: 1 },
+    { v: "Dust and Iron", w: 1 }, { v: "Long Dusk", w: 1 }, { v: "Torch", w: 1 },
   ],
   operationTag: [
     { v: "", w: 8 },
@@ -822,10 +822,10 @@ function genAdMechSkit(rand) {
     const titleChance = rand();
 
     if (titleChance < 0.18) {
-      return cleanName(`Skitariusz Alfa ${unit} ${n}`);
+      return cleanName(`Skitarius Alpha ${unit} ${n}`);
     }
     if (titleChance < 0.36) {
-      return cleanName(`Prefekt ${unit} ${n}`);
+      return cleanName(`Prefect ${unit} ${n}`);
     }
     return cleanName(`${unit} ${n}`);
   }, rand);
@@ -957,15 +957,15 @@ function genWarMachine(rand, kind) {
   const base = pickWeighted(WAR.nounsPL, rand);
 
   if (kind === "tank") {
-    return formatNamedThing(`Czołg ${pickWeighted(WAR.tanks, rand)}`, base);
+    return formatNamedThing(`${pickWeighted(WAR.tanks, rand)} Tank`, base);
   }
   if (kind === "titan") {
-    return formatNamedThing(`Tytan klasy ${pickWeighted(WAR.titans, rand)}`, base);
+    return formatNamedThing(`${pickWeighted(WAR.titans, rand)}-class Titan`, base);
   }
   if (kind === "knight") {
-    return formatNamedThing(`Rycerz wzorca ${pickWeighted(WAR.knights, rand)}`, base);
+    return formatNamedThing(`${pickWeighted(WAR.knights, rand)}-pattern Knight`, base);
   }
-  return formatNamedThing(`Statek powietrzny ${pickWeighted(WAR.air, rand)}`, base);
+  return formatNamedThing(`${pickWeighted(WAR.air, rand)} Aircraft`, base);
 }
 
 function genShip(rand, faction) {
