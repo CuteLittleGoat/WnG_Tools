@@ -869,3 +869,59 @@ Katalog tłumaczeń może nadal zostać przygotowany jako materiał do kolejnego
 6. Wprowadzić angielski interfejs `NameGenerator` bez ingerencji w język generowanych wyników.
 7. Zachować PDF-y Calculators.
 8. Wrócić na dalszym etapie do nierozstrzygniętych plików z sekcji 7.4 oraz decyzji o `manifest.webmanifest`, ikonach i sposobie budowania publicznej paczki.
+
+## Aktualizacja — 2026-05-30 — ponowna weryfikacja blokera `AGENTS.md`
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Sprawdź czy obecna treść pliku AGENTS.md w dalszym ciągu blokuje prace związane z Release. Nic nie zmieniaj w kodzie aplikacji. Sprawdź czy bloker jest usunięty.
+```
+
+### Zakres prac
+
+Ponownie odczytano aktualny główny plik `AGENTS.md`, lokalny plik `Infoczytnik/AGENTS.md`, wcześniejsze ustalenia zapisane w `Analizy/Release.md` oraz stan roboczy repozytorium. Nie zmieniano kodu aplikacji ani plików `AGENTS.md`.
+
+### Ustalenia i wnioski
+
+Bloker nie został jeszcze w pełni usunięty.
+
+Główny `AGENTS.md` został dostosowany do etapu Release i opisuje docelowy plan prac. Nadal zawiera jednak jednoznaczny zakaz edytowania, przenoszenia, zmiany nazwy oraz usuwania plików `AGENTS.md`, chyba że użytkownik wyraźnie poprosi właśnie o taką zmianę. Automatyczne przemianowanie całego katalogu `Infoczytnik/` na `DataSlate/` przeniosłoby znajdujący się w nim plik `Infoczytnik/AGENTS.md`, więc bez osobnego wyraźnego polecenia nadal naruszałoby tę regułę.
+
+Dodatkowo lokalny `Infoczytnik/AGENTS.md` nadal ma starą treść procesu prywatnego: zezwala na zmiany kodu modułu wyłącznie w plikach `GM_test.html` i `Infoczytnik_test.html`, zakazuje modyfikowania produkcyjnych `GM.html` i `Infoczytnik.html`, wymaga aktualizacji `INF_VERSION` w obu plikach testowych oraz narzuca dokumentację pod starymi ścieżkami `Infoczytnik/docs/...`. Te lokalne instrukcje nadal utrudniają docelowe prace Release nad modułem DataSlate i są sprzeczne z planem wykluczenia testowych i backupowych plików z finalnej publicznej paczki.
+
+Pozostałe prace Release poza zakresem `Infoczytnik/` mogą być planowane zgodnie z głównym `AGENTS.md`. Nie należy jednak rozpoczynać pełnego przemianowania `Infoczytnik/` ani modyfikacji jego produkcyjnych ekranów do czasu rozwiązania konfliktu instrukcji lokalnych.
+
+### Decyzje i wymagania
+
+- Nie zmieniono żadnego pliku `AGENTS.md`, ponieważ użytkownik poprosił wyłącznie o weryfikację.
+- Nie zmieniono kodu aplikacji.
+- Aby usunąć bloker, właściciel powinien wyraźnie zlecić zmianę, przeniesienie albo zastąpienie lokalnego `Infoczytnik/AGENTS.md` instrukcją zgodną z etapem Release lub wykonać ten krok ręcznie.
+- Po rozwiązaniu konfliktu należy ponownie odczytać wszystkie obowiązujące pliki `AGENTS.md` przed implementacją DataSlate.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `Analizy/Release.md` | Dopisano wyłącznie wynik ponownej analizy blokera instrukcji. |
+
+### Szczegóły zmian w kodzie
+
+Kod aplikacji nie został zmieniony. Aktualizacja dotyczy wyłącznie dziennika analizy Release.
+
+### Testy
+
+Wykonano statyczną weryfikację:
+
+- sprawdzono stan roboczy repozytorium;
+- wyszukano wszystkie pliki `AGENTS.md` w repozytorium;
+- odczytano główny `AGENTS.md` i lokalny `Infoczytnik/AGENTS.md`;
+- wyszukano zakazy i wcześniejsze wpisy dotyczące blokera w `Analizy/Release.md`;
+- potwierdzono, że nie zmieniono kodu aplikacji.
+
+### Ryzyka i następne kroki
+
+1. Pełne przemianowanie `Infoczytnik/` na `DataSlate/` nadal jest zablokowane, ponieważ przeniosłoby chroniony lokalny plik `AGENTS.md`.
+2. Produkcyjne ekrany DataSlate nadal nie mogą być zmieniane przez agenta w obecnym zakresie instrukcji lokalnych.
+3. Właściciel powinien osobno rozstrzygnąć treść i położenie lokalnego pliku instrukcji dla DataSlate.
+4. Po tej zmianie należy wykonać kolejną krótką weryfikację blokera przed rozpoczęciem zmian implementacyjnych.
