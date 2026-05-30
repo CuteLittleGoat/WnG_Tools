@@ -46,6 +46,14 @@ Use it when module data needs refreshing after source updates. After clicking it
 - Page references in parentheses (for example `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) are automatically shown in a lighter color.
 - `Słowa Kluczowe` columns use extra rendering rules (for example neutral commas and the `Pakiety Wyniesienia` exception), documented in detail in `docs/ZasadyFormatowania.md`.
 
+## Sample files
+The `DataVault/SampleFiles/` folder contains ready-to-use DataVault examples:
+- `Repozytorium.xlsx` provides a prepared worksheet and column structure. It also includes sample records that demonstrate formatting rules such as red text and strikethrough.
+- `data.json` is the generated backup example.
+- `firebase-import.json` is the generated Firebase RTDB import example. Import it under the DataVault path documented below: `/datavault/live`.
+
+You can copy the XLSX structure and replace the sample records with your own data before generating a new pair of JSON files.
+
 ## Current data source
 Click **Generate data files** to choose a local `Repozytorium.xlsx` file. The app generates `data.json` (backup) and `firebase-import.json` (import only this file into Firebase RTDB at `/datavault/live`).
 
@@ -141,6 +149,14 @@ Używaj go, gdy chcesz odświeżyć dane modułu po aktualizacji pliku źródło
   - pogrubienie/kursywa/przekreślenie -> zachowane 1:1 w aplikacji.
 - Odnośniki stron w nawiasach (np. `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) są automatycznie wyświetlane jaśniejszym kolorem.
 - W kolumnach `Słowa Kluczowe` obowiązują dodatkowe reguły renderowania (np. neutralny przecinek, wyjątek dla `Pakiety Wyniesienia`), opisane szczegółowo w `docs/ZasadyFormatowania.md`.
+
+## Przykładowe pliki
+Folder `DataVault/SampleFiles/` zawiera gotowe przykładowe pliki DataVault:
+- `Repozytorium.xlsx` ma przygotowaną strukturę zakładek i kolumn. Zawiera też przykładowe rekordy pokazujące zasady formatowania, takie jak czerwony kolor tekstu i przekreślenie.
+- `data.json` jest wygenerowanym przykładem pliku backupowego.
+- `firebase-import.json` jest wygenerowanym przykładem pliku importu do Firebase RTDB. Importuj go pod opisaną niżej ścieżkę DataVault: `/datavault/live`.
+
+Możesz skopiować strukturę XLSX i zastąpić przykładowe dane własnymi przed wygenerowaniem nowej pary plików JSON.
 
 ## Aktualne źródło danych
 Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup) oraz `firebase-import.json` (tylko ten plik importuj do Firebase RTDB `/datavault/live`).

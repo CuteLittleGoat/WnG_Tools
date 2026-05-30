@@ -95,19 +95,24 @@
 
   async function loadStyles(zip){
     const file = zip.file("xl/styles.xml");
-    if (!file) return {cellXfRed:[]};
+    if (!file) return {cellXfFormats:[]};
     const xml = parseXml(await file.async("string"));
-    const fonts = qa(xml, "fonts > font").map((font)=>isRedColor(q(font, "color")));
-    const cellXfRed = qa(xml, "cellXfs > xf").map((xf)=>{
+    const fonts = qa(xml, "fonts > font").map((font)=>({
+      red: isRedColor(q(font, "color")),
+      bold: isEnabled(q(font, "b")),
+      italic: isEnabled(q(font, "i")),
+      strike: isEnabled(q(font, "strike")),
+    }));
+    const cellXfFormats = qa(xml, "cellXfs > xf").map((xf)=>{
       const fontId = Number(xf.getAttribute("fontId") || "0");
-      return fontId >= 0 && fontId < fonts.length ? fonts[fontId] : false;
+      return fontId >= 0 && fontId < fonts.length ? fonts[fontId] : {};
     });
-    return {cellXfRed};
+    return {cellXfFormats};
   }
 
-  function styleIsRed(styles, idx){
-    if (idx == null || Number.isNaN(idx)) return false;
-    return idx < styles.cellXfRed.length && !!styles.cellXfRed[idx];
+  function styleFormat(styles, idx){
+    if (idx == null || Number.isNaN(idx)) return {};
+    return idx < styles.cellXfFormats.length ? styles.cellXfFormats[idx] : {};
   }
 
   function colToIndex(ref){
@@ -148,7 +153,7 @@
         const cellType = cell.getAttribute("t");
         const styleIdx = cell.getAttribute("s");
         const styleIdxInt = styleIdx != null && /^\d+$/.test(styleIdx) ? Number(styleIdx) : null;
-        const isRedStyle = styleIsRed(styles, styleIdxInt);
+        const cellFormat = styleFormat(styles, styleIdxInt);
         const vNode = q(cell, "v");
         let value = "";
 
@@ -156,23 +161,23 @@
           const idx = vNode?.textContent ? Number(vNode.textContent) : NaN;
           const item = Number.isNaN(idx) ? {text:"", hasRuns:false} : (sharedStrings[idx] || {text:"", hasRuns:false});
           value = item.text || "";
-          if (isRedStyle && !item.hasRuns && !value.includes("{{RED}}")){
-            value = wrapWithMarkers(value, {red:true});
+          if (!item.hasRuns && Object.values(cellFormat).some(Boolean)){
+            value = wrapWithMarkers(value, cellFormat);
           }
         } else if (cellType === "inlineStr"){
           const isNode = q(cell, "is") || cell;
           const item = richTextToString(isNode);
           value = item.text || "";
-          if (isRedStyle && !item.hasRuns && !value.includes("{{RED}}")){
-            value = wrapWithMarkers(value, {red:true});
+          if (!item.hasRuns && Object.values(cellFormat).some(Boolean)){
+            value = wrapWithMarkers(value, cellFormat);
           }
         } else if (cellType === "b"){
           const raw = vNode?.textContent || "";
           value = ["1","true","TRUE"].includes(raw) ? "TRUE" : "FALSE";
         } else {
           value = vNode?.textContent || "";
-          if (isRedStyle && value && !String(value).includes("{{RED}}")){
-            value = wrapWithMarkers(String(value), {red:true});
+          if (value && Object.values(cellFormat).some(Boolean)){
+            value = wrapWithMarkers(String(value), cellFormat);
           }
         }
         cells[col] = value;
