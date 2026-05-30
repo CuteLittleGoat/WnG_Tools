@@ -719,3 +719,153 @@ Najbliższy etap implementacyjny powinien rozpocząć się dopiero po odpowiedzi
 - aktualizacja dokumentacji;
 - zbudowanie czystego publicznego artefaktu;
 - kompletne testy z pustymi placeholderami oraz z testową infrastrukturą nowej grupy.
+
+---
+
+## 15. Uzupełnienie analizy po decyzjach właściciela — 2026-05-30
+
+### 15.1. Oryginalny pełny prompt użytkownika
+
+```text
+Przeczyaj i rozbuduj analizę Analizy/Release.md\nNic nie usuwaj. Dodaj tylko pełen nowy prompt i nowe uwagi/uzupełnienia oraz wnioski.\n\n4.4. Bloker dotyczący DataSlate/AGENTS.md\n- Pliki AGENTS.md zostaną przeredagowane. Nie będą blokerami.\n\n5.3. Zalecane placeholdery\n- Placeholdery powinny być po angielsku\n\nDataSlate Web Push\n- W wersji Release nie będzie funkcjonalności powiadomień. Wszystkie konfiguracje z tym związane są do usunięcia.\n\n6.2. Audio\n- Przygotuję nowy plik xlsx z przykładowymi danymi (tak jak przygotuję szablon pliku Repozytorium.xlsx)\n\n6.4. Main\n- Placeholdery powinny być po angielsku\n\n7.4. Pliki wymagające decyzji właściciela\n- Zostawmy to na dalszy etap. Nie ma jeszcze decyzj w tym zakresie.\n\nDecyzje do podjęcia\n1. Czy publiczne wydanie jest osobną gałęzią, czy generowanym artefaktem bez plików roboczych?\n- nie rozumiem pytania\n\n2. Czy Web Push ma być publicznie wspierany wraz z osobną instrukcją backendu, czy tylko oznaczony jako opcjonalny?\n- nie rozumiem pytania\n\n3. Czy DataSlate/assets/data/data.json i lokalne zasoby wizualne mają być publiczną makietą, czy właściciel przygotuje osobny neutralny zestaw?\n- Pliki w DataSlate nie są chronione żadnymi prawami autorskimi i mogą być wykorzystywane w takich projektach. Assety w DataSlate zostają jak jest.\n\n4. Czy docelowa nazwa manifestu Audio pozostaje zgodna z kodem jako AudioManifest.xlsx, czy ma zostać ujednolicona do Audio_Manifest.xlsx?\n- Plik xlsx będzie mieć taką nazwę jak obecnie jest wykorzystywany w kodzie. Zmienię tylko jego zawartość.\n\n5. Czy angielski NameGenerator ma generować angielskie wyniki, czy tylko angielski interfejs?\n- Na tym etapie tylko interfejs angielski. Wynikami zajmiemy się na kolejnym etapie\n\n6. Czy PDF-y instrukcji Calculators mają pozostać w publicznym wydaniu?\n- Tak. Pliki PDF z instrukcjami mają pozostać.\n\n7. Czy nazwa aplikacji w manifest.webmanifest i publiczne ikony pozostają bez zmian?\n- Decyzja zostanie podjęta na późniejszym etapie.
+```
+
+### 15.2. Zasada interpretacji tego uzupełnienia
+
+Poniższe ustalenia są aktualnymi decyzjami właściciela i mają pierwszeństwo przy planowaniu dalszych prac. Wcześniejsze sekcje pozostają w pliku, ponieważ właściciel polecił niczego nie usuwać. Jeżeli wcześniejsza rekomendacja jest sprzeczna z niniejszym uzupełnieniem, podczas implementacji należy stosować treść sekcji 15.
+
+### 15.3. Aktualizacja sekcji 4.4 — `DataSlate/AGENTS.md`
+
+Pliki `AGENTS.md` zostaną przeredagowane przez właściciela i docelowo nie będą blokerami prac nad wydaniem Release. Oznacza to, że wcześniejszy bloker organizacyjny nie powinien być traktowany jako trwałe ograniczenie planu wydania.
+
+Do momentu faktycznego przeredagowania plików nadal obowiązuje ich aktualna treść. Agent AI nie może samodzielnie modyfikować, usuwać, przenosić ani tworzyć plików `AGENTS.md`. Przed rozpoczęciem przyszłej implementacji trzeba ponownie odczytać bieżące instrukcje lokalne i dopiero na ich podstawie ustalić dozwolony zakres zmian.
+
+### 15.4. Aktualizacja sekcji 5.3 i 6.4 — placeholdery wyłącznie po angielsku
+
+W publicznym wydaniu wszystkie placeholdery muszą być zapisane po angielsku. Dotyczy to zarówno konfiguracji Firebase, jak i plików konfiguracyjnych modułu `Main` oraz pozostałych neutralnych szablonów przeznaczonych do samodzielnego uzupełnienia przez odbiorcę.
+
+Przykładowa docelowa forma wspólnej konfiguracji Firebase:
+
+```js
+window.WG_FIREBASE_CONFIG = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  databaseURL: "INSERT_YOUR_DATABASE_URL",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+
+window.WG_DATA_ACCESS_EMAIL = "INSERT_YOUR_TECHNICAL_USER_EMAIL";
+```
+
+Przykładowa docelowa forma konfiguracji Firestore używanej przez moduły:
+
+```js
+window.firebaseConfig = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID"
+};
+```
+
+Przykładowa docelowa forma pliku linków `Main/ZmienneHiperlacza.md`:
+
+```text
+Map: INSERT_YOUR_MAP_LINK
+Images: INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK
+```
+
+Podczas implementacji należy wyszukać wszystkie placeholdery w repozytorium i ujednolicić je po angielsku. Nie należy ograniczać kontroli tylko do przykładów wymienionych wyżej.
+
+### 15.5. Aktualizacja DataSlate Web Push — funkcja poza zakresem Release
+
+Wersja Release nie będzie zawierała funkcjonalności powiadomień Web Push. Nie należy publikować tej funkcji jako opcjonalnej ani przygotowywać dla niej placeholderów, przykładowej konfiguracji lub instrukcji wdrożenia backendu.
+
+W trakcie implementacji Release trzeba usunąć z publicznej wersji:
+
+- konfiguracje Web Push, w tym aktywne endpointy i publiczny klucz VAPID;
+- przykładowe pliki konfiguracji Web Push, jeżeli służą wyłącznie usuniętej funkcji;
+- elementy interfejsu uruchamiające albo konfigurujące powiadomienia;
+- odwołania JavaScript, rejestrację subskrypcji i wywołania endpointów związane z powiadomieniami;
+- pliki backendu oraz dane subskrypcji, jeżeli dotyczą wyłącznie Web Push;
+- instrukcje użytkowe i techniczne opisujące Web Push;
+- testy Web Push oraz pozostałe odwołania do funkcji powiadomień w artefakcie Release.
+
+Przed usunięciem należy przeprowadzić inwentaryzację odwołań, aby nie pozostawić martwych przycisków, importów, komunikatów ani nieużywanych plików. Firebase używany przez właściwą komunikację DataSlate GM ↔ ekran gracza pozostaje osobnym zagadnieniem i nie powinien zostać usunięty przypadkowo razem z Web Push.
+
+Wcześniejsze pytanie, czy Web Push ma być wspierany wraz z backendem, czy pozostawiony jako funkcja opcjonalna, jest nieaktualne: aktualną decyzją jest całkowite wyłączenie funkcji z Release.
+
+### 15.6. Aktualizacja sekcji 6.2 — neutralny manifest Audio
+
+Właściciel przygotuje nowy arkusz XLSX z przykładowymi danymi dla modułu `Audio`, analogicznie do planowanego szablonu `DataVault/Repozytorium.xlsx`.
+
+Arkusz Audio ma zachować nazwę aktualnie wykorzystywaną przez kod, czyli `AudioManifest.xlsx`. Na tym etapie nie należy przemianowywać go na `Audio_Manifest.xlsx`. Zmieni się zawartość arkusza, a nie kontrakt nazwy pliku.
+
+Po dostarczeniu neutralnego pliku trzeba sprawdzić:
+
+1. czy moduł ładuje arkusz bez błędów;
+2. czy arkusz zachowuje wymagane kolumny;
+3. czy przykładowe dane nie zawierają prywatnych URL-i ani danych właściciela;
+4. czy wszystkie widoki i filtry Audio działają na danych przykładowych;
+5. czy dokumentacja opisuje aktualny format arkusza i sposób zastąpienia przykładów własnymi danymi.
+
+### 15.7. Aktualizacja sekcji 6.3 — zasoby DataSlate pozostają
+
+Pliki `DataSlate/assets/data/data.json` oraz lokalne zasoby wizualne DataSlate mają pozostać w publicznym wydaniu. Zgodnie z informacją właściciela pliki te mogą być wykorzystywane w takich projektach i nie wymagają przygotowania osobnego neutralnego zestawu.
+
+Ta decyzja dotyczy lokalnych assetów DataSlate. Nadal należy osobno usunąć konfiguracje Web Push oraz sprawdzić pliki zawierające prywatne odwołania do infrastruktury właściciela, takie jak mapowania hostingu, jeżeli nadal występują w repozytorium podczas implementacji.
+
+### 15.8. Aktualizacja sekcji 7.4 — decyzje odłożone na dalszy etap
+
+Pełne rozstrzygnięcie listy plików wymagających decyzji właściciela zostaje odłożone na dalszy etap. Nie należy teraz usuwać plików tylko dlatego, że zostały wymienione w sekcji 7.4.
+
+Jednocześnie właściciel podał dwie konkretne informacje, które można już zapisać jako obowiązujące:
+
+- pliki PDF z instrukcjami `Calculators` mają pozostać w publicznym wydaniu;
+- decyzja o nazwie aplikacji w `manifest.webmanifest` i publicznych ikonach zostanie podjęta później.
+
+Pozostałe pozycje sekcji 7.4 wymagają ponownego omówienia przed finalizacją publicznego artefaktu.
+
+### 15.9. Wyjaśnienie pytania o osobną gałąź i generowany artefakt
+
+Wcześniejsze pytanie brzmiało: „Czy publiczne wydanie jest osobną gałęzią, czy generowanym artefaktem bez plików roboczych?”. Dotyczyło ono sposobu utrzymywania czystej wersji publicznej:
+
+- **osobna gałąź publiczna** oznacza oddzielną gałąź Git, w której stale utrzymuje się wersję przeznaczoną do publikacji;
+- **generowany artefakt** oznacza paczkę przygotowywaną z gałęzi roboczej przez skrypt lub ręczną procedurę, która kopiuje tylko pliki potrzebne użytkownikowi i pomija pliki robocze.
+
+Decyzja nie jest jeszcze konieczna do rozpoczęcia porządkowania modułów. Należy wrócić do niej przed zaprojektowaniem finalnego procesu publikacji, ponieważ wpływa na sposób wykluczania backupów, draftów, analiz i plików testowych bez utraty materiałów potrzebnych do prywatnego rozwoju.
+
+### 15.10. Aktualizacja NameGenerator — tylko angielski interfejs na tym etapie
+
+Na bieżącym etapie `NameGenerator` ma otrzymać angielski interfejs. Nie należy jeszcze tłumaczyć generowanych wyników ani przebudowywać słowników wynikowych.
+
+Katalog tłumaczeń może nadal zostać przygotowany jako materiał do kolejnego etapu, ale nie powinien blokować wydania angielskiego interfejsu. W testach bieżącego etapu trzeba potwierdzić angielskie etykiety, przyciski, komunikaty i domyślny język UI. Ocena języka wygenerowanych nazw zostaje odłożona.
+
+### 15.11. Zaktualizowane wnioski
+
+1. Przyszła implementacja nie powinna traktować `DataSlate/AGENTS.md` jako trwałego blokera, ale musi respektować aktualne instrukcje lokalne do czasu ich przeredagowania przez właściciela.
+2. Wszystkie publiczne placeholdery mają być po angielsku, w tym wartości Firebase oraz linki konfiguracyjne `Main`.
+3. Web Push należy całkowicie usunąć z wersji Release. Nie jest to funkcja opcjonalna publicznego wydania.
+4. Komunikacja DataSlate przez Firestore pozostaje niezależna od usuwanej funkcji Web Push i musi zostać zachowana.
+5. Właściciel dostarczy neutralne arkusze `DataVault/Repozytorium.xlsx` oraz `Audio/AudioManifest.xlsx`. Nazwa manifestu Audio pozostaje zgodna z aktualnym kodem.
+6. Lokalne assety DataSlate i `DataSlate/assets/data/data.json` pozostają w wydaniu.
+7. PDF-y instrukcji Calculators pozostają w wydaniu.
+8. Decyzje dotyczące pozostałych plików z sekcji 7.4, nazwy aplikacji oraz ikon zostają odłożone.
+9. Na tym etapie `NameGenerator` otrzymuje angielski interfejs, natomiast tłumaczenie generowanych wyników będzie osobnym późniejszym zadaniem.
+10. Wybór pomiędzy osobną gałęzią publiczną a generowanym artefaktem pozostaje otwarty i wymaga decyzji dopiero przed przygotowaniem procesu publikacji.
+
+### 15.12. Zaktualizowane następne kroki
+
+1. Poczekać na przeredagowanie plików `AGENTS.md` przez właściciela i przed implementacją ponownie odczytać wszystkie instrukcje lokalne.
+2. Zinwentaryzować wszystkie odwołania do Web Push i przygotować ich kompletne usunięcie z wersji Release bez naruszania komunikacji Firestore DataSlate.
+3. Zastąpić prywatne konfiguracje Firebase angielskimi placeholderami i ujednolicić angielskie placeholdery w `Main` oraz innych publicznych szablonach.
+4. Po otrzymaniu nowych arkuszy sprawdzić neutralny `DataVault/Repozytorium.xlsx` oraz `Audio/AudioManifest.xlsx` w rzeczywistych ścieżkach ładowania danych.
+5. Zachować lokalne assety DataSlate, ale ponownie przeskanować repozytorium pod kątem prywatnych URL-i, mapowań hostingu i danych właściciela.
+6. Wprowadzić angielski interfejs `NameGenerator` bez ingerencji w język generowanych wyników.
+7. Zachować PDF-y Calculators.
+8. Wrócić na dalszym etapie do nierozstrzygniętych plików z sekcji 7.4 oraz decyzji o `manifest.webmanifest`, ikonach i sposobie budowania publicznej paczki.
