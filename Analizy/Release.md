@@ -3097,3 +3097,320 @@ Trzeba dopisać tę informację do części instrukcji po angielsku i części i
 - Poprawka parserów obejmuje istniejący model markerów stylu całej komórki i nie wprowadza nowego formatu danych. Przy kolejnych neutralnych arkuszach warto nadal testować parytet generatora CLI oraz przycisku przeglądarkowego.
 - Test faktycznego importu do projektu Firebase RTDB `/datavault/live` pozostaje krokiem wdrożeniowym dla administratora konfigurującego własny projekt grupy. W ramach tego etapu nie łączono się z żadnym projektem Firebase i nie modyfikowano integracji Firebase.
 - Nie wykonywano zmian w Web Push, DataSlate ani NameGenerator.
+
+## Aktualizacja — 2026-05-30 — finalny audyt publicznej paczki po dodaniu manifestu Audio i SampleFiles DataVault
+
+### Oryginalny pełny prompt użytkownika
+
+> Uwaga redakcyjna: wiadomość wejściowa zawierała poniższy prompt dwukrotnie, w identycznym brzmieniu. Dla czytelności dziennika zachowano pełną treść jednego egzemplarza i jawnie odnotowano identyczne powtórzenie zamiast duplikowania kilkuset linii bez nowej informacji.
+
+```text
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj kolejny etap Release: finalny audyt publicznej paczki po dodaniu produkcyjnego `Audio/AudioManifest.xlsx` oraz przykładowych plików DataVault w `DataVault/SampleFiles/`.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+  - `DataVault/docs/README.md`
+  - `Audio/docs/README.md`
+  - główne pliki wejściowe modułów publicznych.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie usuwaj ani nie zmieniaj integracji Firebase.
+- Nie przywracaj Web Push.
+- Nie usuwaj plików testowych i backupowych DataSlate.
+- Nie tłumacz generowanych wyników `NameGenerator`.
+- Nie wykonuj dużego refaktoru.
+- Nie zmieniaj struktury danych DataVault ani Audio, chyba że znajdziesz bezpośredni błąd blokujący Release.
+- Nie modyfikuj plików XLSX, chyba że wykryjesz oczywisty błąd techniczny i opiszesz powód w `Analizy/Release.md`.
+- Nie commituj zmian, chyba że środowisko Codex wymaga commita jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+CEL ETAPU:
+Sprawdzić, czy publiczna wersja aplikacji jest spójna po ostatnich zmianach i czy nie zawiera już oczywistych blokujących problemów Release:
+- prywatnych linków lub prywatnych konfiguracji właściciela;
+- starych nazw katalogów/modułów w aktualnych ścieżkach użytkowych;
+- mylących informacji w dokumentacji;
+- polskich tekstów widocznych w publicznym angielskim UI tam, gdzie Release wymaga angielskiego interfejsu;
+- brakujących informacji o przykładowych plikach DataVault i produkcyjnym manifeście Audio.
+
+ZAKRES PRAC:
+
+1. Audyt plików i dokumentacji Release
+
+Sprawdź, czy istnieją i są śledzone/obecne:
+- `Audio/AudioManifest.xlsx`
+- `DataVault/SampleFiles/Repozytorium.xlsx`
+- `DataVault/SampleFiles/data.json`
+- `DataVault/SampleFiles/firebase-import.json`
+
+Sprawdź, czy dokumentacja DataVault opisuje po angielsku i po polsku folder `DataVault/SampleFiles/` jako miejsce z przykładowymi plikami:
+- `Repozytorium.xlsx`
+- `data.json`
+- `firebase-import.json`
+
+Sprawdź, czy dokumentacja Audio nie sugeruje już, że manifest Audio dopiero ma zostać przygotowany, jeśli aktualny `Audio/AudioManifest.xlsx` jest plikiem produkcyjnym.
+
+2. Audyt prywatnych danych i prywatnych linków
+
+Wyszukaj w całym repozytorium aktualne, niehistoryczne wystąpienia potencjalnie prywatnych danych lub starych ścieżek, w szczególności:
+- stare adresy GitHub Pages lub stare nazwy projektu `WrathAndGlory`;
+- prywatne linki Discorda, map, kanałów, folderów lub hostingów właściciela;
+- aktywne endpointy Web Push;
+- stare endpointy Cloudflare Worker;
+- prawdziwe wartości Firebase właściciela;
+- prywatne e-maile techniczne właściciela;
+- wartości, które wyglądają jak prawdziwe klucze, tokeny, hasła, service account albo sekrety.
+
+Nie traktuj jako błędu:
+- placeholderów typu `INSERT_YOUR_API_KEY`;
+- historycznych wpisów w `Analizy/Release.md`, jeśli są jasno częścią starego dziennika;
+- instrukcji w `AGENTS.md`, jeśli opisują zasady ogólne;
+- zamierzonego brandingu `Cute Little Goat’s`.
+
+Jeżeli znajdziesz prywatne dane w aktualnym kodzie, dokumentacji albo plikach konfiguracyjnych, zastąp je angielskimi placeholderami i opisz zmianę.
+
+3. Audyt pozostałych starych nazw modułów i plików
+
+Sprawdź, czy w aktualnym kodzie i dokumentacji użytkowej nie ma już nieaktualnych nazw jako aktywnych linków lub instrukcji:
+- `GeneratorNPC`
+- `GeneratorNazw`
+- `Infoczytnik`
+- `Kalkulator`
+- `KalkulatorXP`
+- `TworzeniePostaci`
+
+Nie usuwaj tych nazw z historycznych sekcji `Analizy/Release.md`.
+
+Jeżeli stare nazwy występują w aktywnej instrukcji użytkowej, aktywnym linku albo aktualnym komentarzu wdrożeniowym, popraw je na aktualne nazwy:
+- `NPCGenerator`
+- `NameGenerator`
+- `DataSlate`
+- `Calculators`
+- `XPCalculator`
+- `CharacterCreation`
+
+4. Audyt publicznych tekstów UI
+
+Sprawdź publiczne pliki wejściowe modułów:
+- `Main/index.html`
+- `Audio/index.html`
+- `DataVault/index.html`
+- `DiceRoller/index.html`
+- `NPCGenerator/index.html`
+- `NameGenerator/index.html`
+- `DataSlate/index.html`
+- `DataSlate/GM.html`
+- `DataSlate/DataSlate.html`
+- `Calculators/index.html`
+- `Calculators/XPCalculator.html`
+- `Calculators/CharacterCreation.html`
+
+Celem jest znalezienie polskich tekstów widocznych dla użytkownika w miejscach, gdzie Release wymaga angielskiego UI.
+
+Popraw tylko oczywiste pozostałości w UI, np. etykiety przycisków, nagłówki, statusy, placeholdery, komunikaty i opisy widoczne na stronie.
+
+Nie tłumacz:
+- polskiej części dokumentacji;
+- komentarzy technicznych PL/EN;
+- historycznych wpisów w `Analizy/Release.md`;
+- generowanych wyników `NameGenerator`;
+- nazw przykładowych danych, jeżeli są celowo danymi demonstracyjnymi i nie są elementem interfejsu.
+
+5. Audyt DataSlate data.json
+
+Sprawdź `DataSlate/assets/data/data.json` pod kątem nazw widocznych w selektorach panelu GM.
+
+Jeżeli są tam polskie nazwy presetów, które są częścią publicznego UI, przetłumacz je na angielski bez zmiany identyfikatorów, ścieżek plików ani struktury JSON.
+
+Przykładowy zakres:
+- nazwy backgroundów;
+- nazwy fontów/presetów;
+- inne nazwy widoczne w dropdownach.
+
+Nie zmieniaj treści fillerów, jeżeli są już po angielsku albo są zamierzonym tekstem klimatycznym.
+
+6. Audyt dokumentacji użytkowej
+
+Sprawdź dokumentację modułów:
+- `Audio/docs/README.md`
+- `DataVault/docs/README.md`
+- `DataSlate/docs/README.md`
+- inne README modułów, jeżeli istnieją.
+
+Popraw tylko aktualne instrukcje użytkowe, które są niezgodne ze stanem Release.
+
+Upewnij się, że:
+- `Audio/AudioManifest.xlsx` jest opisany jako produkcyjny, neutralny manifest, jeżeli dokumentacja Audio o tym wspomina;
+- `DataVault/SampleFiles/` jest opisany po angielsku i po polsku;
+- instrukcje Firebase nadal mówią, że użytkownik ma podstawić własny projekt Firebase;
+- dokumentacja nie sugeruje konfiguracji Web Push;
+- dokumentacja nie sugeruje usuwania testowych/backupowych plików DataSlate, skoro aktualna decyzja właściciela mówi, że zostają.
+
+7. Testy po zmianach
+
+Wykonaj i zapisz wyniki w `Analizy/Release.md`:
+- `git status --short`
+- wyszukiwanie starych nazw:
+  - `GeneratorNPC`
+  - `GeneratorNazw`
+  - `Infoczytnik`
+  - `Kalkulator`
+  - `KalkulatorXP`
+  - `TworzeniePostaci`
+- wyszukiwanie Web Push:
+  - `web-push`
+  - `webPush`
+  - `Web Push`
+  - `vapid`
+  - `VAPID`
+  - `PushManager`
+  - `Notification`
+  - `push/subscribe`
+  - `push/trigger`
+  - `wrathandglory-push-api`
+  - `tarczynski-pawel.workers.dev`
+- wyszukiwanie placeholderów i prywatnych wartości:
+  - `INSERT_YOUR_API_KEY`
+  - `INSERT_YOUR_VTT_LINK`
+  - `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK`
+  - potencjalne stare prywatne linki lub stare domeny, jeżeli były wcześniej znane z `Release.md`
+- walidacja JSON:
+  - `python3 -m json.tool DataVault/SampleFiles/data.json > /dev/null`
+  - `python3 -m json.tool DataVault/SampleFiles/firebase-import.json > /dev/null`
+  - `python3 -m json.tool DataSlate/assets/data/data.json > /dev/null`, jeśli ten plik został zmieniony
+- statyczne sprawdzenie składni JS, jeżeli dotknięto osobnych plików JS:
+  - `node --check DataVault/app.js`
+  - `node --check DiceRoller/script.js`
+  - `node --check NameGenerator/script.js`
+- `git diff --check`
+
+Dla każdego pozostałego trafienia oceń, czy:
+- jest błędem do poprawy;
+- jest placeholderem, który powinien zostać;
+- jest historycznym wpisem w `Analizy/Release.md`;
+- jest ogólną zasadą w `AGENTS.md`;
+- jest zamierzonym elementem testowym lub demonstracyjnym.
+
+8. Aktualizacja `Analizy/Release.md`
+
+Na końcu `Analizy/Release.md` dopisz nową sekcję.
+
+Sekcja musi zawierać:
+- datę;
+- pełny oryginalny prompt użytkownika bez skracania;
+- zakres prac;
+- ustalenia i wnioski;
+- decyzje oraz wymagania;
+- listę zmienionych plików;
+- szczegóły zmian w kodzie/dokumentacji;
+- opis wykonanych testów;
+- listę pozostałych ryzyk;
+- następne kroki.
+
+W sekcji wyraźnie zapisz:
+- czy znaleziono prywatne dane lub prywatne linki;
+- czy `Audio/AudioManifest.xlsx` pozostaje produkcyjnym plikiem neutralnym;
+- czy przykładowe pliki DataVault w `DataVault/SampleFiles/` są obecne i poprawne;
+- czy poprawiano polskie resztki UI;
+- czy nie ruszano Firebase, Web Push, DataSlate test/backup ani generowanych wyników NameGenerator.
+
+WYNIK KOŃCOWY ODPOWIEDZI:
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- co sprawdzono;
+- co zmieniono;
+- jakie testy przeszły;
+- jakie trafienia zostały uznane za historyczne albo poprawne;
+- jakie ryzyka lub następne kroki pozostały.
+```
+
+### Zakres prac
+
+- Przeczytano aktualne `AGENTS.md`, cały dotychczasowy dziennik `Analizy/Release.md`, dokumentacje `DataVault/docs/README.md`, `Audio/docs/README.md`, `DataSlate/docs/README.md` oraz publiczne pliki wejściowe wskazane w prompcie.
+- Sprawdzono stan Git przed zmianami: repozytorium było czyste.
+- Potwierdzono obecność i śledzenie czterech wymaganych artefaktów: `Audio/AudioManifest.xlsx`, `DataVault/SampleFiles/Repozytorium.xlsx`, `DataVault/SampleFiles/data.json`, `DataVault/SampleFiles/firebase-import.json`.
+- Przeszukano repozytorium pod kątem prywatnych URL-i, domen, e-maili, konfiguracji Firebase właściciela, sekretów, starych nazw oraz pozostałości Web Push.
+- Sprawdzono publiczne wejścia UI, nazwy presetów DataSlate, dokumentacje modułów, integralność XLSX, poprawność JSON, zgodność przykładu XLSX DataVault z wygenerowanym JSON i lokalne ścieżki `href`/`src` publicznych wejść.
+
+### Ustalenia i wnioski
+
+- Nie znaleziono aktywnych prywatnych danych właściciela, prywatnych linków grupy, prywatnych e-maili technicznych, prawdziwych sekretów, kluczy VAPID, aktywnych endpointów Web Push ani endpointów Cloudflare Worker.
+- `Audio/AudioManifest.xlsx` pozostaje śledzonym, produkcyjnym plikiem neutralnym. Integralność XLSX jest poprawna, a zawartość używa neutralnego przykładowego adresu `https://example.site/examplefolder/`. Pliku XLSX nie modyfikowano.
+- Wszystkie trzy przykładowe pliki `DataVault/SampleFiles/` są obecne, śledzone i poprawne syntaktycznie. `DataVault/SampleFiles/Repozytorium.xlsx` przechodzi test integralności ZIP/XLSX, a referencyjny generator Python tworzy JSON równy `DataVault/SampleFiles/data.json`. Wrapper `firebase-import.json` przechodzi round-trip: `JSON.parse(dataJson)` odpowiada przykładowemu `data.json`.
+- `DataVault/docs/README.md` już przed audytem opisywał folder `DataVault/SampleFiles/` po angielsku i po polsku, wraz z rolami `Repozytorium.xlsx`, `data.json` oraz `firebase-import.json`; nie wymagał zmiany.
+- `Audio/docs/README.md` wymagał jawnego opisu, że bieżący manifest jest neutralnym manifestem produkcyjnym. W części angielskiej pozostały też polskie nazwy przycisków; poprawiono je.
+- W `DataSlate/assets/data/data.json` znaleziono polskie nazwy presetów widoczne w dropdownach GM: dziewięć nazw backgroundów i dwie nazwy fontów. Przetłumaczono wyłącznie pola `name`, bez zmiany ID, ścieżek, fillerów ani struktury JSON.
+- W `Audio/index.html` znaleziono dwa aktywne, nieprzetłumaczone alerty błędu odtwarzania. Podłączono je do istniejącego mechanizmu PL/EN przez nowe etykiety `playbackError`.
+- Poprawiono tytuły kart przeglądarki `NameGenerator/index.html` i `Calculators/XPCalculator.html`, ponieważ tytuły te nie były aktualizowane przez mechanizm językowy runtime.
+- Poprawiono aktywny identyfikator modułu zapisu Character Creation oraz aktualny komentarz konfiguracji Firebase z `Calculators/TworzeniePostaci` na `Calculators/CharacterCreation`. Sama integracja Firebase pozostała niezmieniona.
+- Poprawiono aktualne instrukcje użytkowe i techniczne Main/Calculators, które nadal używały starych nazw jako nazw bieżących modułów lub plików.
+- Pozostałe trafienia starych nazw zostały ocenione jako poprawne: historyczne wpisy `Analizy/Release.md` i `DetaleLayout.md`, jawne ogólne zasady w `AGENTS.md`, zachowane nazwy pomocniczych plików DataSlate `Infoczytnik_test.html` i `Infoczytnik_backup.html`, wewnętrzny selektor `data-infoczytnik-link` w Main, rzeczywiste zachowane nazwy plików CSS/backupów Calculators oraz stabilne klucze danych Firestore/localStorage `generatorNpc` w NPCGenerator.
+- Trafienia `Notification` w DataVault/NPCGenerator wynikają z komentarza dotyczącego miejsca na ikonę powiadomienia logowania, a nie z Web Push. Trafienia `Web Push` w `DataSlate/config/FirebaseREADME.md` są poprawnymi instrukcjami mówiącymi wprost, że Release nie zawiera Web Push.
+- Nie modyfikowano integracji Firebase, nie przywracano Web Push, nie usuwano ani nie edytowano plików testowych/backupowych DataSlate, nie zmieniano generowanych wyników `NameGenerator`, nie zmieniano plików XLSX i nie przebudowywano struktur danych Audio ani DataVault.
+
+### Decyzje i wymagania
+
+- `Audio/AudioManifest.xlsx` należy traktować jako neutralny manifest produkcyjny publicznej paczki.
+- `DataVault/SampleFiles/` pozostaje publicznym katalogiem przykładowym z gotowymi plikami XLSX, backup JSON i wrapperem importowym Firebase RTDB.
+- Zachowane pomocnicze nazwy plików DataSlate `Infoczytnik_test.html` oraz `Infoczytnik_backup.html` nadal są zamierzone i nie podlegają zmianie nazwy w tym etapie.
+- Stabilnych kluczy danych `generatorNpc`, nazw istniejących plików CSS/backupów oraz ścieżek assetów nie należy zmieniać wyłącznie z powodu dopasowania tekstowego do starych nazw.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `Audio/docs/README.md` | Dodano angielski i polski opis neutralnego manifestu produkcyjnego oraz poprawiono polskie etykiety przycisków w angielskiej instrukcji. |
+| `Audio/index.html` | Dodano tłumaczenie komunikatu błędu odtwarzania i użyto go w dwóch alertach runtime. |
+| `Calculators/CharacterCreation.html` | Zmieniono aktywny identyfikator modułu zapisu na `Calculators/CharacterCreation`. |
+| `Calculators/XPCalculator.html` | Zmieniono statyczny tytuł karty przeglądarki na `XP Calculator`. |
+| `Calculators/config/firebase-config.js` | Zaktualizowano wyłącznie komentarz wdrożeniowy do nazwy `Calculators/CharacterCreation`; wartości i logika Firebase nie zostały zmienione. |
+| `Calculators/docs/README.md` | Poprawiono bieżące odwołania do pliku `CharacterCreation.html`. |
+| `DataSlate/assets/data/data.json` | Przetłumaczono widoczne nazwy presetów backgroundów i fontów; zachowano ID, ścieżki i strukturę JSON. |
+| `Main/docs/Documentation.md` | Zastąpiono aktywne odwołania do Infoczytnika nazwą DataSlate i usunięto mylące stwierdzenie o backendzie Node.js. |
+| `Main/docs/README.md` | Ujednolicono nazwę przycisku/modułu `Calculators` w instrukcji EN i PL. |
+| `NameGenerator/index.html` | Zmieniono statyczny tytuł karty przeglądarki na `Name Generator`; wyników generatora nie tłumaczono. |
+| `Analizy/Release.md` | Dopisano niniejszą sekcję audytu. |
+
+### Szczegóły zmian w kodzie i dokumentacji
+
+- Audio zachowuje dotychczasowy parser i strukturę manifestu. Jedyna zmiana runtime to przeniesienie polskiego alertu do słownika tłumaczeń i dodanie angielskiego odpowiednika.
+- DataSlate zachowuje identyczne ID i pola `file`. Zmieniono tylko teksty `name`, które panel GM pokazuje w dropdownach.
+- Character Creation zachowuje dotychczasową strukturę zapisywanego obiektu. Zmieniono jedynie opisowy identyfikator `module`, aby nie publikować starej nazwy pliku.
+- Dokumentacja Audio opisuje stan faktyczny po dodaniu manifestu, a dokumentacje Main i Calculators nie kierują już użytkownika do starych nazw bieżących modułów lub plików.
+
+### Testy
+
+- `git status --short` przed zmianami: PASS — repozytorium było czyste.
+- `git status --short` po zmianach: PASS — pokazuje wyłącznie pliki zmienione w ramach tego audytu.
+- `git ls-files --error-unmatch Audio/AudioManifest.xlsx DataVault/SampleFiles/Repozytorium.xlsx DataVault/SampleFiles/data.json DataVault/SampleFiles/firebase-import.json`: PASS — wszystkie wymagane pliki są śledzone.
+- Test integralności ZIP przez Python `ZipFile.testzip()` dla `Audio/AudioManifest.xlsx` i `DataVault/SampleFiles/Repozytorium.xlsx`: PASS.
+- `python3 DataVault/build_json.py DataVault/SampleFiles/Repozytorium.xlsx /tmp/wng-release-audit/data.json`: PASS.
+- Porównanie wygenerowanego `/tmp/wng-release-audit/data.json` z `DataVault/SampleFiles/data.json`: PASS — obiekty JSON są równe.
+- Round-trip `json.loads(firebase-import.json["dataJson"]) == data.json`: PASS.
+- `python3 -m json.tool DataVault/SampleFiles/data.json > /dev/null`: PASS.
+- `python3 -m json.tool DataVault/SampleFiles/firebase-import.json > /dev/null`: PASS.
+- `python3 -m json.tool DataSlate/assets/data/data.json > /dev/null`: PASS.
+- `node --check DataVault/app.js`: PASS.
+- `node --check DiceRoller/script.js`: PASS.
+- `node --check NameGenerator/script.js`: PASS.
+- `git diff --check`: PASS.
+- Statyczny skrypt Python sprawdzający lokalne `href`/`src` w 12 publicznych wejściach: PASS — brak brakujących lokalnych celów.
+- Wyszukiwanie starych nazw `GeneratorNPC|GeneratorNazw|Infoczytnik|Kalkulator|KalkulatorXP|TworzeniePostaci`: PASS po klasyfikacji trafień — brak niepoprawnych aktywnych ścieżek użytkowych po zmianach; pozostały wpisy historyczne, stabilne klucze wewnętrzne, zachowane istniejące nazwy plików i zamierzone nazwy pomocniczych plików DataSlate.
+- Wyszukiwanie `web-push|webPush|Web Push|vapid|VAPID|PushManager|Notification|push/subscribe|push/trigger|wrathandglory-push-api|tarczynski-pawel.workers.dev`: PASS po klasyfikacji trafień — brak aktywnego Web Push; pozostały instrukcje wykluczające Web Push, historia i komentarze dotyczące ikony logowania.
+- Wyszukiwanie `INSERT_YOUR_API_KEY|INSERT_YOUR_VTT_LINK|INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK`: PASS — trafienia są zamierzonymi angielskimi placeholderami Release.
+- Wyszukiwanie potencjalnych prywatnych domen, e-maili i sekretów: PASS — nie znaleziono aktywnych prywatnych wartości właściciela.
+- Próba ustalenia możliwości wykonania zrzutu ekranu: WARNING — środowisko nie zawiera Playwright, Selenium ani lokalnej przeglądarki Chromium, dlatego nie wykonano automatycznego screenshotu zmienionych dropdownów DataSlate.
+
+### Ryzyka i następne kroki
+
+- Audyt statyczny nie zastępuje testu przeglądarkowego z rzeczywistym serwerem HTTP i własnym projektem Firebase. Następny krok wdrożeniowy to ręczne sprawdzenie DataSlate GM → ekran gracza po podstawieniu własnego Firestore oraz Audio w trybie user/admin po uruchomieniu hostingu statycznego.
+- Warto ręcznie obejrzeć dropdowny DataSlate po hostowaniu, aby wizualnie potwierdzić angielskie nazwy presetów. Automatyczny screenshot nie był możliwy w tym środowisku z powodu braku przeglądarki.
+- Zachowane stabilne identyfikatory wewnętrzne i nazwy plików pomocniczych mogą nadal pojawiać się w wynikach prostych wyszukiwań; nie są blokadą Release i nie powinny być masowo zmieniane bez osobnej decyzji migracyjnej.
+
+#### Uzupełnienie testów końcowych po dopisaniu sekcji audytu
+
+- Wyodrębnienie inline JavaScript z `Audio/index.html`, `Calculators/XPCalculator.html` i `Calculators/CharacterCreation.html` do tymczasowych plików `.mjs`, a następnie `node --check /tmp/wng-inline-js/*.mjs`: PASS — składnia wszystkich trzech zmienionych skryptów osadzonych jest poprawna.
+- Ponowne globalne wyszukiwanie wymaganych starych nazw po dopisaniu dziennika: PASS po klasyfikacji. Trafienia obejmują przede wszystkim historię, niniejszy prompt audytowy, dozwolone pliki pomocnicze DataSlate, zachowane nazwy techniczne oraz stabilne identyfikatory wewnętrzne.
+- Ponowne globalne wyszukiwanie wymaganych fraz Web Push po dopisaniu dziennika: PASS po klasyfikacji. Trafienia obejmują historię, niniejszy prompt audytowy, ogólne reguły `AGENTS.md`, poprawne instrukcje o braku Web Push oraz komentarze ikony logowania; nie znaleziono aktywnej implementacji Web Push.
+- Ponowne globalne wyszukiwanie wymaganych placeholderów po dopisaniu dziennika: PASS — znaleziono wyłącznie zamierzone placeholdery Release i ich dokumentację.

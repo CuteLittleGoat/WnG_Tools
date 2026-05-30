@@ -760,6 +760,7 @@ const translations = {
           manifestFetchError: "Nie udało się pobrać manifestu.",
           manifestNoData: "Manifest nie zawiera danych.",
           defaultListName: "Ulubione",
+          playbackError: "Nie można odtworzyć dźwięku. Sprawdź link.",
         },
         placeholders: {
           tagSearch: "Szukaj tagu...",
@@ -828,6 +829,7 @@ const translations = {
           manifestFetchError: "Failed to fetch the manifest.",
           manifestNoData: "The manifest contains no data.",
           defaultListName: "Favorites",
+          playbackError: "Unable to play the sound. Check the link.",
         },
         placeholders: {
           tagSearch: "Search tag...",
@@ -1282,11 +1284,11 @@ const translations = {
       playbackRoot.classList.add("is-playing");
       audio.addEventListener("ended", () => stopPlayback(playbackRoot));
       audio.addEventListener("error", () => {
-        alert("Nie można odtworzyć dźwięku. Sprawdź link.");
+        alert(translations[currentLanguage].labels.playbackError);
         stopPlayback(playbackRoot);
       });
       audio.play().catch(() => {
-        alert("Nie można odtworzyć dźwięku. Sprawdź link.");
+        alert(translations[currentLanguage].labels.playbackError);
         stopPlayback(playbackRoot);
       });
     };

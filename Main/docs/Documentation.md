@@ -69,7 +69,7 @@ const isAdmin = new URLSearchParams(window.location.search).get('admin') === '1'
 ```
 Na tej podstawie JS:
 - pokazuje/ukrywa elementy `data-admin-only`,
-- przełącza target linku Infoczytnika,
+- przełącza target linku DataSlate,
 - przełącza URL DataVault.
 
 ### 6.2. Wczytywanie konfiguracji linków
@@ -137,7 +137,7 @@ Deklaracje z `:root`:
 Inicjalizacja skryptu:
 1. Wylicza `isAdmin` z query string (`admin=1`).
 2. Usuwa elementy `data-admin-only="true"` dla użytkownika końcowego.
-3. Przełącza link Infoczytnika (`DataSlate.html` vs panel modułu).
+3. Przełącza link DataSlate (`DataSlate.html` vs panel modułu).
 4. Przełącza link DataVault (`?admin=1` tylko dla admina).
 5. Ładuje dynamiczne linki VTT/Obrazki z pliku markdown.
 6. Pozostawia interfejs bez dodatkowych akcji asynchronicznych poza dynamicznym ładowaniem linków.
@@ -148,7 +148,7 @@ Inicjalizacja skryptu:
 - **Mechaniki przełączania ról i linków:** sekcje 3, 6.1, 12.
 - **PWA (manifest + SW):** sekcja 7.
 - **Firebase:** brak bezpośredniej integracji w tym module.
-- **Node.js bootstrap:** nie dotyczy modułu Main (backend znajduje się w module Infoczytnik).
+- **Node.js bootstrap:** nie dotyczy modułu Main; DataSlate komunikuje się z Firestore bezpośrednio z przeglądarki.
 
 ## 14. Znane ograniczenia
 - Linki zewnętrzne modułu Main są utrzymywane w pliku `Main/ZmienneHiperlacza.md` (`Map`/`Images`); przy zmianie środowiska wdrożeniowego trzeba zaktualizować ich wartości.
