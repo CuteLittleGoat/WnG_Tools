@@ -1,0 +1,3091 @@
+<!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
+<!doctype html>
+<html lang="pl">
+  <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generator NPC</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="../shared/access-gate.css" />
+  </head>
+  <!-- Główna sekcja widoczna dla użytkownika / Main section visible to the user -->
+<body>
+    <div id="accessGate" class="accessGate" hidden><div class="accessGate__card"><!-- Stałe miejsce na ikonę powiadomienia, aby karta nie zmieniała rozmiaru podczas ładowania / Fixed notification icon slot so card size does not jump while loading --><div class="accessGate__iconSlot" aria-hidden="true"><img class="accessGate__icon" src="../IkonaPowiadomien2.png" alt="" width="72" height="72" decoding="async"></div><h2 data-i18n="accessTitle">Dostęp do danych z klauzulą tajności K.O.Z.A.</h2><p data-i18n="accessDescription">Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.</p><form id="accessForm"><div class="accessGate__credentials"><!-- Etykieta po lewej + pole hasła i przycisk po prawej, zgodnie z analizą UX / Left label + password field and button on the right, per UX analysis --><label class="field accessGate__label" for="accessPassword"><span data-i18n="accessPasswordLabel">Litania Dostępu</span></label><input id="accessPassword" class="accessGate__password" type="password" autocomplete="current-password"><button class="btn primary accessGate__submit" type="submit" data-i18n="accessUnlockButton">Rozpocznij Rytuał</button></div></form><div id="accessError" class="accessGate__error" aria-live="polite"></div></div></div>
+    <!-- Nagłówek nawigacyjny lub informacyjny / Navigation or information header -->
+<header class="topbar">
+      <div class="brand">
+        <h1 data-i18n="pageTitle">Generator NPC</h1>
+      </div>
+      <div class="actions">
+        <div class="language-switcher language-switcher--hidden">
+          <!-- MIEJSCE ZMIANY WIDOCZNOŚCI PRZEŁĄCZNIKA JĘZYKA / LANGUAGE SWITCHER VISIBILITY CHANGE POINT: usuń klasę language-switcher--hidden, aby pokazać przełącznik / remove language-switcher--hidden to make the switcher visible -->
+          <select id="languageSelect" aria-label="Wersja językowa">
+            <option value="pl">Polski</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <button class="btn" id="reset-page" data-i18n="resetButton">Reset</button>
+        <button class="btn primary" id="generate-card" data-i18n="generateButton">Generuj kartę</button>
+      </div>
+    </header>
+
+    <!-- Główna zawartość modułu / Main module content -->
+<main class="layout">
+      <aside class="sidebar">
+        <!-- Wydzielona sekcja funkcjonalna / Dedicated functional section -->
+<section class="panel panel-data-source">
+          <h2 data-i18n="dataSourceTitle">Źródło danych</h2>
+          <p class="text-muted data-source-text">
+            <span data-i18n="dataSourcePrefix">Dane są pobierane z prywatnej bazy DataVault po autoryzacji.</span>
+          </p>
+          <p class="text-muted data-source-text" id="data-status" aria-live="polite" data-i18n="dataStatusLoading">Ładowanie danych...</p>
+        </section>
+
+        <section class="panel">
+          <h2 data-i18n="baseSelectionTitle">Wybór bazowy</h2>
+          <div class="field">
+            <label for="bestiary" data-i18n="bestiaryLabel">Bestiariusz · Nazwa</label>
+            <select id="bestiary">
+              <option value="" disabled selected data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="bestiary-notes" data-i18n="bestiaryNotesLabel">Uwagi do rekordu</label>
+            <textarea id="bestiary-notes" rows="3" placeholder="Opcjonalne notatki" data-i18n-placeholder="bestiaryNotesPlaceholder"></textarea>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2 data-i18n="activeModulesTitle">Moduły aktywne</h2>
+          <div class="checkbox-list">
+            <label class="checkbox">
+              <input type="checkbox" checked data-module-toggle="weapon" />
+              <span data-i18n="moduleWeapon">Broń — ustaw ataki i cechy.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="armor" />
+              <span data-i18n="moduleArmor">Pancerz — nadpisz WP i cechy.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="augmentations" />
+              <span data-i18n="moduleAugmentations">Augumentacje — moduł modyfikacji.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="equipment" />
+              <span data-i18n="moduleEquipment">Ekwipunek — lista przedmiotów.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="talents" />
+              <span data-i18n="moduleTalents">Talenty — lista umiejętności.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="psionics" />
+              <span data-i18n="modulePsionics">Psionika — lista zdolności.</span>
+            </label>
+            <label class="checkbox">
+              <input type="checkbox" data-module-toggle="prayers" />
+              <span data-i18n="modulePrayers">Modlitwy — lista zaklęć.</span>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2 data-i18n="favoritesTitle">Ulubione</h2>
+          <p class="text-muted" id="favorites-status" aria-live="polite">
+            <span data-i18n="favoritesStatusConnecting">Łączenie z listą ulubionych...</span>
+          </p>
+          <div class="field">
+            <label for="favorites-alias" data-i18n="favoritesAliasLabel">Alias (opcjonalny)</label>
+            <input type="text" id="favorites-alias" placeholder="Np. Ork dowódca" data-i18n-placeholder="favoritesAliasPlaceholder" />
+          </div>
+          <div class="favorites-actions">
+            <button class="btn secondary" id="favorites-add" data-i18n="favoritesAddButton">Dodaj do ulubionych</button>
+            <button class="btn" id="favorites-refresh" data-i18n="favoritesRefreshButton">Odśwież</button>
+          </div>
+          <div class="favorites-list" id="favorites-list"></div>
+        </section>
+
+      </aside>
+
+      <section class="workspace">
+        <div class="card">
+          <h3><span data-i18n="basePreviewTitle">Podgląd bazowy</span> <span class="badge" data-i18n="basePreviewBadge">Bestiariusz</span></h3>
+          <table class="data-table" data-sheet="Bestiariusz">
+            <thead>
+              <tr>
+                <th data-i18n="tableKeyHeader">Klucz</th>
+                <th data-i18n="tableValueHeader">Wartość</th>
+              </tr>
+            </thead>
+            <tbody id="bestiary-table-body">
+              <tr>
+                <td colspan="2" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="weapon">
+          <div class="card-header">
+            <h3 data-i18n="weaponSectionTitle">Wybór Broni</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="weapon" data-i18n="weaponLabel">Bronie</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="weapon-trait-descriptions" />
+                <span data-i18n="weaponTraitToggle">Czy dodać opis Cech?</span>
+              </label>
+            </div>
+            <select id="weapon" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Bronie">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="weaponHeaderName">Nazwa</th>
+                <th class="min-col-obrazenia" data-i18n="weaponHeaderDamage">Obrażenia</th>
+                <th class="min-col-dk" data-i18n="weaponHeaderDn">DK</th>
+                <th class="min-col-pp" data-i18n="weaponHeaderAp">PP</th>
+                <th class="min-col-zasieg" data-i18n="weaponHeaderRange">Zasięg</th>
+                <th class="min-col-szybkostrzelnosc" data-i18n="weaponHeaderRate">Szybkostrzelność</th>
+                <th class="min-col-cechy" data-i18n="weaponHeaderTraits">Cechy</th>
+                <th class="min-col-slowa-kluczowe" data-i18n="weaponHeaderKeywords">Słowa Kluczowe</th>
+                <th class="min-col-podrecznik" data-i18n="weaponHeaderBook">Podręcznik</th>
+                <th class="min-col-strona" data-i18n="weaponHeaderPage">Strona</th>
+              </tr>
+            </thead>
+            <tbody id="weapon-table-body">
+              <tr>
+                <td colspan="10" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="armor">
+          <div class="card-header">
+            <h3 data-i18n="armorSectionTitle">Wybór Pancerzy</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="armor" data-i18n="armorLabel">Pancerze</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="armor-trait-descriptions" />
+                <span data-i18n="armorTraitToggle">Czy dodać opis Cech?</span>
+              </label>
+            </div>
+            <select id="armor" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Pancerze">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="armorHeaderName">Nazwa</th>
+                <th class="min-col-wp" data-i18n="armorHeaderWp">WP</th>
+                <th class="min-col-cechy" data-i18n="armorHeaderTraits">Cechy</th>
+                <th class="min-col-slowa-kluczowe" data-i18n="armorHeaderKeywords">Słowa Kluczowe</th>
+                <th class="min-col-podrecznik" data-i18n="armorHeaderBook">Podręcznik</th>
+                <th class="min-col-strona" data-i18n="armorHeaderPage">Strona</th>
+              </tr>
+            </thead>
+            <tbody id="armor-table-body">
+              <tr>
+                <td colspan="6" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="augmentations">
+          <div class="card-header">
+            <h3 data-i18n="augmentationsSectionTitle">Wybór Augumentacji</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="augmentations" data-i18n="augmentationsLabel">Augumentacje</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="augmentations-full-details" />
+                <span data-i18n="augmentationsDetailsToggle">Czy dodać pełen opis?</span>
+              </label>
+            </div>
+            <select id="augmentations" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Augumentacje">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="augmentationsHeaderName">Nazwa</th>
+                <th class="min-col-efekt" data-i18n="augmentationsHeaderEffect">Efekt</th>
+              </tr>
+            </thead>
+            <tbody id="augmentations-table-body">
+              <tr>
+                <td colspan="2" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="equipment">
+          <div class="card-header">
+            <h3 data-i18n="equipmentSectionTitle">Wybór Ekwipunku</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="equipment" data-i18n="equipmentLabel">Ekwipunek</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="equipment-full-details" />
+                <span data-i18n="equipmentDetailsToggle">Czy dodać pełen opis?</span>
+              </label>
+            </div>
+            <select id="equipment" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Ekwipunek">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="equipmentHeaderName">Nazwa</th>
+                <th class="min-col-efekt" data-i18n="equipmentHeaderEffect">Efekt</th>
+              </tr>
+            </thead>
+            <tbody id="equipment-table-body">
+              <tr>
+                <td colspan="2" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="talents">
+          <div class="card-header">
+            <h3 data-i18n="talentsSectionTitle">Wybór Talentów</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="talents" data-i18n="talentsLabel">Talenty</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="talents-full-details" />
+                <span data-i18n="talentsDetailsToggle">Czy dodać pełen opis?</span>
+              </label>
+            </div>
+            <select id="talents" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Talenty">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="talentsHeaderName">Nazwa</th>
+                <th class="min-col-efekt" data-i18n="talentsHeaderEffect">Efekt</th>
+              </tr>
+            </thead>
+            <tbody id="talents-table-body">
+              <tr>
+                <td colspan="2" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="psionics">
+          <div class="card-header">
+            <h3 data-i18n="psionicsSectionTitle">Wybór Psioniki</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="psionics" data-i18n="psionicsLabel">Psionika</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="psionics-full-details" />
+                <span data-i18n="psionicsDetailsToggle">Czy dodać pełen opis?</span>
+              </label>
+            </div>
+            <select id="psionics" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Psionika">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="psionicsHeaderName">Nazwa</th>
+                <th class="min-col-st" data-i18n="psionicsHeaderSt">ST</th>
+                <th class="min-col-aktywacja" data-i18n="psionicsHeaderActivation">Aktywacja</th>
+                <th class="min-col-czas-trwania" data-i18n="psionicsHeaderDuration">Czas trwania</th>
+                <th class="min-col-zasieg" data-i18n="psionicsHeaderRange">Zasięg</th>
+                <th class="min-col-wiele-celow" data-i18n="psionicsHeaderTargets">Wiele Celów</th>
+                <th class="min-col-efekt" data-i18n="psionicsHeaderEffect">Efekt</th>
+                <th class="min-col-wzmocnienie" data-i18n="psionicsHeaderBoost">Wzmocnienie</th>
+              </tr>
+            </thead>
+            <tbody id="psionics-table-body">
+              <tr>
+                <td colspan="8" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" data-module-section="prayers">
+          <div class="card-header">
+            <h3 data-i18n="prayersSectionTitle">Wybór Modlitw</h3>
+          </div>
+          <div class="field">
+            <div class="field-label-row">
+              <label for="prayers" data-i18n="prayersLabel">Modlitwy (wielokrotny wybór)</label>
+              <label class="checkbox checkbox-inline">
+                <input type="checkbox" id="prayers-full-details" />
+                <span data-i18n="prayersDetailsToggle">Czy dodać pełen opis?</span>
+              </label>
+            </div>
+            <select id="prayers" multiple size="15">
+              <option value="" disabled data-i18n="dataStatusLoading">Ładowanie danych...</option>
+            </select>
+          </div>
+          <table class="data-table" data-sheet="Modlitwy">
+            <thead>
+              <tr>
+                <th class="min-col-nazwa" data-i18n="prayersHeaderName">Nazwa</th>
+                <th class="min-col-efekt" data-i18n="prayersHeaderEffect">Efekt</th>
+              </tr>
+            </thead>
+            <tbody id="prayers-table-body">
+              <tr>
+                <td colspan="2" class="text-muted" data-i18n="dataStatusLoading">Ładowanie danych...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+    </main>
+
+    <aside class="popover" id="trait-popover">
+      <h4 id="trait-title" data-i18n="traitPopoverTitle">Opis cechy</h4>
+      <p id="trait-description" data-i18n="traitPopoverDescription">Kliknij tag, aby zobaczyć opis cechy.</p>
+    </aside>
+
+    <!-- Skrypt odpowiedzialny za interakcję strony / Script responsible for page interactions -->
+<!-- WAŻNE: Po skopiowaniu modułu na inny serwer każda grupa musi podmienić config/firebase-config.js na własny projekt Firebase. / IMPORTANT: After copying this module to another server, each group must replace config/firebase-config.js with its own Firebase project. -->
+<script src="config/firebase-config.js"></script>
+<script src="../shared/firebase-config.js"></script>
+<script type="module" src="../shared/firebase-data-loader.js"></script>
+    <script type="module">
+      import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        onSnapshot,
+        serverTimestamp,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+      // --- WAŻNE: DATA_URL wskazuje wspólny DataVault. Dla niezależnych grup podmień adres na własny serwer grupy. / IMPORTANT: DATA_URL points to a shared DataVault. For independent groups, change it to that group's own server URL. ---
+      const accessGate = document.querySelector("#accessGate");
+      const accessForm = document.querySelector("#accessForm");
+      const accessPassword = document.querySelector("#accessPassword");
+      const accessError = document.querySelector("#accessError");
+
+      const bestiarySelect = document.querySelector("#bestiary");
+      const armorSelect = document.querySelector("#armor");
+      const weaponSelect = document.querySelector("#weapon");
+      const augmentationsSelect = document.querySelector("#augmentations");
+      const equipmentSelect = document.querySelector("#equipment");
+      const talentsSelect = document.querySelector("#talents");
+      const psionicsSelect = document.querySelector("#psionics");
+      const prayersSelect = document.querySelector("#prayers");
+      const bestiaryTableBody = document.querySelector("#bestiary-table-body");
+      const armorTableBody = document.querySelector("#armor-table-body");
+      const weaponTableBody = document.querySelector("#weapon-table-body");
+      const augmentationsTableBody = document.querySelector("#augmentations-table-body");
+      const equipmentTableBody = document.querySelector("#equipment-table-body");
+      const talentsTableBody = document.querySelector("#talents-table-body");
+      const psionicsTableBody = document.querySelector("#psionics-table-body");
+      const prayersTableBody = document.querySelector("#prayers-table-body");
+      const dataStatus = document.querySelector("#data-status");
+      const bestiaryNotes = document.querySelector("#bestiary-notes");
+      const generateButton = document.querySelector("#generate-card");
+      const resetButton = document.querySelector("#reset-page");
+      const favoritesAliasInput = document.querySelector("#favorites-alias");
+      const favoritesAddButton = document.querySelector("#favorites-add");
+      const favoritesRefreshButton = document.querySelector("#favorites-refresh");
+      const favoritesList = document.querySelector("#favorites-list");
+      const favoritesStatus = document.querySelector("#favorites-status");
+      const languageSelect = document.querySelector("#languageSelect");
+      const moduleToggles = Array.from(document.querySelectorAll("[data-module-toggle]"));
+      const moduleSections = Array.from(document.querySelectorAll("[data-module-section]"));
+      const armorTraitDescriptionsToggle = document.querySelector("#armor-trait-descriptions");
+      const weaponTraitDescriptionsToggle = document.querySelector("#weapon-trait-descriptions");
+      const augmentationsFullDetailsToggle = document.querySelector("#augmentations-full-details");
+      const equipmentFullDetailsToggle = document.querySelector("#equipment-full-details");
+      const talentsFullDetailsToggle = document.querySelector("#talents-full-details");
+      const psionicsFullDetailsToggle = document.querySelector("#psionics-full-details");
+      const prayersFullDetailsToggle = document.querySelector("#prayers-full-details");
+
+      const popover = document.querySelector("#trait-popover");
+      const popoverTitle = document.querySelector("#trait-title");
+      const popoverDescription = document.querySelector("#trait-description");
+
+            // --- MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT ---
+      // Dodając nowy język, uzupełnij translations (labels/messages/cardSections) i sprawdź eksport karty HTML/PDF.
+      // When adding a new language, complete translations (labels/messages/cardSections) and validate HTML/PDF card export.
+const translations = {
+        pl: {
+          labels: {
+            languageSelect: "Wersja językowa",
+            pageTitle: "Generator NPC",
+            resetButton: "Reset",
+            generateButton: "Generuj kartę",
+            dataSourceTitle: "Źródło danych",
+            dataSourcePrefix: "Dane są pobierane z prywatnej bazy DataVault po autoryzacji.",
+            accessTitle: "Dostęp do danych z klauzulą tajności K.O.Z.A.",
+            accessDescription: "Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.",
+            accessPasswordLabel: "Litania Dostępu",
+            accessUnlockButton: "Rozpocznij Rytuał",
+            dataStatusLoading: "Ładowanie danych...",
+            baseSelectionTitle: "Wybór bazowy",
+            bestiaryLabel: "Bestiariusz · Nazwa",
+            bestiaryNotesLabel: "Uwagi do rekordu",
+            bestiaryNotesPlaceholder: "Opcjonalne notatki",
+            activeModulesTitle: "Moduły aktywne",
+            moduleWeapon: "Broń — ustaw ataki i cechy.",
+            moduleArmor: "Pancerz — nadpisz WP i cechy.",
+            moduleAugmentations: "Augumentacje — moduł modyfikacji.",
+            moduleEquipment: "Ekwipunek — lista przedmiotów.",
+            moduleTalents: "Talenty — lista umiejętności.",
+            modulePsionics: "Psionika — lista zdolności.",
+            modulePrayers: "Modlitwy — lista zaklęć.",
+            favoritesTitle: "Ulubione",
+            favoritesStatusConnecting: "Łączenie z listą ulubionych...",
+            favoritesAliasLabel: "Alias (opcjonalny)",
+            favoritesAliasPlaceholder: "Np. Ork dowódca",
+            favoritesAddButton: "Dodaj do ulubionych",
+            favoritesRefreshButton: "Odśwież",
+            favoritesLoadButton: "Wczytaj",
+            favoritesRemoveButton: "Usuń",
+            basePreviewTitle: "Podgląd bazowy",
+            basePreviewBadge: "Bestiariusz",
+            tableKeyHeader: "Klucz",
+            tableValueHeader: "Wartość",
+            weaponSectionTitle: "Wybór Broni",
+            weaponLabel: "Bronie",
+            weaponTraitToggle: "Czy dodać opis Cech?",
+            weaponHeaderName: "Nazwa",
+            weaponHeaderDamage: "Obrażenia",
+            weaponHeaderDn: "DK",
+            weaponHeaderAp: "PP",
+            weaponHeaderRange: "Zasięg",
+            weaponHeaderRate: "Szybkostrzelność",
+            weaponHeaderTraits: "Cechy",
+            weaponHeaderKeywords: "Słowa Kluczowe",
+            weaponHeaderBook: "Podręcznik",
+            weaponHeaderPage: "Strona",
+            armorSectionTitle: "Wybór Pancerzy",
+            armorLabel: "Pancerze",
+            armorTraitToggle: "Czy dodać opis Cech?",
+            armorHeaderName: "Nazwa",
+            armorHeaderWp: "WP",
+            armorHeaderTraits: "Cechy",
+            armorHeaderKeywords: "Słowa Kluczowe",
+            armorHeaderBook: "Podręcznik",
+            armorHeaderPage: "Strona",
+            augmentationsSectionTitle: "Wybór Augumentacji",
+            augmentationsLabel: "Augumentacje",
+            augmentationsDetailsToggle: "Czy dodać pełen opis?",
+            augmentationsHeaderName: "Nazwa",
+            augmentationsHeaderEffect: "Efekt",
+            equipmentSectionTitle: "Wybór Ekwipunku",
+            equipmentLabel: "Ekwipunek",
+            equipmentDetailsToggle: "Czy dodać pełen opis?",
+            equipmentHeaderName: "Nazwa",
+            equipmentHeaderEffect: "Efekt",
+            talentsSectionTitle: "Wybór Talentów",
+            talentsLabel: "Talenty",
+            talentsDetailsToggle: "Czy dodać pełen opis?",
+            talentsHeaderName: "Nazwa",
+            talentsHeaderEffect: "Efekt",
+            psionicsSectionTitle: "Wybór Psioniki",
+            psionicsLabel: "Psionika",
+            psionicsDetailsToggle: "Czy dodać pełen opis?",
+            psionicsHeaderName: "Nazwa",
+            psionicsHeaderSt: "ST",
+            psionicsHeaderActivation: "Aktywacja",
+            psionicsHeaderDuration: "Czas trwania",
+            psionicsHeaderRange: "Zasięg",
+            psionicsHeaderTargets: "Wiele Celów",
+            psionicsHeaderEffect: "Efekt",
+            psionicsHeaderBoost: "Wzmocnienie",
+            prayersSectionTitle: "Wybór Modlitw",
+            prayersLabel: "Modlitwy (wielokrotny wybór)",
+            prayersDetailsToggle: "Czy dodać pełen opis?",
+            prayersHeaderName: "Nazwa",
+            prayersHeaderEffect: "Efekt",
+            traitPopoverTitle: "Opis cechy",
+            traitPopoverDescription: "Kliknij tag, aby zobaczyć opis cechy.",
+          },
+          card: {
+            titleSuffix: "Karta",
+            levelLabel: "Poziom",
+            threatLabel: "Zagrożenie",
+            keywordsLabel: "Słowa kluczowe",
+            resistanceLabel: "Odporność",
+            armorLabel: "Pancerz",
+            resistanceWithArmor: "(w tym {armorLabel}: {value})",
+            armorTraitsLabel: "Cechy Pancerza",
+            defenseLabel: "Obrona",
+            vitalityLabel: "Żywotność",
+            mentalResistanceLabel: "Odporność psych.",
+            trackerAriaLabel: "Śledzenie Żywotności i Odporności Psychicznej",
+            trackerVitalityLabel: "Żywotność",
+            trackerMentalLabel: "Odporność Psychiczna",
+            trackerVitalityShort: "Ż",
+            trackerMentalShort: "T",
+            gritLabel: "Upór",
+            courageLabel: "Odwaga",
+            speedLabel: "Szybkość",
+            sizeLabel: "Rozmiar",
+            notesLabel: "Notatki",
+          },
+          cardSections: {
+            skills: "Umiejętności",
+            bonuses: "Premie",
+            abilities: "Zdolności",
+            attack: "Atak",
+            hordeAbilities: "Zdolności Hordy",
+            hordeOptions: "Opcje Hordy",
+            augmentations: "Augumentacje",
+            equipment: "Ekwipunek",
+            talents: "Talenty",
+            psionics: "Psionika",
+            prayers: "Modlitwy",
+          },
+          messages: {
+            noDataOption: "Brak danych",
+            edit: "Edytuj",
+            save: "Zapisz",
+            favoritesEmpty: "Brak zapisanych ulubionych.",
+            favoritesFirestoreConnected: "Połączono z Firestore.",
+            favoritesRefreshSuccess: "Ulubione odświeżone.",
+            favoritesRefreshLocal: "Ulubione odświeżone lokalnie.",
+            firestoreSaveError: "Błąd zapisu w Firestore. Zapis lokalny włączony.",
+            firestoreNoAccess: "Brak dostępu do Firestore. Używam pamięci lokalnej.",
+            firestoreNoConfig: "Brak konfiguracji Firestore. Używam pamięci lokalnej.",
+            favoritesRefreshError: "Nie udało się odświeżyć Firestore.",
+            selectBestiaryAlert: "Wybierz rekord bestiariusza, aby wygenerować kartę.",
+            noDataDisplay: "Brak danych do wyświetlenia.",
+            loadSummary:
+              "Załadowano: Bestiariusz ({bestiary}), Pancerze ({armor}), Bronie ({weapons}), Augumentacje ({augmentations}), Ekwipunek ({equipment}), Talenty ({talents}), Psionika ({psionics}), Modlitwy ({prayers}).",
+            loadError: "Nie udało się pobrać danych. Sprawdź dostępność prywatnej bazy.",
+            accessInvalidPassword: "Rozgniewany Duch Maszyny odpowiada: Litania Dostępu została odrzucona.",
+            statusLoadPrivateData: "Ładowanie danych z prywatnej bazy...",
+            statusPrivateDataOk: "OK — załadowano dane z prywatnej bazy",
+            statusPrivateDataError: "Duch Maszyny milczy: nie udało się załadować prywatnych danych.",
+            selectBestiary: "Wybierz nazwę...",
+            selectArmor: "Wybierz pancerze...",
+            selectWeapon: "Wybierz bronie...",
+            selectAugmentations: "Wybierz augumentacje...",
+            selectEquipment: "Wybierz ekwipunek...",
+            selectTalents: "Wybierz talenty...",
+            selectPsionics: "Wybierz psionikę...",
+            selectPrayers: "Wybierz modlitwy...",
+            armorDisabledTitle: "Pancerz z WP '-' nie może być wybrany.",
+            traitDescriptionUnavailable: "Opis cechy nie jest dostępny w _meta.traits.",
+          },
+        },
+        en: {
+          labels: {
+            languageSelect: "Language version",
+            pageTitle: "NPC Generator",
+            resetButton: "Reset",
+            generateButton: "Generate card",
+            dataSourceTitle: "Data source",
+            dataSourcePrefix: "Data is loaded from the private DataVault database after authorization.",
+            accessTitle: "Access to K.O.Z.A. Classified Data",
+            accessDescription: "Data is sealed by the Machine Spirit’s protocols. Enter the Litany of Access to begin the Rite of Authentication.",
+            accessPasswordLabel: "Litany of Access",
+            accessUnlockButton: "Begin Rite",
+            dataStatusLoading: "Loading data...",
+            baseSelectionTitle: "Base selection",
+            bestiaryLabel: "Bestiary · Name",
+            bestiaryNotesLabel: "Record notes",
+            bestiaryNotesPlaceholder: "Optional notes",
+            activeModulesTitle: "Active modules",
+            moduleWeapon: "Weapons — set attacks and traits.",
+            moduleArmor: "Armor — override armor value and traits.",
+            moduleAugmentations: "Augmentations — modification module.",
+            moduleEquipment: "Equipment — item list.",
+            moduleTalents: "Talents — skill list.",
+            modulePsionics: "Psionics — ability list.",
+            modulePrayers: "Prayers — spell list.",
+            favoritesTitle: "Favorites",
+            favoritesStatusConnecting: "Connecting to favorites list...",
+            favoritesAliasLabel: "Alias (optional)",
+            favoritesAliasPlaceholder: "e.g. Ork commander",
+            favoritesAddButton: "Add to favorites",
+            favoritesRefreshButton: "Refresh",
+            favoritesLoadButton: "Load",
+            favoritesRemoveButton: "Remove",
+            basePreviewTitle: "Base preview",
+            basePreviewBadge: "Bestiary",
+            tableKeyHeader: "Key",
+            tableValueHeader: "Value",
+            weaponSectionTitle: "Weapon selection",
+            weaponLabel: "Weapons",
+            weaponTraitToggle: "Include trait descriptions?",
+            weaponHeaderName: "Name",
+            weaponHeaderDamage: "Damage",
+            weaponHeaderDn: "DN",
+            weaponHeaderAp: "AP",
+            weaponHeaderRange: "Range",
+            weaponHeaderRate: "Rate of fire",
+            weaponHeaderTraits: "Traits",
+            weaponHeaderKeywords: "Keywords",
+            weaponHeaderBook: "Source",
+            weaponHeaderPage: "Page",
+            armorSectionTitle: "Armor selection",
+            armorLabel: "Armor",
+            armorTraitToggle: "Include trait descriptions?",
+            armorHeaderName: "Name",
+            armorHeaderWp: "AV",
+            armorHeaderTraits: "Traits",
+            armorHeaderKeywords: "Keywords",
+            armorHeaderBook: "Source",
+            armorHeaderPage: "Page",
+            augmentationsSectionTitle: "Augmentation selection",
+            augmentationsLabel: "Augmentations",
+            augmentationsDetailsToggle: "Include full description?",
+            augmentationsHeaderName: "Name",
+            augmentationsHeaderEffect: "Effect",
+            equipmentSectionTitle: "Equipment selection",
+            equipmentLabel: "Equipment",
+            equipmentDetailsToggle: "Include full description?",
+            equipmentHeaderName: "Name",
+            equipmentHeaderEffect: "Effect",
+            talentsSectionTitle: "Talent selection",
+            talentsLabel: "Talents",
+            talentsDetailsToggle: "Include full description?",
+            talentsHeaderName: "Name",
+            talentsHeaderEffect: "Effect",
+            psionicsSectionTitle: "Psionics selection",
+            psionicsLabel: "Psionics",
+            psionicsDetailsToggle: "Include full description?",
+            psionicsHeaderName: "Name",
+            psionicsHeaderSt: "DN",
+            psionicsHeaderActivation: "Activation",
+            psionicsHeaderDuration: "Duration",
+            psionicsHeaderRange: "Range",
+            psionicsHeaderTargets: "Targets",
+            psionicsHeaderEffect: "Effect",
+            psionicsHeaderBoost: "Boost",
+            prayersSectionTitle: "Prayer selection",
+            prayersLabel: "Prayers (multi-select)",
+            prayersDetailsToggle: "Include full description?",
+            prayersHeaderName: "Name",
+            prayersHeaderEffect: "Effect",
+            traitPopoverTitle: "Trait description",
+            traitPopoverDescription: "Click a tag to see its trait description.",
+          },
+          card: {
+            titleSuffix: "Card",
+            levelLabel: "Level",
+            threatLabel: "Threat",
+            keywordsLabel: "Keywords",
+            resistanceLabel: "Resilience",
+            armorLabel: "Armor",
+            resistanceWithArmor: "(including {armorLabel}: {value})",
+            armorTraitsLabel: "Armor Traits",
+            defenseLabel: "Defense",
+            vitalityLabel: "Vitality",
+            mentalResistanceLabel: "Mental resist.",
+            trackerAriaLabel: "Vitality and mental resistance tracking",
+            trackerVitalityLabel: "Vitality",
+            trackerMentalLabel: "Mental resistance",
+            trackerVitalityShort: "H",
+            trackerMentalShort: "S",
+            gritLabel: "Resolve",
+            courageLabel: "Courage",
+            speedLabel: "Speed",
+            sizeLabel: "Size",
+            notesLabel: "Notes",
+          },
+          cardSections: {
+            skills: "Skills",
+            bonuses: "Bonuses",
+            abilities: "Abilities",
+            attack: "Attack",
+            hordeAbilities: "Horde Abilities",
+            hordeOptions: "Horde Options",
+            augmentations: "Augmentations",
+            equipment: "Equipment",
+            talents: "Talents",
+            psionics: "Psionics",
+            prayers: "Prayers",
+          },
+          messages: {
+            noDataOption: "No data",
+            edit: "Edit",
+            save: "Save",
+            favoritesEmpty: "No saved favorites.",
+            favoritesFirestoreConnected: "Connected to Firestore.",
+            favoritesRefreshSuccess: "Favorites refreshed.",
+            favoritesRefreshLocal: "Favorites refreshed locally.",
+            firestoreSaveError: "Firestore save failed. Local storage enabled.",
+            firestoreNoAccess: "No access to Firestore. Using local storage.",
+            firestoreNoConfig: "Firestore not configured. Using local storage.",
+            favoritesRefreshError: "Failed to refresh Firestore.",
+            selectBestiaryAlert: "Select a bestiary record before generating a card.",
+            noDataDisplay: "No data to display.",
+            loadSummary:
+              "Loaded: Bestiary ({bestiary}), Armor ({armor}), Weapons ({weapons}), Augmentations ({augmentations}), Equipment ({equipment}), Talents ({talents}), Psionics ({psionics}), Prayers ({prayers}).",
+            loadError: "Could not load data. Check private database availability.",
+            accessInvalidPassword: "The angered Machine Spirit replies: the Litany of Access was rejected.",
+            statusLoadPrivateData: "Loading data from private database...",
+            statusPrivateDataOk: "OK — loaded data from private database",
+            statusPrivateDataError: "The Machine Spirit is silent: could not load private data.",
+            selectBestiary: "Select a name...",
+            selectArmor: "Select armor...",
+            selectWeapon: "Select weapons...",
+            selectAugmentations: "Select augmentations...",
+            selectEquipment: "Select equipment...",
+            selectTalents: "Select talents...",
+            selectPsionics: "Select psionics...",
+            selectPrayers: "Select prayers...",
+            armorDisabledTitle: "Armor with AV '-' cannot be selected.",
+            traitDescriptionUnavailable: "Trait description is unavailable in _meta.traits.",
+          },
+        },
+      };
+
+      let currentLanguage = "pl";
+
+      const applyLanguage = (lang) => {
+        currentLanguage = lang;
+        const t = translations[lang];
+        document.documentElement.lang = lang;
+        if (languageSelect) {
+          languageSelect.value = lang;
+          languageSelect.setAttribute("aria-label", t.labels.languageSelect);
+        }
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          if (key in t.labels) {
+            el.textContent = t.labels[key];
+          }
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+          const key = el.getAttribute("data-i18n-placeholder");
+          if (key in t.labels) {
+            el.setAttribute("placeholder", t.labels[key]);
+          }
+        });
+        const updatePlaceholder = (select, placeholder) => {
+          const option = select.querySelector("option[value=\"\"]");
+          if (option) {
+            option.textContent = placeholder;
+          }
+        };
+        updatePlaceholder(bestiarySelect, t.messages.selectBestiary);
+        updatePlaceholder(armorSelect, t.messages.selectArmor);
+        updatePlaceholder(weaponSelect, t.messages.selectWeapon);
+        updatePlaceholder(augmentationsSelect, t.messages.selectAugmentations);
+        updatePlaceholder(equipmentSelect, t.messages.selectEquipment);
+        updatePlaceholder(talentsSelect, t.messages.selectTalents);
+        updatePlaceholder(psionicsSelect, t.messages.selectPsionics);
+        updatePlaceholder(prayersSelect, t.messages.selectPrayers);
+        if (favoritesStatus.querySelector("[data-i18n]")) {
+          favoritesStatus.querySelector("[data-i18n]").textContent = t.labels.favoritesStatusConnecting;
+        }
+        if (state.data) {
+          setStatus(
+            formatText(t.messages.loadSummary, {
+              bestiary: state.bestiary.length,
+              armor: state.armor.length,
+              weapons: state.weapons.length,
+              augmentations: state.augmentations.length,
+              equipment: state.equipment.length,
+              talents: state.talents.length,
+              psionics: state.psionics.length,
+              prayers: state.prayers.length,
+            })
+          );
+        } else {
+          dataStatus.textContent = t.labels.dataStatusLoading;
+        }
+      };
+
+      const formatText = (template, vars = {}) =>
+        template.replace(/\{(\w+)\}/g, (_, key) => (key in vars ? vars[key] : ""));
+
+      const CLAMP_LINES = 9;
+      const MAX_NUMERIC_INPUT_LENGTH = 25;
+      // Stała określająca liczbę kolumn poziomu na karcie do druku / Constant defining number of level columns on the printable card
+      const CARD_LEVEL_COLUMNS = 5;
+      const FAVORITES_STORAGE_KEY = "generatorNpcFavorites";
+      const FAVORITES_COLLECTION = "generatorNpc";
+      const FAVORITES_DOC_ID = "favorites";
+      const FAVORITES_APP_NAME = "generator-npc-favorites";
+
+      // --- Pobranie lub utworzenie nazwanej aplikacji Firebase dla ulubionych / Get or create named Firebase app for favorites ---
+      const getOrCreateNamedFirebaseApp = (name, config) => {
+        const existing = getApps().find((candidate) => candidate.name === name);
+        if (existing) {
+          return existing;
+        }
+        return initializeApp(config, name);
+      };
+
+      const state = {
+        data: null,
+        traits: new Map(),
+        expandedCells: new Set(),
+        selectedBestiaryIndex: null,
+        bestiaryOverrides: {
+          numeric: new Map(),
+          skills: null,
+          skillsEditing: false,
+        },
+        bestiary: [],
+        armor: [],
+        weapons: [],
+        augmentations: [],
+        equipment: [],
+        talents: [],
+        psionics: [],
+        prayers: [],
+        favorites: [],
+        firestore: null,
+        favoritesDoc: null,
+        usingFirestore: false,
+      };
+
+      const clampEvaluators = new WeakMap();
+      const nameKeyCache = new WeakMap();
+      const clampObserver = new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target;
+          const evaluate = clampEvaluators.get(target);
+          if (evaluate) {
+            evaluate();
+          }
+        });
+      });
+
+      const normalizeText = (value) =>
+        String(value ?? "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const setFavoritesStatus = (message, { isError = false } = {}) => {
+        favoritesStatus.textContent = message;
+        favoritesStatus.classList.toggle("text-red", isError);
+      };
+
+      const normalizeKey = (value) =>
+        normalizeText(value)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/\p{Diacritic}/gu, "");
+
+      const EDITABLE_STATS_KEYS = [
+        "S",
+        "Wt",
+        "Zr",
+        "I",
+        "SW",
+        "Int",
+        "Ogd",
+        "Odporność (w tym WP)",
+        "Obrona (w tym WP)",
+        "Obrona",
+        "Żywotność",
+        "Odporność Psychiczna",
+        "Upór",
+        "Odwaga",
+        "Szybkość",
+      ];
+      const EDITABLE_SKILLS_KEY = normalizeKey("Umiejętności");
+      const EDITABLE_RESISTANCE_KEYS = new Set(
+        ["Odporność (w tym WP)", "Obrona (w tym WP)"].map((label) => normalizeKey(label))
+      );
+      const EDITABLE_MENTAL_RESISTANCE_KEYS = new Set(
+        ["Odporność Psychiczna", "Odporność psychiczna"].map((label) => normalizeKey(label))
+      );
+      const EDITABLE_NUMERIC_KEYS = new Set(EDITABLE_STATS_KEYS.map((label) => normalizeKey(label)));
+
+      const createFavoriteId = () => {
+        if (typeof crypto !== "undefined" && crypto.randomUUID) {
+          return crypto.randomUUID();
+        }
+        return `fav-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      };
+
+      const serializeBestiaryOverrides = (overrides) => ({
+        numeric: Object.fromEntries(overrides.numeric),
+        skills: overrides.skills ?? null,
+      });
+
+      const deserializeBestiaryOverrides = (payload) => ({
+        numeric: new Map(Object.entries(payload?.numeric || {})),
+        skills: payload?.skills ?? null,
+        skillsEditing: false,
+      });
+
+      const escapeHtml = (value) =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      const getColumnClass = (label) => {
+        const slug = normalizeKey(label)
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        return slug ? `min-col-${slug}` : "";
+      };
+
+      const formatInlineHTML = (raw) => {
+        const s = String(raw ?? "");
+        const reRefParen = /\(([^)]*(?:\bstr\.?\b|\bstr\b|\bstrona\b)[^)]*)\)/gi;
+        const markerRegex = /{{\/?(?:RED|B|I|S)}}/g;
+        const segments = [];
+        const stack = [];
+        let cursor = 0;
+        let match;
+
+        while ((match = markerRegex.exec(s))) {
+          if (match.index > cursor) {
+            segments.push({ text: s.slice(cursor, match.index), styles: new Set(stack) });
+          }
+          const token = match[0];
+          const isClose = token.startsWith("{{/");
+          const name = token.includes("RED")
+            ? "RED"
+            : token.includes("B")
+              ? "B"
+              : token.includes("I")
+                ? "I"
+                : "S";
+          if (isClose) {
+            const idx = stack.lastIndexOf(name);
+            if (idx !== -1) stack.splice(idx, 1);
+          } else {
+            stack.push(name);
+          }
+          cursor = markerRegex.lastIndex;
+        }
+        if (cursor < s.length) {
+          segments.push({ text: s.slice(cursor), styles: new Set(stack) });
+        }
+
+        const positions = [];
+        let combined = "";
+        for (const seg of segments) {
+          const start = combined.length;
+          combined += seg.text;
+          positions.push({ seg, start, end: combined.length });
+        }
+
+        const refs = [];
+        reRefParen.lastIndex = 0;
+        while ((match = reRefParen.exec(combined))) {
+          refs.push({ start: match.index, end: match.index + match[0].length });
+        }
+
+        const renderSegment = ({ text, styles }, start, end) => {
+          const overlaps = refs.filter((r) => r.start < end && r.end > start);
+          if (!overlaps.length) {
+            const classes = [];
+            if (styles?.has("RED")) classes.push("inline-red");
+            if (styles?.has("B")) classes.push("inline-bold");
+            if (styles?.has("I")) classes.push("inline-italic");
+            if (styles?.has("S")) classes.push("inline-strike");
+            const inner = escapeHtml(text);
+            return classes.length ? `<span class="${classes.join(" ")}">${inner}</span>` : inner;
+          }
+
+          let localCursor = 0;
+          const tokens = [];
+          for (const ref of overlaps) {
+            const localStart = Math.max(0, ref.start - start);
+            const localEnd = Math.min(text.length, ref.end - start);
+            if (localStart > localCursor) {
+              tokens.push({ kind: "text", value: text.slice(localCursor, localStart) });
+            }
+            if (localEnd > localStart) {
+              tokens.push({ kind: "ref", value: text.slice(localStart, localEnd) });
+            }
+            localCursor = Math.max(localCursor, localEnd);
+          }
+          if (localCursor < text.length) {
+            tokens.push({ kind: "text", value: text.slice(localCursor) });
+          }
+
+          const styleClasses = [];
+          if (styles?.has("RED")) styleClasses.push("inline-red");
+          if (styles?.has("B")) styleClasses.push("inline-bold");
+          if (styles?.has("I")) styleClasses.push("inline-italic");
+          if (styles?.has("S")) styleClasses.push("inline-strike");
+
+          return tokens
+            .map((token) => {
+              const classes = [...styleClasses];
+              if (token.kind === "ref") classes.push("ref");
+              const inner = escapeHtml(token.value);
+              return classes.length ? `<span class="${classes.join(" ")}">${inner}</span>` : inner;
+            })
+            .join("");
+        };
+
+        return positions.map((pos) => renderSegment(pos.seg, pos.start, pos.end)).join("");
+      };
+
+      const formatTextHTML = (raw, { maxLines = null, appendHint = null } = {}) => {
+        const s = String(raw ?? "");
+        if (!s) return "";
+        const lines = s.split(/\r?\n/);
+        const sliced = maxLines ? lines.slice(0, maxLines) : lines;
+        const rendered = sliced.map((line) => {
+          const marker = line.match(/^\*\s*\[(\d+)\]\s*(.*)$/);
+          const highlight = Boolean(marker);
+          const text = highlight ? `*[${marker[1]}] ${marker[2]}` : line;
+          const inner = formatInlineHTML(text);
+          return highlight ? `<span class="caretref">${inner}</span>` : inner;
+        });
+        if (maxLines && lines.length > maxLines && appendHint) {
+          rendered.push(escapeHtml(appendHint));
+        }
+        return rendered.join("<br>");
+      };
+
+      const formatRangeHTML = (raw) => {
+        const s = String(raw ?? "");
+        if (!s) return "";
+        const parts = s.split("/");
+        if (parts.length === 1) return escapeHtml(s);
+        return parts
+          .map((part, idx) => {
+            const seg = escapeHtml(part);
+            if (idx === 0) return seg;
+            return `<span class="slash">/</span>${seg}`;
+          })
+          .join("");
+      };
+
+      const formatKeywordHTML = (raw, { commasNeutral = false, maxLines = null, appendHint = null } = {}) => {
+        const base = formatTextHTML(raw, { maxLines, appendHint });
+        const body = commasNeutral ? base.replace(/,/g, '<span class="keyword-comma">,</span>') : base;
+        return `<span class="keyword-red">${body}</span>`;
+      };
+
+      const isKeywordColumn = (key) => {
+        const normalized = normalizeText(key).toLowerCase();
+        return normalized === "słowa kluczowe" || normalized === "slowa kluczowe";
+      };
+
+      const isRangeColumn = (key) => {
+        const normalized = normalizeText(key).toLowerCase();
+        return normalized === "zasięg" || normalized === "zasieg";
+      };
+
+      const getFormattedCellHTML = (sheetName, key, rawValue, options = {}) => {
+        if (isKeywordColumn(key)) {
+          const commasNeutral = ["Bestiariusz", "Psionika", "Augumentacje", "Ekwipunek", "Pancerze", "Bronie"].includes(
+            sheetName
+          );
+          return formatKeywordHTML(rawValue, { commasNeutral, ...options });
+        }
+        if (isRangeColumn(key)) {
+          return formatRangeHTML(rawValue);
+        }
+        return formatTextHTML(rawValue, options);
+      };
+
+      const isOldBestiaryRecord = (record) =>
+        normalizeText(getRecordValueByLabels(record, ["Stan", "stan"])).toLowerCase() === "old";
+
+      const shouldGrayBestiaryKey = (key, record) => {
+        if (!isOldBestiaryRecord(record)) return false;
+        const normalized = normalizeKey(key);
+        const allowed = new Set(["lp", "nazwa", "typ"]);
+        return allowed.has(normalized);
+      };
+
+      const canonicalTraitName = (name) =>
+        normalizeText(name).replace(/\(\s*\d+\s*\)/g, "(X)");
+
+      const toDisplayString = (value) => {
+        if (value === null || value === undefined || value === "") {
+          return "—";
+        }
+        if (Array.isArray(value)) {
+          return value.map((item) => toDisplayString(item)).join("; ");
+        }
+        if (typeof value === "object") {
+          return Object.entries(value)
+            .map(([key, val]) => `${key}: ${toDisplayString(val)}`)
+            .join(", ");
+        }
+        return String(value);
+      };
+
+      const hasMeaningfulValue = (value) => {
+        const normalized = normalizeText(value);
+        return normalized && normalized !== "—" && normalized !== "-" && normalized !== "brak";
+      };
+
+      const parseNumericValue = (value, fallback = 1) => {
+        const match = String(value ?? "").match(/-?\d+/);
+        if (!match) {
+          return fallback;
+        }
+        const numeric = Number(match[0]);
+        return Number.isFinite(numeric) ? numeric : fallback;
+      };
+
+      const getRecordValueByLabels = (record, labels) => {
+        for (const label of labels) {
+          const value = getRecordValue(record, label);
+          if (value !== null && value !== undefined && value !== "") {
+            return value;
+          }
+        }
+        return null;
+      };
+
+      const getBestiaryWpMinimum = (record) => {
+        const wpText = normalizeText(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"]));
+        if (wpText === "-") {
+          return 1;
+        }
+        const numeric = parseNumericValue(wpText, 1);
+        return Math.max(1, numeric);
+      };
+
+      const getEditableNumericMinimum = (label, record) => {
+        const normalizedLabel = normalizeKey(label);
+        if (EDITABLE_RESISTANCE_KEYS.has(normalizedLabel)) {
+          return getBestiaryWpMinimum(record);
+        }
+        return 1;
+      };
+
+      const getNumericOverride = (label) =>
+        state.bestiaryOverrides.numeric.get(normalizeKey(label));
+
+      const resetBestiaryOverrides = () => {
+        state.bestiaryOverrides.numeric.clear();
+        state.bestiaryOverrides.skills = null;
+        state.bestiaryOverrides.skillsEditing = false;
+      };
+
+      const extractRecords = (section) => {
+        if (!section) {
+          return [];
+        }
+        if (Array.isArray(section)) {
+          return section;
+        }
+        if (Array.isArray(section.rows)) {
+          return section.rows;
+        }
+        if (Array.isArray(section.data)) {
+          return section.data;
+        }
+        return [];
+      };
+
+      const getSectionName = (section) => {
+        if (!section || typeof section !== "object") {
+          return null;
+        }
+        const name =
+          section.name ??
+          section.nazwa ??
+          section.Nazwa ??
+          section.title ??
+          section.Tytul ??
+          section.Tytuł ??
+          section.sheet ??
+          section.sheetName ??
+          section.Arkusz ??
+          section.arkusz;
+        return name ? normalizeText(name) : null;
+      };
+
+      const looksLikeRecordArray = (items) =>
+        items.every(
+          (item) =>
+            item &&
+            typeof item === "object" &&
+            !Array.isArray(item) &&
+            !("rows" in item) &&
+            !("data" in item)
+        );
+
+      const findCollectionInNode = (node, keywords, visited) => {
+        if (!node) {
+          return null;
+        }
+        if (typeof node === "object") {
+          if (visited.has(node)) {
+            return null;
+          }
+          visited.add(node);
+        }
+        if (Array.isArray(node)) {
+          if (!node.length) {
+            return null;
+          }
+          const namedSections = node
+            .map((section) => ({
+              section,
+              name: getSectionName(section),
+            }))
+            .filter((entry) => entry.name);
+          if (namedSections.length) {
+            for (const keyword of keywords) {
+              const match = namedSections.find((entry) =>
+                entry.name.toLowerCase().includes(keyword)
+              );
+              if (match) {
+                const records = extractRecords(match.section);
+                if (records.length) {
+                  return records;
+                }
+              }
+            }
+          }
+          if (looksLikeRecordArray(node)) {
+            return node;
+          }
+          for (const section of node) {
+            const records = extractRecords(section);
+            if (records.length) {
+              return records;
+            }
+            const nested = findCollectionInNode(section, keywords, visited);
+            if (nested?.length) {
+              return nested;
+            }
+          }
+          return null;
+        }
+        if (typeof node === "object") {
+          const directRecords = extractRecords(node);
+          if (directRecords.length) {
+            return directRecords;
+          }
+          const entries = Object.entries(node);
+          for (const [key, value] of entries) {
+            const lowerKey = key.toLowerCase();
+            if (keywords.some((keyword) => lowerKey.includes(keyword))) {
+              const records = findCollectionInNode(value, keywords, visited);
+              if (records?.length) {
+                return records;
+              }
+              const fallback = extractRecords(value);
+              if (fallback.length) {
+                return fallback;
+              }
+            }
+          }
+          for (const [, value] of entries) {
+            const records = findCollectionInNode(value, keywords, visited);
+            if (records?.length) {
+              return records;
+            }
+          }
+        }
+        return null;
+      };
+
+      const getCollection = (db, keywords) => {
+        if (!db || typeof db !== "object") {
+          return [];
+        }
+        const records = findCollectionInNode(db, keywords, new WeakSet());
+        return records ?? [];
+      };
+
+      const resolveNameKey = (record) => {
+        if (!record || typeof record !== "object") {
+          return null;
+        }
+        if (nameKeyCache.has(record)) {
+          return nameKeyCache.get(record);
+        }
+        const keys = Object.keys(record);
+        const nameKey =
+          keys.find((key) => key.toLowerCase() === "nazwa") ||
+          keys.find((key) => key.toLowerCase().includes("nazwa")) ||
+          keys.find((key) => key.toLowerCase().includes("name")) ||
+          keys[0];
+        nameKeyCache.set(record, nameKey);
+        return nameKey;
+      };
+
+      const getRecordName = (record, index) => {
+        const key = resolveNameKey(record);
+        const value = key ? record[key] : null;
+        const name = normalizeText(value) || `Rekord ${index + 1}`;
+        return name;
+      };
+
+      const compareStrings = (left, right, { descending = false } = {}) => {
+        const normalizedLeft = normalizeText(left);
+        const normalizedRight = normalizeText(right);
+        const result = normalizedLeft.localeCompare(normalizedRight, "pl", { sensitivity: "base" });
+        return descending ? -result : result;
+      };
+
+      const getSortableLp = (record) => {
+        const lpValue = getRecordValueByLabels(record, ["LP"]);
+        if (lpValue === null || lpValue === undefined || lpValue === "") {
+          return null;
+        }
+        const match = String(lpValue).match(/-?\d+(\.\d+)?/);
+        if (!match) {
+          return null;
+        }
+        const parsed = Number(match[0]);
+        return Number.isFinite(parsed) ? parsed : null;
+      };
+
+      const getSortableType = (record) =>
+        normalizeText(getRecordValueByLabels(record, ["Typ", "Type", "type"]));
+
+      const sortRecords = (records, compare) =>
+        records
+          .map((record, index) => ({ record, index }))
+          .sort((a, b) => {
+            const lpA = getSortableLp(a.record);
+            const lpB = getSortableLp(b.record);
+            if (lpA !== null && lpB !== null && lpA !== lpB) {
+              return lpA - lpB;
+            }
+            if (lpA !== null && lpB === null) {
+              return -1;
+            }
+            if (lpA === null && lpB !== null) {
+              return 1;
+            }
+            const result = compare(a, b);
+            if (result !== 0) {
+              return result;
+            }
+            return a.index - b.index;
+          })
+          .map((entry) => entry.record);
+
+      const sortByName = (records) =>
+        sortRecords(records, (a, b) =>
+          compareStrings(getRecordName(a.record, a.index), getRecordName(b.record, b.index))
+        );
+
+      const sortByTypeThenName = (records, { typeDescending = false } = {}) =>
+        sortRecords(records, (a, b) => {
+          const typeCompare = compareStrings(getSortableType(a.record), getSortableType(b.record), {
+            descending: typeDescending,
+          });
+          if (typeCompare !== 0) {
+            return typeCompare;
+          }
+          return compareStrings(getRecordName(a.record, a.index), getRecordName(b.record, b.index));
+        });
+
+      const findRecordKey = (record, label) => {
+        if (!record) {
+          return null;
+        }
+        const normalizedLabel = normalizeKey(label);
+        const keys = Object.keys(record);
+        const exact = keys.find((key) => normalizeKey(key) === normalizedLabel);
+        if (exact) {
+          return exact;
+        }
+        return keys.find((key) => normalizeKey(key).includes(normalizedLabel)) || null;
+      };
+
+      const getRecordValue = (record, label) => {
+        const key = findRecordKey(record, label);
+        return key ? record[key] : null;
+      };
+
+      const getArmorWpValue = (record) =>
+        getRecordValue(record, "Wartość Pancerza") ?? getRecordValue(record, "WP");
+
+      const isArmorBlocked = (record) => normalizeText(getArmorWpValue(record)) === "-";
+
+      const isBestiaryArmorBlocked = (record) =>
+        normalizeText(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"])) === "-";
+
+      const isBestiaryMentalResistanceBlocked = (record) =>
+        normalizeText(
+          getRecordValueByLabels(record, ["Odporność Psychiczna", "Odporność psychiczna"])
+        ) === "-";
+
+      const buildTraitsMap = (data) => {
+        const traits = data?._meta?.traits;
+        const map = new Map();
+        if (!traits) {
+          return map;
+        }
+        if (Array.isArray(traits)) {
+          traits.forEach((trait) => {
+            const traitName = trait?.Nazwa || trait?.name || trait?.Name;
+            const traitDescription = trait?.Opis || trait?.description || trait?.Description;
+            if (traitName) {
+              map.set(canonicalTraitName(traitName), traitDescription || "");
+            }
+          });
+          return map;
+        }
+        if (typeof traits === "object") {
+          Object.entries(traits).forEach(([traitName, traitDescription]) => {
+            if (traitName) {
+              map.set(canonicalTraitName(traitName), traitDescription || "");
+            }
+          });
+        }
+        return map;
+      };
+
+      const resolveTraitDescription = (traitName) => {
+        const canonical = canonicalTraitName(traitName);
+        if (state.traits.has(canonical)) {
+          return state.traits.get(canonical);
+        }
+        if (state.traits.has(normalizeText(traitName))) {
+          return state.traits.get(normalizeText(traitName));
+        }
+        return translations[currentLanguage].messages.traitDescriptionUnavailable;
+      };
+
+      const setStatus = (message) => {
+        dataStatus.textContent = message;
+      };
+
+      const updateModuleVisibility = () => {
+        const moduleState = new Map(
+          moduleToggles.map((toggle) => [toggle.dataset.moduleToggle, toggle.checked])
+        );
+        moduleSections.forEach((section) => {
+          const key = section.dataset.moduleSection;
+          if (!key || !moduleState.has(key)) {
+            return;
+          }
+          section.classList.toggle("is-hidden", !moduleState.get(key));
+        });
+      };
+
+      const setSelectOptions = (select, items, placeholder, { disableOption, disabledTitle } = {}) => {
+        select.innerHTML = "";
+        if (!items.length) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = translations[currentLanguage].messages.noDataOption;
+          option.disabled = true;
+          option.selected = true;
+          select.append(option);
+          select.disabled = true;
+          return;
+        }
+        if (!select.multiple) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = placeholder;
+          option.disabled = true;
+          option.selected = true;
+          select.append(option);
+        } else if (placeholder) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = placeholder;
+          option.disabled = true;
+          select.append(option);
+        }
+        items.forEach((record, index) => {
+          const option = document.createElement("option");
+          option.value = String(index);
+          option.textContent = getRecordName(record, index);
+          if (disableOption?.(record, index)) {
+            option.disabled = true;
+            option.title = disabledTitle || "";
+          }
+          select.append(option);
+        });
+        select.disabled = false;
+      };
+
+      const clearTableBody = (tbody, message, colSpan) => {
+        tbody.innerHTML = "";
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = colSpan;
+        cell.className = "text-muted";
+        cell.textContent = message;
+        row.append(cell);
+        tbody.append(row);
+      };
+
+      const createTag = (traitName) => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = traitName;
+        span.setAttribute("data-trait", traitName);
+        return span;
+      };
+
+      const renderTraitsCell = (value, columnClass) => {
+        const cell = document.createElement("td");
+        if (columnClass) {
+          cell.classList.add(columnClass);
+        }
+        const valueString = toDisplayString(value);
+        if (valueString === "—") {
+          cell.textContent = valueString;
+          return cell;
+        }
+        cell.classList.add("celltext");
+        const traits = valueString
+          .split(";")
+          .map((trait) => normalizeText(trait))
+          .filter(Boolean);
+        if (!traits.length) {
+          cell.textContent = "—";
+          return cell;
+        }
+        traits.forEach((trait) => {
+          cell.append(createTag(trait));
+        });
+        return cell;
+      };
+
+      const createClampCell = (sheetName, rowId, key, valueString, columnClass) => {
+        const cell = document.createElement("td");
+        if (columnClass) {
+          cell.classList.add(columnClass);
+        }
+        if (valueString === "—") {
+          cell.textContent = valueString;
+          return cell;
+        }
+        cell.classList.add("celltext", "clamp-cell");
+        const content = document.createElement("div");
+        content.className = "clampable";
+        const hint = document.createElement("div");
+        hint.className = "clamp-hint";
+        const keyId = `${sheetName}|${rowId}|${key}`;
+        const rawText = String(valueString ?? "");
+        const linesCount = rawText.split(/\r?\n/).length;
+        const isClampCandidate = linesCount > CLAMP_LINES + 1;
+        const renderCell = () => {
+          content.innerHTML = getFormattedCellHTML(sheetName, key, valueString);
+        };
+        const evaluateClamp = () => {
+          const lineHeight = parseFloat(getComputedStyle(content).lineHeight);
+          if (!lineHeight) {
+            cell.classList.remove("is-clampable", "is-clamped", "is-expanded");
+            content.style.maxHeight = "";
+            content.style.overflow = "";
+            hint.textContent = "";
+            return;
+          }
+          const linesRendered = Math.round(content.scrollHeight / lineHeight);
+          const shouldClamp = isClampCandidate || linesRendered > CLAMP_LINES;
+          if (!shouldClamp) {
+            cell.classList.remove("is-clampable", "is-clamped", "is-expanded");
+            content.style.maxHeight = "";
+            content.style.overflow = "";
+            cell.title = "";
+            hint.textContent = "";
+            return;
+          }
+          cell.classList.add("is-clampable");
+          const isExpanded = state.expandedCells.has(keyId);
+          cell.classList.toggle("is-expanded", isExpanded);
+          cell.classList.toggle("is-clamped", !isExpanded);
+          if (!isExpanded) {
+            content.style.maxHeight = `${lineHeight * CLAMP_LINES}px`;
+            content.style.overflow = "hidden";
+          } else {
+            content.style.maxHeight = "";
+            content.style.overflow = "";
+          }
+          hint.textContent = isExpanded ? "Kliknij aby zwinąć" : "Kliknij aby rozwinąć";
+          cell.title = hint.textContent;
+        };
+        renderCell();
+        cell.append(content, hint);
+        clampEvaluators.set(content, evaluateClamp);
+        clampObserver.observe(content);
+        requestAnimationFrame(evaluateClamp);
+        cell.addEventListener("click", () => {
+          if (!cell.classList.contains("is-clampable")) {
+            return;
+          }
+          if (state.expandedCells.has(keyId)) {
+            state.expandedCells.delete(keyId);
+          } else {
+            state.expandedCells.add(keyId);
+          }
+          renderCell();
+          requestAnimationFrame(evaluateClamp);
+        });
+        return cell;
+      };
+
+      const createNumericInputCell = (record, key, valueString) => {
+        const cell = document.createElement("td");
+        cell.classList.add("celltext");
+        const input = document.createElement("input");
+        input.type = "number";
+        input.className = "input table-number-input";
+        input.maxLength = MAX_NUMERIC_INPUT_LENGTH;
+        const minValue = getEditableNumericMinimum(key, record);
+        input.min = String(minValue);
+        input.step = "1";
+        const overrideValue = getNumericOverride(key);
+        const initial = overrideValue ?? parseNumericValue(valueString, minValue);
+        const resolvedInitial = Math.max(minValue, Number.isFinite(initial) ? initial : minValue);
+        const clampInputLength = () => {
+          if (input.value.length > MAX_NUMERIC_INPUT_LENGTH) {
+            input.value = input.value.slice(0, MAX_NUMERIC_INPUT_LENGTH);
+          }
+        };
+        input.value = String(resolvedInitial);
+        clampInputLength();
+        const commitValue = () => {
+          clampInputLength();
+          const numeric = parseNumericValue(input.value, minValue);
+          const resolved = Math.max(minValue, numeric);
+          input.value = String(resolved);
+          clampInputLength();
+          state.bestiaryOverrides.numeric.set(normalizeKey(key), resolved);
+        };
+        input.addEventListener("input", () => {
+          clampInputLength();
+          const numeric = Number.parseInt(input.value, 10);
+          if (Number.isFinite(numeric)) {
+            state.bestiaryOverrides.numeric.set(normalizeKey(key), Math.max(minValue, numeric));
+          }
+        });
+        input.addEventListener("change", commitValue);
+        input.addEventListener("blur", commitValue);
+        cell.append(input);
+        return cell;
+      };
+
+      const createSkillsRow = (record, key, valueString) => {
+        const row = document.createElement("tr");
+        const keyCell = document.createElement("td");
+        keyCell.classList.add("skills-key-cell");
+        const label = document.createElement("span");
+        label.textContent = key;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn secondary btn-small";
+        const isEditing = state.bestiaryOverrides.skillsEditing;
+        button.textContent = isEditing
+          ? translations[currentLanguage].messages.save
+          : translations[currentLanguage].messages.edit;
+        keyCell.append(label, button);
+        row.append(keyCell);
+
+        if (isEditing) {
+          const valueCell = document.createElement("td");
+          const textarea = document.createElement("textarea");
+          textarea.className = "editable-textarea";
+          const currentValue = state.bestiaryOverrides.skills ?? valueString;
+          textarea.value = currentValue === "—" ? "" : currentValue;
+          valueCell.append(textarea);
+          row.append(valueCell);
+          button.addEventListener("click", () => {
+            state.bestiaryOverrides.skills = textarea.value;
+            state.bestiaryOverrides.skillsEditing = false;
+            renderBestiaryTable(record);
+          });
+        } else {
+          const displayValue = state.bestiaryOverrides.skills ?? valueString;
+          row.append(createClampCell("Bestiariusz", key, key, displayValue));
+          button.addEventListener("click", () => {
+            state.bestiaryOverrides.skillsEditing = true;
+            renderBestiaryTable(record);
+          });
+        }
+        return row;
+      };
+
+      const renderOrderedTable = ({
+        tableBody,
+        records,
+        selectedIndices,
+        columns,
+        sheetName,
+        emptyMessage,
+      }) => {
+        if (!selectedIndices.length) {
+          clearTableBody(tableBody, emptyMessage, columns.length);
+          return;
+        }
+        tableBody.innerHTML = "";
+        selectedIndices.forEach((index) => {
+          const record = records[index];
+          if (!record) {
+            return;
+          }
+          const row = document.createElement("tr");
+          columns.forEach((label) => {
+            const columnClass = getColumnClass(label);
+            if (label.toLowerCase().includes("cechy")) {
+              row.append(renderTraitsCell(getRecordValue(record, label), columnClass));
+              return;
+            }
+            const valueString = toDisplayString(getRecordValue(record, label));
+            row.append(createClampCell(sheetName, index, label, valueString, columnClass));
+          });
+          tableBody.append(row);
+        });
+      };
+
+      const renderBestiaryTable = (record) => {
+        if (!record) {
+          clearTableBody(bestiaryTableBody, "Wybierz rekord bestiariusza.", 2);
+          return;
+        }
+        bestiaryTableBody.innerHTML = "";
+        const entries = Object.entries(record);
+        entries.forEach(([key, value]) => {
+          if (normalizeKey(key) === "stan") {
+            return;
+          }
+          const valueString = toDisplayString(value);
+          const normalizedKey = normalizeKey(key);
+          if (normalizedKey === EDITABLE_SKILLS_KEY) {
+            bestiaryTableBody.append(createSkillsRow(record, key, valueString));
+            return;
+          }
+          const row = document.createElement("tr");
+          const keyCell = document.createElement("td");
+          keyCell.textContent = key;
+          if (shouldGrayBestiaryKey(key, record)) {
+            keyCell.classList.add("bestiary-old-key");
+          }
+          row.append(keyCell);
+
+          let valueCell;
+          if (key.toLowerCase().includes("cechy")) {
+            valueCell = renderTraitsCell(value);
+          } else if (EDITABLE_NUMERIC_KEYS.has(normalizedKey)) {
+            if (EDITABLE_MENTAL_RESISTANCE_KEYS.has(normalizedKey) && isBestiaryMentalResistanceBlocked(record)) {
+              valueCell = createClampCell("Bestiariusz", key, key, valueString);
+            } else {
+              valueCell = createNumericInputCell(record, key, valueString);
+            }
+          } else {
+            valueCell = createClampCell("Bestiariusz", key, key, valueString);
+          }
+          if (shouldGrayBestiaryKey(key, record)) {
+            valueCell.classList.add("bestiary-old-key");
+          }
+          row.append(valueCell);
+          bestiaryTableBody.append(row);
+        });
+      };
+
+      const weaponColumns = [
+        "Nazwa",
+        "Obrażenia",
+        "DK",
+        "PP",
+        "Zasięg",
+        "Szybkostrzelność",
+        "Cechy",
+        "Słowa Kluczowe",
+        "Podręcznik",
+        "Strona",
+      ];
+
+      const armorColumns = ["Nazwa", "WP", "Cechy", "Słowa Kluczowe", "Podręcznik", "Strona"];
+      const augmentationsColumns = ["Nazwa", "Efekt"];
+      const equipmentColumns = ["Nazwa", "Efekt"];
+      const talentsColumns = ["Nazwa", "Efekt"];
+      const psionicsColumns = [
+        "Nazwa",
+        "ST",
+        "Aktywacja",
+        "Czas trwania",
+        "Zasięg",
+        "Wiele Celów",
+        "Efekt",
+        "Wzmocnienie",
+      ];
+      const prayersColumns = ["Nazwa", "Efekt"];
+
+      const getSelectedIndices = (select) =>
+        Array.from(select.selectedOptions)
+          .map((option) => Number(option.value))
+          .filter((index) => !Number.isNaN(index));
+
+      const setSelectedIndices = (select, indices) => {
+        const selectedSet = new Set(indices);
+        Array.from(select.options).forEach((option) => {
+          const value = Number(option.value);
+          option.selected = selectedSet.has(value);
+        });
+      };
+
+      const renderWeaponTable = () => {
+        const selected = getSelectedIndices(weaponSelect);
+        renderOrderedTable({
+          tableBody: weaponTableBody,
+          records: state.weapons,
+          selectedIndices: selected,
+          columns: weaponColumns,
+          sheetName: "Bronie",
+          emptyMessage: "Wybierz broń, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderArmorTable = () => {
+        const selected = getSelectedIndices(armorSelect);
+        renderOrderedTable({
+          tableBody: armorTableBody,
+          records: state.armor,
+          selectedIndices: selected,
+          columns: armorColumns,
+          sheetName: "Pancerze",
+          emptyMessage: "Wybierz pancerz, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderAugmentationsTable = () => {
+        const selected = getSelectedIndices(augmentationsSelect);
+        renderOrderedTable({
+          tableBody: augmentationsTableBody,
+          records: state.augmentations,
+          selectedIndices: selected,
+          columns: augmentationsColumns,
+          sheetName: "Augumentacje",
+          emptyMessage: "Wybierz augumentacje, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderEquipmentTable = () => {
+        const selected = getSelectedIndices(equipmentSelect);
+        renderOrderedTable({
+          tableBody: equipmentTableBody,
+          records: state.equipment,
+          selectedIndices: selected,
+          columns: equipmentColumns,
+          sheetName: "Ekwipunek",
+          emptyMessage: "Wybierz ekwipunek, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderTalentsTable = () => {
+        const selected = getSelectedIndices(talentsSelect);
+        renderOrderedTable({
+          tableBody: talentsTableBody,
+          records: state.talents,
+          selectedIndices: selected,
+          columns: talentsColumns,
+          sheetName: "Talenty",
+          emptyMessage: "Wybierz talent, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderPsionicsTable = () => {
+        const selected = getSelectedIndices(psionicsSelect);
+        renderOrderedTable({
+          tableBody: psionicsTableBody,
+          records: state.psionics,
+          selectedIndices: selected,
+          columns: psionicsColumns,
+          sheetName: "Psionika",
+          emptyMessage: "Wybierz psionikę, aby zobaczyć parametry.",
+        });
+      };
+
+      const renderPrayersTable = () => {
+        const selected = getSelectedIndices(prayersSelect);
+        renderOrderedTable({
+          tableBody: prayersTableBody,
+          records: state.prayers,
+          selectedIndices: selected,
+          columns: prayersColumns,
+          sheetName: "Modlitwy",
+          emptyMessage: "Wybierz modlitwę, aby zobaczyć parametry.",
+        });
+      };
+
+      const setArmorSelectionEnabled = (enabled) => {
+        armorSelect.disabled = !enabled;
+        if (!enabled) {
+          Array.from(armorSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          renderArmorTable();
+        }
+      };
+
+      const updateBestiarySelection = () => {
+        const index = Number(bestiarySelect.value);
+        if (Number.isNaN(index)) {
+          state.selectedBestiaryIndex = null;
+          resetBestiaryOverrides();
+          renderBestiaryTable(null);
+          setArmorSelectionEnabled(true);
+          return;
+        }
+        if (state.selectedBestiaryIndex !== index) {
+          state.selectedBestiaryIndex = index;
+          resetBestiaryOverrides();
+        }
+        const record = state.bestiary[index];
+        renderBestiaryTable(record);
+        setArmorSelectionEnabled(!isBestiaryArmorBlocked(record));
+      };
+
+      const splitEntries = (raw) => {
+        const value = String(raw ?? "");
+        if (!hasMeaningfulValue(value)) {
+          return [];
+        }
+        const entryStartRegex =
+          /^\s*(?:\*\s*\[\d+\]|\[\d+\]|[^—]{1,60}\s—|[^—]{1,40}:\s)/;
+        const lines = value
+          .split(/\r?\n/)
+          .map((entry) => entry.trim())
+          .filter(Boolean);
+        const entries = [];
+        let current = "";
+        lines.forEach((line) => {
+          if (!current) {
+            current = line;
+            return;
+          }
+          if (entryStartRegex.test(line)) {
+            entries.push(current);
+            current = line;
+          } else {
+            current = `${current} ${line}`;
+          }
+        });
+        if (current) {
+          entries.push(current);
+        }
+        return entries;
+      };
+
+      const formatSectionEntries = (entries) =>
+        entries
+          .map((entry, index) => {
+            const className = index % 2 === 1 ? "entry entry-alt" : "entry";
+            return `<div class="${className}">${formatInlineHTML(entry)}</div>`;
+          })
+          .join("");
+
+      const getSelectedRecords = (records, selectedIndices) =>
+        selectedIndices.map((index) => records[index]).filter(Boolean);
+
+      const getFavoriteDisplayName = (favorite) => {
+        const alias = normalizeText(favorite?.alias);
+        if (alias) {
+          return alias;
+        }
+        return normalizeText(favorite?.payload?.bestiaryName) || "Bez nazwy";
+      };
+
+      const formatFavoriteDate = (value) => {
+        if (!value) return "";
+        const date =
+          typeof value?.toDate === "function"
+            ? value.toDate()
+            : typeof value === "number" || typeof value === "string"
+              ? new Date(value)
+              : null;
+        if (!date || Number.isNaN(date.getTime())) return "";
+        return date.toLocaleString("pl-PL");
+      };
+
+      const normalizeFavoriteTimestamp = (value) => {
+        if (!value) return null;
+        if (typeof value?.toDate === "function") {
+          return value.toDate().getTime();
+        }
+        if (typeof value === "number") return value;
+        if (typeof value === "string") {
+          const parsed = new Date(value);
+          return Number.isNaN(parsed.getTime()) ? null : parsed.getTime();
+        }
+        return null;
+      };
+
+      const renderFavorites = () => {
+        favoritesList.innerHTML = "";
+        if (!state.favorites.length) {
+          const empty = document.createElement("p");
+          empty.className = "text-muted";
+          empty.textContent = translations[currentLanguage].messages.favoritesEmpty;
+          favoritesList.append(empty);
+          return;
+        }
+        state.favorites.forEach((favorite, index) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "favorite-item";
+          const title = document.createElement("div");
+          title.className = "favorite-title";
+          title.textContent = getFavoriteDisplayName(favorite);
+          const subtitle = document.createElement("div");
+          subtitle.className = "favorite-subtitle";
+          const baseName = normalizeText(favorite?.payload?.bestiaryName);
+          const createdAt = formatFavoriteDate(favorite?.createdAt);
+          subtitle.textContent = [baseName, createdAt].filter(Boolean).join(" · ");
+          const actions = document.createElement("div");
+          actions.className = "favorite-actions";
+          const applyButton = document.createElement("button");
+          applyButton.className = "btn btn-small";
+          applyButton.textContent = translations[currentLanguage].labels.favoritesLoadButton;
+          applyButton.dataset.favoriteAction = "apply";
+          applyButton.dataset.favoriteId = favorite.id;
+          const moveUpButton = document.createElement("button");
+          moveUpButton.className = "btn btn-small secondary";
+          moveUpButton.textContent = "▲";
+          moveUpButton.dataset.favoriteAction = "move-up";
+          moveUpButton.dataset.favoriteId = favorite.id;
+          moveUpButton.disabled = index === 0;
+          const moveDownButton = document.createElement("button");
+          moveDownButton.className = "btn btn-small secondary";
+          moveDownButton.textContent = "▼";
+          moveDownButton.dataset.favoriteAction = "move-down";
+          moveDownButton.dataset.favoriteId = favorite.id;
+          moveDownButton.disabled = index === state.favorites.length - 1;
+          const removeButton = document.createElement("button");
+          removeButton.className = "btn btn-small secondary";
+          removeButton.textContent = translations[currentLanguage].labels.favoritesRemoveButton;
+          removeButton.dataset.favoriteAction = "remove";
+          removeButton.dataset.favoriteId = favorite.id;
+          actions.append(applyButton, moveUpButton, moveDownButton, removeButton);
+          wrapper.append(title, subtitle, actions);
+          favoritesList.append(wrapper);
+        });
+      };
+
+      const loadFavoritesFromLocal = () => {
+        try {
+          const raw = localStorage.getItem(FAVORITES_STORAGE_KEY);
+          state.favorites = raw ? JSON.parse(raw) : [];
+        } catch (error) {
+          state.favorites = [];
+        }
+        renderFavorites();
+      };
+
+      const saveFavoritesToLocal = () => {
+        try {
+          const serialized = state.favorites.map((favorite) => ({
+            ...favorite,
+            createdAt: normalizeFavoriteTimestamp(favorite.createdAt),
+          }));
+          localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(serialized));
+        } catch (error) {
+          console.warn("Nie udało się zapisać ulubionych lokalnie.", error);
+        }
+      };
+
+      const saveFavorites = async () => {
+        if (state.usingFirestore && state.favoritesDoc) {
+          try {
+            await setDoc(
+              state.favoritesDoc,
+              {
+                favorites: state.favorites,
+                updatedAt: serverTimestamp(),
+              },
+              { merge: true }
+            );
+            return;
+          } catch (error) {
+            setFavoritesStatus(translations[currentLanguage].messages.firestoreSaveError, { isError: true });
+            state.usingFirestore = false;
+          }
+        }
+        saveFavoritesToLocal();
+      };
+
+      const initFavoritesStore = () => {
+        if (window.firebaseConfig?.apiKey) {
+          try {
+            const favoritesApp = getOrCreateNamedFirebaseApp(FAVORITES_APP_NAME, window.firebaseConfig);
+            const db = getFirestore(favoritesApp);
+            state.firestore = db;
+            state.favoritesDoc = doc(db, FAVORITES_COLLECTION, FAVORITES_DOC_ID);
+            state.usingFirestore = true;
+            setFavoritesStatus(translations[currentLanguage].messages.favoritesFirestoreConnected);
+            onSnapshot(
+              state.favoritesDoc,
+              (snapshot) => {
+                if (snapshot.exists()) {
+                  const data = snapshot.data();
+                  state.favorites = Array.isArray(data?.favorites) ? data.favorites : [];
+                } else {
+                  state.favorites = [];
+                }
+                renderFavorites();
+              },
+              (error) => {
+                console.warn("Błąd subskrypcji Firestore", error);
+                state.usingFirestore = false;
+                setFavoritesStatus(translations[currentLanguage].messages.firestoreNoAccess, {
+                  isError: true,
+                });
+                loadFavoritesFromLocal();
+              }
+            );
+            return;
+          } catch (error) {
+            console.warn("Błąd inicjalizacji Firestore", error);
+            state.usingFirestore = false;
+          }
+        }
+        setFavoritesStatus(translations[currentLanguage].messages.firestoreNoConfig);
+        loadFavoritesFromLocal();
+      };
+
+      const buildFavoritePayload = () => {
+        const selectedIndex = Number(bestiarySelect.value);
+        if (Number.isNaN(selectedIndex) || !state.bestiary[selectedIndex]) {
+          return null;
+        }
+        return {
+          selectedBestiaryIndex: selectedIndex,
+          bestiaryName: getRecordName(state.bestiary[selectedIndex], selectedIndex),
+          bestiaryOverrides: serializeBestiaryOverrides(state.bestiaryOverrides),
+          notes: bestiaryNotes.value,
+          modules: {
+            weaponIds: getSelectedIndices(weaponSelect),
+            armorIds: getSelectedIndices(armorSelect),
+            augmentationsIds: getSelectedIndices(augmentationsSelect),
+            equipmentIds: getSelectedIndices(equipmentSelect),
+            talentsIds: getSelectedIndices(talentsSelect),
+            psionicsIds: getSelectedIndices(psionicsSelect),
+            prayersIds: getSelectedIndices(prayersSelect),
+          },
+          toggles: {
+            moduleVisibility: Object.fromEntries(
+              moduleToggles.map((toggle) => [toggle.dataset.moduleToggle, toggle.checked])
+            ),
+            traitDescriptions: {
+              weapon: weaponTraitDescriptionsToggle.checked,
+              armor: armorTraitDescriptionsToggle.checked,
+            },
+            fullDetails: {
+              augmentations: augmentationsFullDetailsToggle.checked,
+              equipment: equipmentFullDetailsToggle.checked,
+              talents: talentsFullDetailsToggle.checked,
+              psionics: psionicsFullDetailsToggle.checked,
+              prayers: prayersFullDetailsToggle.checked,
+            },
+          },
+        };
+      };
+
+      const addFavorite = async () => {
+        const payload = buildFavoritePayload();
+        if (!payload) {
+          alert("Wybierz rekord bestiariusza przed dodaniem do ulubionych.");
+          return;
+        }
+        const alias = normalizeText(favoritesAliasInput.value);
+        const favorite = {
+          id: createFavoriteId(),
+          alias,
+          createdAt: Date.now(),
+          payload,
+        };
+        state.favorites = [favorite, ...state.favorites];
+        favoritesAliasInput.value = "";
+        renderFavorites();
+        await saveFavorites();
+      };
+
+      const removeFavorite = async (favoriteId) => {
+        state.favorites = state.favorites.filter((favorite) => favorite.id !== favoriteId);
+        renderFavorites();
+        await saveFavorites();
+      };
+
+      const moveFavorite = async (favoriteId, direction) => {
+        const index = state.favorites.findIndex((favorite) => favorite.id === favoriteId);
+        const targetIndex = index + direction;
+        if (index < 0 || targetIndex < 0 || targetIndex >= state.favorites.length) {
+          return;
+        }
+        const [removed] = state.favorites.splice(index, 1);
+        state.favorites.splice(targetIndex, 0, removed);
+        renderFavorites();
+        await saveFavorites();
+      };
+
+      const applyFavorite = (favorite) => {
+        const payload = favorite?.payload;
+        if (!payload) return;
+        const index = Number(payload.selectedBestiaryIndex);
+        if (Number.isNaN(index) || !state.bestiary[index]) {
+          alert("Nie znaleziono rekordu bestiariusza dla tego wpisu.");
+          return;
+        }
+        bestiarySelect.value = String(index);
+        updateBestiarySelection();
+        state.bestiaryOverrides = deserializeBestiaryOverrides(payload.bestiaryOverrides);
+        renderBestiaryTable(state.bestiary[index]);
+        bestiaryNotes.value = payload.notes || "";
+
+        const toggles = payload.toggles || {};
+        moduleToggles.forEach((toggle) => {
+          const key = toggle.dataset.moduleToggle;
+          if (key && Object.prototype.hasOwnProperty.call(toggles.moduleVisibility || {}, key)) {
+            toggle.checked = Boolean(toggles.moduleVisibility[key]);
+          }
+        });
+        updateModuleVisibility();
+
+        setSelectedIndices(weaponSelect, payload.modules?.weaponIds || []);
+        setSelectedIndices(armorSelect, payload.modules?.armorIds || []);
+        setSelectedIndices(augmentationsSelect, payload.modules?.augmentationsIds || []);
+        setSelectedIndices(equipmentSelect, payload.modules?.equipmentIds || []);
+        setSelectedIndices(talentsSelect, payload.modules?.talentsIds || []);
+        setSelectedIndices(psionicsSelect, payload.modules?.psionicsIds || []);
+        setSelectedIndices(prayersSelect, payload.modules?.prayersIds || []);
+
+        weaponTraitDescriptionsToggle.checked = Boolean(toggles.traitDescriptions?.weapon);
+        armorTraitDescriptionsToggle.checked = Boolean(toggles.traitDescriptions?.armor);
+        augmentationsFullDetailsToggle.checked = Boolean(toggles.fullDetails?.augmentations);
+        equipmentFullDetailsToggle.checked = Boolean(toggles.fullDetails?.equipment);
+        talentsFullDetailsToggle.checked = Boolean(toggles.fullDetails?.talents);
+        psionicsFullDetailsToggle.checked = Boolean(toggles.fullDetails?.psionics);
+        prayersFullDetailsToggle.checked = Boolean(toggles.fullDetails?.prayers);
+
+        renderArmorTable();
+        renderWeaponTable();
+        renderAugmentationsTable();
+        renderEquipmentTable();
+        renderTalentsTable();
+        renderPsionicsTable();
+        renderPrayersTable();
+      };
+
+      const getTraitNamesFromRecords = (records) => {
+        const seen = new Map();
+        records.forEach((record) => {
+          const rawTraits = getRecordValue(record, "Cechy");
+          if (!hasMeaningfulValue(rawTraits)) {
+            return;
+          }
+          String(rawTraits)
+            .split(/[;,]/)
+            .map((trait) => normalizeText(trait))
+            .filter(Boolean)
+            .forEach((trait) => {
+              const canonical = canonicalTraitName(trait);
+              if (!seen.has(canonical)) {
+                seen.set(canonical, trait);
+              }
+            });
+        });
+        return Array.from(seen.entries()).map(([canonical, label]) => ({ canonical, label }));
+      };
+
+      const buildTraitDescriptionLine = (records, label) => {
+        const traits = getTraitNamesFromRecords(records);
+        if (!traits.length) {
+          return null;
+        }
+        const descriptions = traits
+          .map(({ label: traitLabel }) => {
+            const description = resolveTraitDescription(traitLabel);
+            return `{{B}}${traitLabel}{{/B}} — ${description}`;
+          })
+          .filter(hasMeaningfulValue);
+        if (!descriptions.length) {
+          return null;
+        }
+        return `${label}: ${descriptions.join("; ")}`;
+      };
+
+      const parseArmorWpValue = (value) => {
+        const text = normalizeText(value);
+        if (text === "-") {
+          return { text, numeric: 0, hasStar: false };
+        }
+        if (!hasMeaningfulValue(text)) {
+          return null;
+        }
+        const hasStar = text.includes("*");
+        const numberMatch = text.match(/-?\d+/);
+        const numeric = numberMatch ? Number(numberMatch[0]) : null;
+        return { text, numeric, hasStar };
+      };
+
+      const getArmorOverrides = (records, { includeTraitDescriptions = false } = {}) => {
+        const eligibleRecords = records.filter((record) => !isArmorBlocked(record));
+        if (!eligibleRecords.length) {
+          return null;
+        }
+        const wpValues = eligibleRecords
+          .map((record) => parseArmorWpValue(getArmorWpValue(record)))
+          .filter(Boolean);
+        if (!wpValues.length) {
+          return null;
+        }
+        const numericValues = wpValues.filter((entry) => Number.isFinite(entry.numeric));
+        const bestWp = numericValues.length
+          ? numericValues.reduce((best, current) => (current.numeric > best.numeric ? current : best))
+          : wpValues[0];
+        const hasStar = wpValues.some((entry) => entry.hasStar);
+        const traits = eligibleRecords
+          .flatMap((record) =>
+            String(getRecordValue(record, "Cechy") ?? "")
+              .split(/[;,]/)
+              .map((trait) => normalizeText(trait))
+              .filter(Boolean)
+          )
+          .filter((trait, index, list) => list.indexOf(trait) === index);
+        const traitDescriptionLine = includeTraitDescriptions
+          ? buildTraitDescriptionLine(eligibleRecords, "Opis cech pancerza")
+          : null;
+        return {
+          wpText: bestWp?.text ?? "",
+          traits,
+          hasStar,
+          traitDescriptionLine,
+        };
+      };
+
+      const buildWeaponEntry = (record) => {
+        if (!record) {
+          return "";
+        }
+        const name = toDisplayString(getRecordValue(record, "Nazwa"));
+        const fields = [
+          ["Obrażenia", "Obrażenia"],
+          ["DK", "DK"],
+          ["PP", "PP"],
+          ["Zasięg", "Zasięg"],
+          ["Szybkostrzelność", "Szybkostrzelność"],
+          ["Cechy", "Cechy"],
+        ];
+        const details = fields
+          .map(([label, key]) => {
+            const value = toDisplayString(getRecordValue(record, key));
+            return hasMeaningfulValue(value) ? `${label}: ${value}` : null;
+          })
+          .filter(Boolean)
+          .join(", ");
+        if (hasMeaningfulValue(details)) {
+          return `${name} — ${details}`;
+        }
+        return name;
+      };
+
+      const buildWeaponOverride = (records, { includeTraitDescriptions = false } = {}) => {
+        if (!records.length) {
+          return null;
+        }
+        const entries = records.map((record) => buildWeaponEntry(record)).filter(hasMeaningfulValue);
+        if (!entries.length) {
+          return null;
+        }
+        const traitDescriptionLine = includeTraitDescriptions
+          ? buildTraitDescriptionLine(records, "Opis cech broni")
+          : null;
+        return {
+          entries: entries.join("\n"),
+          traitDescriptionLine,
+        };
+      };
+
+      const buildModuleEntries = (records, columns, { includeFull, normalizeColumns = [] } = {}) => {
+        if (!records.length) {
+          return "";
+        }
+        const entries = records
+          .map((record) => {
+            const name = toDisplayString(getRecordValue(record, "Nazwa"));
+            if (!includeFull) {
+              return hasMeaningfulValue(name) ? name : "";
+            }
+            const details = columns
+              .filter((column) => column !== "Nazwa")
+              .map((column) => {
+                const rawValue = getRecordValue(record, column);
+                let value = toDisplayString(rawValue);
+                if (normalizeColumns.includes(column)) {
+                  value = normalizeText(value);
+                }
+                return hasMeaningfulValue(value) ? `${column}: ${value}` : null;
+              })
+              .filter(Boolean)
+              .join(", ");
+            if (hasMeaningfulValue(details)) {
+              return `${name} — ${details}`;
+            }
+            return name;
+          })
+          .filter(hasMeaningfulValue);
+        return entries.join("\n");
+      };
+
+      const normalizeStarPrefix = (value, hasStar) => {
+        if (!hasMeaningfulValue(value)) {
+          return value;
+        }
+        const cleanValue = String(value).replace(/\*/g, "").trim();
+        return hasStar ? `*${cleanValue}` : cleanValue;
+      };
+
+      const formatNumericWithStar = (numeric, hasStar, fallbackText) => {
+        if (Number.isFinite(numeric)) {
+          return normalizeStarPrefix(String(numeric), hasStar);
+        }
+        return normalizeStarPrefix(fallbackText, hasStar);
+      };
+
+      const parseStarNumber = (value) => {
+        const text = normalizeText(value);
+        if (!hasMeaningfulValue(text)) {
+          return null;
+        }
+        const hasStar = text.includes("*");
+        const numberMatch = text.match(/-?\d+/);
+        const numeric = numberMatch ? Number(numberMatch[0]) : null;
+        return { text, numeric, hasStar };
+      };
+
+      const extractWpFromResistance = (value) => {
+        const text = normalizeText(value);
+        if (!hasMeaningfulValue(text)) {
+          return null;
+        }
+        const match = text.match(/WP[:\s]*(-?\d+)/i);
+        if (!match) {
+          return null;
+        }
+        return Number(match[1]);
+      };
+
+      const buildPrintableCardHTML = (
+        record,
+        notes,
+        { weaponOverride, armorOverride, moduleEntries, bestiaryOverrides } = {}
+      ) => {
+        const t = translations[currentLanguage];
+        const cardLabels = t.card;
+        const sectionLabels = t.cardSections;
+        const name = toDisplayString(getRecordValue(record, "Nazwa"));
+        const keywords = toDisplayString(getRecordValue(record, "Słowa Kluczowe"));
+        const threatRaw = toDisplayString(getRecordValue(record, "Zagrożenie"));
+        // Tworzymy dynamiczną listę numerów poziomu 1..CARD_LEVEL_COLUMNS / Build a dynamic level index list from 1 to CARD_LEVEL_COLUMNS
+        const levelColumns = Array.from({ length: CARD_LEVEL_COLUMNS }, (_, index) => index + 1);
+        const threatLetters =
+          threatRaw.match(/[A-Za-zĄĆĘŁŃÓŚŹŻ]/g)?.slice(0, CARD_LEVEL_COLUMNS) ||
+          threatRaw.split("").filter(Boolean).slice(0, CARD_LEVEL_COLUMNS);
+        // Dopełniamy brakujące komórki zagrożenia do pełnej szerokości karty / Fill missing threat cells to keep full card width
+        while (threatLetters.length < CARD_LEVEL_COLUMNS) {
+          threatLetters.push("");
+        }
+
+        const numericOverrides = bestiaryOverrides?.numeric ?? new Map();
+        const skillsOverride = bestiaryOverrides?.skills;
+        const getNumericOverrideValue = (label) => numericOverrides.get(normalizeKey(label));
+        const resolveNumericDisplay = (label, fallbackValue) => {
+          const override = getNumericOverrideValue(label);
+          return override != null ? String(override) : toDisplayString(fallbackValue);
+        };
+        const resolveTrackerCount = (value) => {
+          const parsed = parseStarNumber(value);
+          if (!Number.isFinite(parsed?.numeric)) {
+            return 0;
+          }
+          return Math.max(0, parsed.numeric);
+        };
+
+        const stats = {
+          S: resolveNumericDisplay("S", getRecordValue(record, "S")),
+          Wt: resolveNumericDisplay("Wt", getRecordValue(record, "Wt")),
+          Zr: resolveNumericDisplay("Zr", getRecordValue(record, "Zr")),
+          I: resolveNumericDisplay("I", getRecordValue(record, "I")),
+          SW: resolveNumericDisplay("SW", getRecordValue(record, "SW")),
+          Int: resolveNumericDisplay("Int", getRecordValue(record, "Int")),
+          Ogd: resolveNumericDisplay("Ogd", getRecordValueByLabels(record, ["Ogd", "Ocd"])),
+        };
+
+        const resistanceOverride =
+          getNumericOverrideValue("Odporność (w tym WP)") ?? getNumericOverrideValue("Obrona (w tym WP)");
+        let resistance =
+          resistanceOverride != null
+            ? String(resistanceOverride)
+            : toDisplayString(getRecordValueByLabels(record, ["Odporność (w tym WP)", "Obrona (w tym WP)"]));
+        let wp = toDisplayString(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"]));
+        const baseResistance = parseStarNumber(resistance);
+        const baseWp = parseStarNumber(wp);
+        const baseWpNumeric =
+          baseWp && Number.isFinite(baseWp.numeric) ? baseWp.numeric : extractWpFromResistance(resistance);
+        if (armorOverride?.wpText) {
+          const armorWp = parseStarNumber(armorOverride.wpText);
+          const armorHasStar = Boolean(
+            armorOverride.hasStar || armorWp?.hasStar || baseResistance?.hasStar || baseWp?.hasStar
+          );
+          let finalResistance = resistance;
+          let finalResistanceNumeric = null;
+          if (Number.isFinite(baseResistance?.numeric) && Number.isFinite(armorWp?.numeric)) {
+            const resolvedBaseWp = Number.isFinite(baseWpNumeric) ? baseWpNumeric : 0;
+            const baseResistanceNumeric = baseResistance.numeric - resolvedBaseWp;
+            finalResistanceNumeric = baseResistanceNumeric + armorWp.numeric;
+            finalResistance = String(finalResistanceNumeric);
+          }
+          const finalWpNumeric = armorWp?.numeric ?? null;
+          const finalWp = finalWpNumeric != null ? String(finalWpNumeric) : armorOverride.wpText;
+          resistance = formatNumericWithStar(finalResistanceNumeric, armorHasStar, finalResistance);
+          wp = formatNumericWithStar(finalWpNumeric, armorHasStar, finalWp);
+        } else {
+          resistance = normalizeStarPrefix(resistance, baseResistance?.hasStar);
+          wp = normalizeStarPrefix(wp, baseWp?.hasStar);
+        }
+        const wpDisplay = hasMeaningfulValue(wp) ? `${escapeHtml(wp)}` : "";
+        const resistanceWithArmor = formatText(cardLabels.resistanceWithArmor, {
+          armorLabel: escapeHtml(cardLabels.armorLabel),
+          value: wpDisplay,
+        });
+        const resistanceLine =
+          hasMeaningfulValue(wp) && !String(resistance).includes("WP")
+            ? `${escapeHtml(resistance)} <span class="resistance-wp">${resistanceWithArmor}</span>`
+            : escapeHtml(resistance);
+        const armorTraitsLine = armorOverride?.traits?.length
+          ? `${cardLabels.armorTraitsLabel}: ${armorOverride.traits
+              .map((trait) => `{{B}}${trait}{{/B}}`)
+              .join("; ")}`
+          : "";
+        const armorTraitDescriptionsLine = armorOverride?.traitDescriptionLine || "";
+        const armorTraitsHTML = armorTraitsLine
+          ? `
+            <div class="section-body armor-traits">${formatInlineHTML(armorTraitsLine)}</div>
+            ${
+              armorTraitDescriptionsLine
+                ? `<div class="section-body armor-traits-desc">${formatInlineHTML(
+                    armorTraitDescriptionsLine
+                  )}</div>`
+                : ""
+            }
+          `
+          : "";
+
+        const defense = resolveNumericDisplay("Obrona", getRecordValue(record, "Obrona"));
+        const vitality = resolveNumericDisplay("Żywotność", getRecordValue(record, "Żywotność"));
+        const mentalOverride = getNumericOverrideValue("Odporność Psychiczna");
+        const mental =
+          mentalOverride != null
+            ? String(mentalOverride)
+            : toDisplayString(
+                getRecordValueByLabels(record, ["Odporność Psychiczna", "Odporność psychiczna"])
+              );
+        const vitalityCount = resolveTrackerCount(vitality);
+        const mentalText = normalizeText(mental);
+        const mentalHasDash = mentalText === "-";
+        const mentalCount = mentalHasDash ? 0 : resolveTrackerCount(mental);
+        const vitalityTrackerCells = Array.from(
+          { length: vitalityCount },
+          () => '<div class="tracker-cell" aria-hidden="true"></div>'
+        ).join("");
+        const mentalTrackerCells = Array.from(
+          { length: mentalCount },
+          () => '<div class="tracker-cell" aria-hidden="true"></div>'
+        ).join("");
+        const trackerHTML = `
+          <div class="tracker-section" aria-label="${escapeHtml(cardLabels.trackerAriaLabel)}">
+            <div class="tracker-row">
+              <label class="tracker-cell tracker-label" aria-label="${escapeHtml(
+                cardLabels.trackerVitalityLabel
+              )}">${escapeHtml(cardLabels.trackerVitalityShort)}</label>
+              <div class="tracker-squares">
+                ${vitalityTrackerCells}
+              </div>
+            </div>
+            <div class="tracker-row tracker-row--mental">
+              <label class="tracker-cell tracker-label" aria-label="${escapeHtml(
+                cardLabels.trackerMentalLabel
+              )}">${escapeHtml(cardLabels.trackerMentalShort)}</label>
+              <div class="tracker-squares">
+                ${mentalTrackerCells}
+              </div>
+            </div>
+          </div>
+        `;
+
+        const skills =
+          skillsOverride != null ? skillsOverride : toDisplayString(getRecordValue(record, "Umiejętności"));
+        const bonuses = toDisplayString(getRecordValue(record, "Premie"));
+        const abilities = toDisplayString(getRecordValue(record, "Zdolności"));
+        let attacks = weaponOverride?.entries ?? toDisplayString(getRecordValue(record, "Atak"));
+        if (weaponOverride?.traitDescriptionLine && hasMeaningfulValue(attacks)) {
+          attacks = `${attacks}\n${weaponOverride.traitDescriptionLine}`;
+        }
+        const hordeAbilities = toDisplayString(getRecordValue(record, "Zdolności Hordy"));
+        const hordeOptions = toDisplayString(getRecordValue(record, "Opcje Hordy"));
+
+        const grit = resolveNumericDisplay("Upór", getRecordValue(record, "Upór"));
+        const courage = resolveNumericDisplay("Odwaga", getRecordValue(record, "Odwaga"));
+        const speed = resolveNumericDisplay("Szybkość", getRecordValue(record, "Szybkość"));
+        const size = toDisplayString(getRecordValue(record, "Rozmiar"));
+
+        const sections = [
+          { label: sectionLabels.skills, value: skills, striped: false },
+          { label: sectionLabels.bonuses, value: bonuses, striped: true },
+          { label: sectionLabels.abilities, value: abilities, striped: true },
+          { label: sectionLabels.attack, value: attacks, striped: true },
+          { label: sectionLabels.hordeAbilities, value: hordeAbilities, striped: true },
+          { label: sectionLabels.hordeOptions, value: hordeOptions, striped: true },
+        ];
+        (moduleEntries ?? []).forEach((entry) => {
+          if (entry?.label && hasMeaningfulValue(entry.value)) {
+            sections.push({ label: entry.label, value: entry.value, striped: true });
+          }
+        });
+
+        const sectionHTML = sections
+          .filter((section) => hasMeaningfulValue(section.value))
+          .map((section) => {
+            if (section.striped) {
+              const entries = splitEntries(section.value);
+              return `
+                <div class="section-header">${escapeHtml(section.label)}</div>
+                <div class="section-body striped">${formatSectionEntries(entries)}</div>
+              `;
+            }
+            return `
+              <div class="section-header">${escapeHtml(section.label)}</div>
+              <div class="section-body">${formatTextHTML(section.value)}</div>
+            `;
+          })
+          .join("");
+
+        const notesValue = normalizeText(notes);
+        const notesHTML = notesValue
+          ? `
+            <div class="section-header">${escapeHtml(cardLabels.notesLabel)}</div>
+            <div class="section-body">${escapeHtml(notesValue)}</div>
+          `
+          : "";
+
+        return `
+          <!doctype html>
+          <html lang="${escapeHtml(currentLanguage)}">
+            <head>
+              <meta charset="utf-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1" />
+              <title>${escapeHtml(name)} — ${escapeHtml(cardLabels.titleSuffix)}</title>
+              <!-- Lokalna sekcja stylów dla bieżącego widoku / Local style section for current view -->
+<style>
+                * { box-sizing: border-box; }
+                body { margin: 0; background: #fff; color: #111; font-family: "Times New Roman", "Liberation Serif", serif; }
+                .card { width: min(760px, 95vw); margin: 24px auto; border: 1px solid #111; }
+                .title { background: #2c2c2c; color: #fff; text-align: center; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; padding: 8px 12px; }
+                .row { display: grid; grid-template-columns: 140px repeat(${CARD_LEVEL_COLUMNS}, 1fr); border-bottom: 1px solid #111; }
+                .row .cell { padding: 6px 8px; border-right: 1px solid #111; text-align: center; }
+                .row .cell:last-child { border-right: none; }
+                .row .label { text-align: left; font-weight: 700; }
+                .keywords { padding: 6px 8px; border-bottom: 1px solid #111; }
+                .keywords .label { font-weight: 700; margin-right: 6px; }
+                .keywords .value { text-transform: uppercase; letter-spacing: 0.04em; }
+                .stats { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #111; }
+                .stats .cell { padding: 6px 6px; text-align: center; border-right: 1px solid #111; }
+                .stats .cell:last-child { border-right: none; }
+                .stats.labels .cell { font-weight: 700; background: #f1f1f1; }
+                .section-header { background: #2c2c2c; color: #fff; text-transform: uppercase; font-weight: 700; padding: 6px 8px; border-bottom: 1px solid #111; }
+                .section-header.centered { text-align: center; }
+                .section-body { padding: 8px; border-bottom: 1px solid #111; font-size: 0.95rem; line-height: 1.35; }
+                .section-body.centered { text-align: center; }
+                .section-body.striped { padding: 0; }
+                .entry { padding: 8px; border-bottom: 1px solid #d0d0d0; }
+                .entry:last-child { border-bottom: none; }
+                .entry-alt { background: #e9e9e9; }
+                .triple { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #111; }
+                .quad { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #111; }
+                .triple .cell, .quad .cell { padding: 6px; text-align: center; border-right: 1px solid #111; }
+                .triple .cell:last-child, .quad .cell:last-child { border-right: none; }
+                .triple.labels .cell, .quad.labels .cell { font-weight: 700; background: #f1f1f1; }
+                .tracker-section { padding: 6px 8px; border-bottom: 1px solid #111; display: grid; gap: 6px; }
+                .tracker-row { --tracker-size: 18px; --tracker-gap: 1px; display: grid; grid-template-columns: var(--tracker-size) 1fr; column-gap: var(--tracker-gap); align-items: start; }
+                .tracker-squares { display: grid; grid-template-columns: repeat(auto-fit, var(--tracker-size)); grid-auto-rows: var(--tracker-size); gap: var(--tracker-gap); width: 100%; justify-content: start; }
+                .tracker-cell { background: var(--tracker-fill, #fff); border: 1px solid #111; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #111; }
+                .tracker-label { font-weight: 700; width: var(--tracker-size); height: var(--tracker-size); }
+                .tracker-row--mental { --tracker-fill: #e9e9e9; }
+                .resistance-wp { font-weight: 700; }
+                .armor-traits { text-align: left; }
+                .armor-traits-desc { text-align: left; }
+                .inline-red, .keyword-red { color: #111; }
+                .inline-bold { font-weight: 700; }
+                .inline-italic { font-style: italic; }
+                .ref { color: #111; text-decoration: underline; }
+                .caretref { color: #111; }
+                .slash { color: #111; }
+                @media print { body { margin: 0; } .card { margin: 0 auto; } }
+              </style>
+            </head>
+            <body>
+    <div id="accessGate" class="accessGate" hidden><div class="accessGate__card"><!-- Stałe miejsce na ikonę powiadomienia, aby karta nie zmieniała rozmiaru podczas ładowania / Fixed notification icon slot so card size does not jump while loading --><div class="accessGate__iconSlot" aria-hidden="true"><img class="accessGate__icon" src="../IkonaPowiadomien2.png" alt="" width="72" height="72" decoding="async"></div><h2 data-i18n="accessTitle">Dostęp do danych z klauzulą tajności K.O.Z.A.</h2><p data-i18n="accessDescription">Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.</p><form id="accessForm"><div class="accessGate__credentials"><!-- Etykieta po lewej + pole hasła i przycisk po prawej, zgodnie z analizą UX / Left label + password field and button on the right, per UX analysis --><label class="field accessGate__label" for="accessPassword"><span data-i18n="accessPasswordLabel">Litania Dostępu</span></label><input id="accessPassword" class="accessGate__password" type="password" autocomplete="current-password"><button class="btn primary accessGate__submit" type="submit" data-i18n="accessUnlockButton">Rozpocznij Rytuał</button></div></form><div id="accessError" class="accessGate__error" aria-live="polite"></div></div></div>
+              <div class="card">
+                <div class="title">${escapeHtml(name)}</div>
+                <div class="row">
+                  <div class="cell label">${escapeHtml(cardLabels.levelLabel)}</div>
+                  ${levelColumns.map((level) => `<div class="cell">${level}</div>`).join("")}
+                </div>
+                <div class="row">
+                  <div class="cell label">${escapeHtml(cardLabels.threatLabel)}</div>
+                  ${threatLetters
+                    .map((letter) => `<div class="cell">${escapeHtml(letter)}</div>`)
+                    .join("")}
+                </div>
+                <div class="keywords">
+                  <span class="label">${escapeHtml(cardLabels.keywordsLabel)}:</span>
+                  <span class="value">${formatInlineHTML(keywords)}</span>
+                </div>
+                <div class="stats labels">
+                  ${Object.keys(stats)
+                    .map((key) => `<div class="cell">${escapeHtml(key)}</div>`)
+                    .join("")}
+                </div>
+                <div class="stats values">
+                  ${Object.values(stats)
+                    .map((val) => `<div class="cell">${escapeHtml(val)}</div>`)
+                    .join("")}
+                </div>
+                <div class="section-header centered">${escapeHtml(cardLabels.resistanceLabel)}</div>
+                <div class="section-body centered">${resistanceLine}</div>
+                ${armorTraitsHTML}
+                <div class="triple labels">
+                  <div class="cell">${escapeHtml(cardLabels.defenseLabel)}</div>
+                  <div class="cell">${escapeHtml(cardLabels.vitalityLabel)}</div>
+                  <div class="cell">${escapeHtml(cardLabels.mentalResistanceLabel)}</div>
+                </div>
+                <div class="triple values">
+                  <div class="cell">${escapeHtml(defense)}</div>
+                  <div class="cell">${escapeHtml(vitality)}</div>
+                  <div class="cell">${escapeHtml(mental)}</div>
+                </div>
+                ${trackerHTML}
+                ${sectionHTML}
+                <div class="quad labels">
+                  <div class="cell">${escapeHtml(cardLabels.gritLabel)}</div>
+                  <div class="cell">${escapeHtml(cardLabels.courageLabel)}</div>
+                  <div class="cell">${escapeHtml(cardLabels.speedLabel)}</div>
+                  <div class="cell">${escapeHtml(cardLabels.sizeLabel)}</div>
+                </div>
+                <div class="quad values">
+                  <div class="cell">${escapeHtml(grit)}</div>
+                  <div class="cell">${escapeHtml(courage)}</div>
+                  <div class="cell">${escapeHtml(speed)}</div>
+                  <div class="cell">${escapeHtml(size)}</div>
+                </div>
+                ${notesHTML}
+              </div>
+            </body>
+          </html>
+        `;
+      };
+
+      const openPrintableCard = (record, notes, overrides) => {
+        const html = buildPrintableCardHTML(record, notes, overrides);
+        const printWindow = window.open("", "_blank");
+        if (!printWindow) {
+          alert("Nie udało się otworzyć nowej karty. Sprawdź blokadę pop-upów.");
+          return;
+        }
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+      };
+
+      const attachListeners = () => {
+        bestiarySelect.addEventListener("change", updateBestiarySelection);
+        armorSelect.addEventListener("change", renderArmorTable);
+        weaponSelect.addEventListener("change", renderWeaponTable);
+        augmentationsSelect.addEventListener("change", renderAugmentationsTable);
+        equipmentSelect.addEventListener("change", renderEquipmentTable);
+        talentsSelect.addEventListener("change", renderTalentsTable);
+        psionicsSelect.addEventListener("change", renderPsionicsTable);
+        prayersSelect.addEventListener("change", renderPrayersTable);
+        moduleToggles.forEach((toggle) => {
+          toggle.addEventListener("change", updateModuleVisibility);
+        });
+        resetButton.addEventListener("click", () => {
+          bestiarySelect.selectedIndex = 0;
+          state.selectedBestiaryIndex = null;
+          Array.from(armorSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(weaponSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(augmentationsSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(equipmentSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(talentsSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(psionicsSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          Array.from(prayersSelect.options).forEach((option) => {
+            option.selected = false;
+          });
+          moduleToggles.forEach((toggle) => {
+            toggle.checked = toggle.defaultChecked;
+          });
+          bestiaryNotes.value = "";
+          resetBestiaryOverrides();
+          armorTraitDescriptionsToggle.checked = armorTraitDescriptionsToggle.defaultChecked;
+          weaponTraitDescriptionsToggle.checked = weaponTraitDescriptionsToggle.defaultChecked;
+          augmentationsFullDetailsToggle.checked = augmentationsFullDetailsToggle.defaultChecked;
+          equipmentFullDetailsToggle.checked = equipmentFullDetailsToggle.defaultChecked;
+          talentsFullDetailsToggle.checked = talentsFullDetailsToggle.defaultChecked;
+          psionicsFullDetailsToggle.checked = psionicsFullDetailsToggle.defaultChecked;
+          prayersFullDetailsToggle.checked = prayersFullDetailsToggle.defaultChecked;
+          popover.classList.remove("active");
+          state.expandedCells.clear();
+          renderBestiaryTable(null);
+          setArmorSelectionEnabled(true);
+          renderArmorTable();
+          renderWeaponTable();
+          renderAugmentationsTable();
+          renderEquipmentTable();
+          renderTalentsTable();
+          renderPsionicsTable();
+          renderPrayersTable();
+          updateModuleVisibility();
+        });
+        favoritesAddButton.addEventListener("click", addFavorite);
+        favoritesRefreshButton.addEventListener("click", async () => {
+          if (state.usingFirestore && state.favoritesDoc) {
+            try {
+              const snapshot = await getDoc(state.favoritesDoc);
+              if (snapshot.exists()) {
+                const data = snapshot.data();
+                state.favorites = Array.isArray(data?.favorites) ? data.favorites : [];
+              } else {
+                state.favorites = [];
+              }
+              renderFavorites();
+              setFavoritesStatus(translations[currentLanguage].messages.favoritesRefreshSuccess);
+            } catch (error) {
+              setFavoritesStatus(translations[currentLanguage].messages.favoritesRefreshError, { isError: true });
+            }
+          } else {
+            loadFavoritesFromLocal();
+            setFavoritesStatus(translations[currentLanguage].messages.favoritesRefreshLocal);
+          }
+        });
+        favoritesList.addEventListener("click", (event) => {
+          const button = event.target.closest("button");
+          if (!button) return;
+          const action = button.dataset.favoriteAction;
+          const favoriteId = button.dataset.favoriteId;
+          if (!action || !favoriteId) return;
+          const favorite = state.favorites.find((item) => item.id === favoriteId);
+          if (!favorite) return;
+          if (action === "apply") {
+            applyFavorite(favorite);
+          }
+          if (action === "move-up") {
+            moveFavorite(favoriteId, -1);
+          }
+          if (action === "move-down") {
+            moveFavorite(favoriteId, 1);
+          }
+          if (action === "remove") {
+            removeFavorite(favoriteId);
+          }
+        });
+        generateButton.addEventListener("click", () => {
+          const index = Number(bestiarySelect.value);
+          if (Number.isNaN(index) || !state.bestiary[index]) {
+            alert(translations[currentLanguage].messages.selectBestiaryAlert);
+            return;
+          }
+          const selectedWeapons = getSelectedRecords(state.weapons, getSelectedIndices(weaponSelect));
+          const selectedArmor = getSelectedRecords(state.armor, getSelectedIndices(armorSelect));
+          const selectedAugmentations = getSelectedRecords(state.augmentations, getSelectedIndices(augmentationsSelect));
+          const selectedEquipment = getSelectedRecords(state.equipment, getSelectedIndices(equipmentSelect));
+          const selectedTalents = getSelectedRecords(state.talents, getSelectedIndices(talentsSelect));
+          const selectedPsionics = getSelectedRecords(state.psionics, getSelectedIndices(psionicsSelect));
+          const selectedPrayers = getSelectedRecords(state.prayers, getSelectedIndices(prayersSelect));
+          const weaponOverride = buildWeaponOverride(selectedWeapons, {
+            includeTraitDescriptions: weaponTraitDescriptionsToggle.checked,
+          });
+          const armorOverride = getArmorOverrides(selectedArmor, {
+            includeTraitDescriptions: armorTraitDescriptionsToggle.checked,
+          });
+          const sectionLabels = translations[currentLanguage].cardSections;
+          const moduleEntries = [
+            {
+              label: sectionLabels.augmentations,
+              value: buildModuleEntries(selectedAugmentations, augmentationsColumns, {
+                includeFull: augmentationsFullDetailsToggle.checked,
+              }),
+            },
+            {
+              label: sectionLabels.equipment,
+              value: buildModuleEntries(selectedEquipment, equipmentColumns, {
+                includeFull: equipmentFullDetailsToggle.checked,
+              }),
+            },
+            {
+              label: sectionLabels.talents,
+              value: buildModuleEntries(selectedTalents, talentsColumns, {
+                includeFull: talentsFullDetailsToggle.checked,
+              }),
+            },
+            {
+              label: sectionLabels.psionics,
+              value: buildModuleEntries(selectedPsionics, psionicsColumns, {
+                includeFull: psionicsFullDetailsToggle.checked,
+                normalizeColumns: ["Wzmocnienie"],
+              }),
+            },
+            {
+              label: sectionLabels.prayers,
+              value: buildModuleEntries(selectedPrayers, prayersColumns, {
+                includeFull: prayersFullDetailsToggle.checked,
+              }),
+            },
+          ];
+          openPrintableCard(state.bestiary[index], bestiaryNotes.value, {
+            weaponOverride,
+            armorOverride,
+            moduleEntries,
+            bestiaryOverrides: state.bestiaryOverrides,
+          });
+        });
+      };
+
+      async function getFirebaseApi(){
+        if (window.DataVaultFirebaseReady) return window.DataVaultFirebaseReady;
+        await new Promise((resolve, reject)=>{
+          const timeout = setTimeout(()=>reject(new Error("FIREBASE_LOADER_NOT_READY")), 8000);
+          window.addEventListener("datavault-firebase-loader-ready", ()=>{ clearTimeout(timeout); resolve(); }, { once: true });
+        });
+        if (!window.DataVaultFirebaseReady) throw new Error("FIREBASE_LOADER_NOT_READY");
+        return window.DataVaultFirebaseReady;
+      }
+
+      const loadPrivateGeneratorData = async () => {
+        const firebaseApi = await getFirebaseApi();
+        setStatus(translations[currentLanguage].messages.statusLoadPrivateData);
+        const data = await firebaseApi.loadDataVaultLive();
+        if (!data || typeof data !== "object" || !data.sheets || typeof data.sheets !== "object") throw new Error("GENERATORNPC_DATA_MISSING_SHEETS");
+        state.data = data;
+        state.traits = buildTraitsMap(data);
+        state.bestiary = sortByName(getCollection(data, ["besti", "bestiariusz"]));
+        state.armor = sortByTypeThenName(getCollection(data, ["pancerz", "armor"]));
+        state.weapons = sortByTypeThenName(getCollection(data, ["broń", "bron", "weapon"]));
+        state.augmentations = sortByTypeThenName(getCollection(data, ["augument", "augment", "modyfikac"]));
+        state.equipment = sortByTypeThenName(getCollection(data, ["ekwipunek", "equipment"]));
+        state.talents = sortByName(getCollection(data, ["talent"]));
+        state.psionics = sortByTypeThenName(getCollection(data, ["psion", "psionik"]), { typeDescending: true });
+        state.prayers = sortByName(getCollection(data, ["modlitw", "prayer"]));
+        setSelectOptions(bestiarySelect, state.bestiary, translations[currentLanguage].messages.selectBestiary);
+        setSelectOptions(armorSelect, state.armor, translations[currentLanguage].messages.selectArmor, { disableOption: isArmorBlocked, disabledTitle: translations[currentLanguage].messages.armorDisabledTitle });
+        setSelectOptions(weaponSelect, state.weapons, translations[currentLanguage].messages.selectWeapon);
+        setSelectOptions(augmentationsSelect, state.augmentations, translations[currentLanguage].messages.selectAugmentations);
+        setSelectOptions(equipmentSelect, state.equipment, translations[currentLanguage].messages.selectEquipment);
+        setSelectOptions(talentsSelect, state.talents, translations[currentLanguage].messages.selectTalents);
+        setSelectOptions(psionicsSelect, state.psionics, translations[currentLanguage].messages.selectPsionics);
+        setSelectOptions(prayersSelect, state.prayers, translations[currentLanguage].messages.selectPrayers);
+        renderBestiaryTable(null); renderArmorTable(); renderWeaponTable(); renderAugmentationsTable(); renderEquipmentTable(); renderTalentsTable(); renderPsionicsTable(); renderPrayersTable();
+        setStatus(translations[currentLanguage].messages.statusPrivateDataOk);
+      };
+
+      const startPrivateDataFlow = async () => {
+        try {
+          const firebaseApi = await getFirebaseApi();
+          await firebaseApi.initFirebaseDataAccess();
+          const user = await firebaseApi.waitForAuthReady();
+          if (!user) {
+            setStatus(translations[currentLanguage].messages.statusLoadPrivateData);
+            accessGate.hidden = false;
+            return;
+          }
+          accessGate.hidden = true;
+          await loadPrivateGeneratorData();
+        } catch (error) {
+          const firebaseApi = await getFirebaseApi();
+          const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : translations[currentLanguage].messages.statusPrivateDataError;
+          setStatus(message);
+          accessGate.hidden = false;
+          accessError.textContent = message;
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const tag = event.target.closest(".tag");
+        if (tag) {
+          const traitName = tag.getAttribute("data-trait") || tag.textContent;
+          popoverTitle.textContent = traitName;
+          popoverDescription.textContent = resolveTraitDescription(traitName);
+          popover.classList.add("active");
+          return;
+        }
+        if (!event.target.closest(".popover")) {
+          popover.classList.remove("active");
+        }
+      });
+
+
+      if (accessForm) {
+        accessForm.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const firebaseApi = await getFirebaseApi();
+          try {
+            await firebaseApi.loginWithGroupPassword(accessPassword?.value || "");
+            accessError.textContent = "";
+            accessGate.hidden = true;
+            await loadPrivateGeneratorData();
+          } catch (error) {
+            const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : translations[currentLanguage].messages.accessInvalidPassword;
+            setStatus(message);
+            accessError.textContent = message;
+            accessGate.hidden = false;
+          }
+        });
+      }
+
+      applyLanguage(currentLanguage);
+      if (languageSelect) {
+        languageSelect.addEventListener("change", (event) => {
+          applyLanguage(event.target.value);
+        });
+      }
+
+      attachListeners();
+      updateModuleVisibility();
+      try {
+        initFavoritesStore();
+      } catch (error) {
+        console.error("[GeneratorNPC] Favorites init failed:", error);
+        setFavoritesStatus("Nie udało się połączyć z ulubionymi.", { isError: true });
+      }
+      startPrivateDataFlow();
+    </script>
+  </body>
+</html>
