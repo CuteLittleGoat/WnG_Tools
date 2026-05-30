@@ -382,9 +382,6 @@ const skillCosts = {
 ├── HowToUse/
 │   ├── pl.pdf
 │   └── en.pdf
-├── Old/
-│   ├── HowToUse_Org.pdf
-│   └── Kalkulator_Org.html
 ├── index.html
 ├── XPCalculator.html
 ├── CharacterCreation.html

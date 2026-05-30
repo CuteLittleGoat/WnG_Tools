@@ -79,7 +79,7 @@ Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
 - `Repozytorium.xlsx` — źródło wsadowe do generowania plików importowych (`data.json` backup + `firebase-import.json`) w trybie admina; administrator wskazuje lokalny plik przez okno wyboru pliku.
 - `xlsxCanonicalParser.js` — kanoniczny parser XLSX po stronie przeglądarki: czyta bezpośrednio `xl/styles.xml`, `xl/sharedStrings.xml`, `xl/workbook.xml` i `xl/worksheets/sheet*.xml`, aby odwzorować logikę `build_json.py` (w tym detekcję `{{RED}}`).
 - `build_json.py` — kanoniczny generator referencyjny `data.json` z XLSX (AI/CLI/backend). Normalizuje białe znaki i zamienia polskie cudzysłowy „ ” na standardowy znak `"`.
-- `DetaleLayout.md` (w katalogu głównym repozytorium) — główny dokument opisujący fonty, kolory, wyjątki formatowania, clamp i szerokości kolumn 1:1.
+- Niniejszy dokument jest głównym, samowystarczalnym źródłem opisu fontów, kolorów, wyjątków formatowania, clamp i szerokości kolumn 1:1.
 
 ---
 
