@@ -245,7 +245,7 @@ INSERT_YOUR_STORAGE_BUCKET
 INSERT_YOUR_MESSAGING_SENDER_ID
 INSERT_YOUR_APP_ID
 INSERT_YOUR_TECHNICAL_USER_EMAIL
-INSERT_YOUR_MAP_LINK
+INSERT_YOUR_VTT_LINK
 INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK
 ```
 
@@ -356,7 +356,14 @@ Nie wolno przypadkowo usunąć komunikacji Firestore podczas usuwania Web Push.
 
 Lokalne assety DataSlate oraz `assets/data/data.json` pozostają w wersji Release, chyba że użytkownik później zmieni tę decyzję.
 
-Backupy i testowe pliki HTML nie powinny trafić do finalnej publicznej paczki, chyba że użytkownik wyraźnie poleci inaczej.
+Pliki testowe i backupowe DataSlate mają pozostać w wersji Release jako materiały pomocnicze dla użytkowników testujących własne modyfikacje i jako punkt odniesienia przy eksperymentach. Nie należy usuwać ich podczas finalnego czyszczenia publicznej paczki. Jeżeli wymagają dodatkowego kontekstu, należy opisać ich rolę w dokumentacji zamiast je usuwać. Nie są one jednak główną ścieżką produkcyjnego uruchamiania modułu.
+
+W szczególności w wersji Release pozostają:
+
+- `DataSlate/GM_test.html`;
+- `DataSlate/Infoczytnik_test.html`;
+- `DataSlate/GM_backup.html`;
+- `DataSlate/Infoczytnik_backup.html`.
 
 ---
 
@@ -392,7 +399,7 @@ Nie wolno mylić Web Push z komunikacją Firestore DataSlate. Firestore zostaje.
 Należy użyć placeholderów po angielsku, na przykład:
 
 ```text
-Map: INSERT_YOUR_MAP_LINK
+Map: INSERT_YOUR_VTT_LINK
 Images: INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK
 ```
 
