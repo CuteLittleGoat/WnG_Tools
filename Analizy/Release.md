@@ -869,3 +869,54 @@ Katalog tłumaczeń może nadal zostać przygotowany jako materiał do kolejnego
 6. Wprowadzić angielski interfejs `NameGenerator` bez ingerencji w język generowanych wyników.
 7. Zachować PDF-y Calculators.
 8. Wrócić na dalszym etapie do nierozstrzygniętych plików z sekcji 7.4 oraz decyzji o `manifest.webmanifest`, ikonach i sposobie budowania publicznej paczki.
+
+## Aktualizacja — 2026-05-30 — weryfikacja usunięcia blokera `AGENTS.md`
+
+### Oryginalny pełny prompt użytkownika
+
+Sprawdź czy obecna treść pliku AGENTS.md w dalszym ciągu blokuje prace związane z Release. Nic nie zmieniaj w kodzie aplikacji. Sprawdź czy bloker jest usunięty.
+
+### Zakres prac
+
+Wykonano wyłącznie analizę instrukcji repozytorium. Przed analizą odczytano aktualną treść `Analizy/Release.md`, sprawdzono stan Git oraz wyszukano wszystkie pliki `AGENTS.md` dostępne w obszarze roboczym `/workspace`.
+
+Nie zmieniono kodu aplikacji, nazw katalogów, konfiguracji ani danych. Jedyną zmianą w repozytorium jest niniejszy wpis analityczny wymagany przez główny `AGENTS.md`.
+
+### Ustalenia i wnioski
+
+1. W obszarze roboczym istnieje obecnie tylko jeden plik instrukcji: `/workspace/WnG_Tools/AGENTS.md`.
+2. Nie istnieje już lokalny plik `Infoczytnik/AGENTS.md` ani `DataSlate/AGENTS.md`, który wcześniej powodował konflikt przy planowanym przemianowaniu katalogu i ograniczał edycję plików produkcyjnych DataSlate.
+3. Obecny główny `AGENTS.md` jednoznacznie opisuje etap Release jako aktywny cel repozytorium. Wprost dopuszcza prace wymagane dla wydania publicznego, w tym zmianę nazw modułów, usuwanie prywatnych konfiguracji, zastępowanie danych angielskimi placeholderami, usunięcie Web Push oraz zachowanie komunikacji Firestore DataSlate.
+4. Sekcja dotycząca pracy z plikami `AGENTS.md` nadal zabrania agentowi samodzielnego edytowania, przenoszenia, zmiany nazw i usuwania plików `AGENTS.md`, o ile użytkownik wyraźnie nie poprosi właśnie o taką operację. Ten zakaz nie blokuje obecnie planowanych prac Release, ponieważ nie ma już lokalnego pliku instrukcji wewnątrz katalogu wymagającego przemianowania.
+5. Wcześniejsze historyczne wpisy w niniejszym dzienniku, które nakazywały oczekiwanie na przeredagowanie instrukcji albo ręczne rozwiązanie konfliktu `Infoczytnik/AGENTS.md`, są już nieaktualne. Pozostają w pliku jako historia decyzji, ale nie powinny być traktowane jako obowiązujący bloker implementacji.
+
+### Decyzje i wymagania
+
+- Bloker organizacyjny związany z lokalnym `Infoczytnik/AGENTS.md` / `DataSlate/AGENTS.md` został usunięty.
+- Można rozpoczynać kolejne prace Release z zachowaniem aktualnej treści głównego `AGENTS.md`.
+- Nadal należy przed każdą zmianą czytać aktualny `Analizy/Release.md`, kontrolować stan Git i respektować zakaz samodzielnej modyfikacji plików `AGENTS.md`.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `Analizy/Release.md` | Dodano bieżącą analizę potwierdzającą, że wcześniejszy bloker `AGENTS.md` został usunięty. |
+
+### Szczegóły zmian w kodzie
+
+Kod aplikacji nie został zmieniony. Aktualizacja dotyczy wyłącznie analizy i dziennika Release.
+
+### Testy
+
+Wykonano statyczne sprawdzenia organizacyjne:
+
+- `find /workspace -name AGENTS.md -print` — wynik: znaleziono wyłącznie `/workspace/WnG_Tools/AGENTS.md`;
+- `git status --short` przed analizą — wynik: drzewo robocze było czyste;
+- `rg -n "AGENTS\\.md|bloker|blokad|wstrzym|sprzecz" Analizy/Release.md` — wynik: odnaleziono wcześniejsze historyczne wpisy opisujące bloker oraz potwierdzono potrzebę dopisania aktualnego rozstrzygnięcia;
+- `nl -ba AGENTS.md | sed -n '1,38p;350,455p;475,570p'` — wynik: potwierdzono aktualny zakres prac Release i zasady obsługi plików `AGENTS.md`.
+
+### Ryzyka i następne kroki
+
+1. Historyczne sekcje `Analizy/Release.md` nadal zawierają opisy dawnego blokera. Nie należy ich usuwać; niniejsza późniejsza sekcja stanowi aktualne rozstrzygnięcie.
+2. Zakaz modyfikowania plików `AGENTS.md` nadal obowiązuje. Jeżeli w przyszłości ponownie pojawi się lokalny `AGENTS.md` w katalogu objętym zmianą nazwy, trzeba ponownie ocenić możliwość wykonania operacji.
+3. Usunięcie blokera organizacyjnego nie oznacza automatycznego wykonania prac Release. Kolejne zmiany powinny być wdrażane etapami i każdorazowo dokumentowane w tym pliku.
