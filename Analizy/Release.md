@@ -3005,3 +3005,95 @@ Uwaga ewidencyjna: prompt został przekazany w wiadomości użytkownika dwukrotn
 2. Osobny etap powinien wyczyścić prywatne konfiguracje Firebase oraz usunąć Web Push z kodu publicznej wersji bez naruszenia komunikacji Firestore DataSlate.
 3. Po dostarczeniu neutralnych arkuszy należy osobno sprawdzić `AudioManifest.xlsx` i neutralny `DataVault/Repozytorium.xlsx` zgodnie z zasadami parserów i loaderów.
 4. Warto wykonać ręczny przegląd dokumentacji przez użytkownika nietechnicznego oraz osobny przegląd techniczny procedur rekonstrukcji modułów.
+
+## Aktualizacja — 2026-05-30 — przykładowe pliki produkcyjne i dokumentacja DataVault
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Wgrałem plik:
+Audio/AudioManifest.xlsx
+jest on pozbawiony wrażliwych danych. Może być używany produkcyjnie.
+
+Wgrałem też przykładowy plik DataVault/SampleFiles/Repozytorium.xlsx
+Wygeneruj z niego pliki json i wgraj do DataVault/SampleFiles/
+
+Następnie dopisz do instrukcji informacje, że w tym folderze znajdują się przykładowe pliki.
+Plik xlsx ma gotową strukturę zakładek i kolumn. Zawiera też przykładowe dane pokazujące zasady formatowania (np. przekreślenie i czerwony kolor).
+
+Trzeba dopisać tę informację do części instrukcji po angielsku i części instrukcji po polsku.
+```
+
+### Zakres prac
+
+- Przeczytano aktualne instrukcje repozytorium, wcześniejsze sekcje dziennika Release, dokumentację DataVault oraz kod generatorów `DataVault/build_json.py`, `DataVault/xlsxCanonicalParser.js` i logikę generowania z panelu administratora w `DataVault/app.js`.
+- Potwierdzono obecność plików wejściowych `Audio/AudioManifest.xlsx` oraz `DataVault/SampleFiles/Repozytorium.xlsx`.
+- Użyto referencyjnego generatora CLI `DataVault/build_json.py` do wygenerowania przykładowego `DataVault/SampleFiles/data.json` z dostarczonego arkusza XLSX.
+- Utworzono `DataVault/SampleFiles/firebase-import.json` zgodnie z istniejącym wrapperem `datavault-firebase-import-v1` zdefiniowanym w `DataVault/app.js`: obiekt zawiera `schemaVersion`, znacznik czasu `createdAt`, nazwę źródła `Repozytorium.xlsx` oraz pełny `data.json` zapisany jako tekst pod kluczem `dataJson`.
+- Rozszerzono oba kanoniczne parsery XLSX o przenoszenie istniejących markerów formatowania dla stylów całej komórki. Zmiana była potrzebna, ponieważ przykładowe przekreślenie w dostarczonym arkuszu zapisano jako styl całej komórki, a wcześniejsza implementacja zachowywała z pełnokomórkowych stylów wyłącznie czerwony tekst.
+- Uzupełniono dwujęzyczne instrukcje DataVault o użytkowy opis folderu `DataVault/SampleFiles/`.
+- Sprawdzono instrukcje modułu Audio. Nie wymagały korekty: opisują istniejący manifest i oczekiwaną nazwę `AudioManifest.xlsx`, bez sugestii, że neutralny plik dopiero ma zostać przygotowany.
+
+### Ustalenia i wnioski
+
+- Właściciel dostarczył `Audio/AudioManifest.xlsx` jako plik pozbawiony wrażliwych danych i dopuszczony do użycia produkcyjnego. Plik istnieje, jest technicznie poprawnym arkuszem XLSX i zawiera wymagane kolumny `NazwaSampla`, `NazwaPliku` oraz `LinkDoFolderu`.
+- `DataVault/SampleFiles/Repozytorium.xlsx` jest przykładowym plikiem DataVault z gotową strukturą zakładek i kolumn oraz neutralnymi rekordami pokazującymi zasady formatowania.
+- Referencyjną ścieżką CLI pozostaje `DataVault/build_json.py`. Przycisk administratora korzysta z równoważnego parsera przeglądarkowego `DataVault/xlsxCanonicalParser.js`, a następnie buduje wrapper importu RTDB funkcją z `DataVault/app.js`.
+- Dostarczony XLSX zawiera czerwony tekst, pogrubienie, kursywę oraz przekreślenie. Po lokalnej poprawce parserów wygenerowany JSON zachowuje istniejący model markerów, w tym `{{RED}}...{{/RED}}` i `{{S}}...{{/S}}`.
+- Format danych DataVault nie został zmieniony. Poprawka jedynie rozszerza odczyt stylów całej komórki do markerów już obsługiwanych przez runtime.
+
+### Decyzje i wymagania
+
+- `Audio/AudioManifest.xlsx` może pozostać produkcyjnym manifestem publicznej wersji Release.
+- Folder `DataVault/SampleFiles/` ma pozostać źródłem przykładowych plików dla użytkowników konfigurujących własny zestaw danych.
+- `DataVault/SampleFiles/Repozytorium.xlsx` może być kopiowany jako wzór struktury i formatowania, po czym użytkownik powinien zastąpić neutralne przykłady własnymi rekordami.
+- `DataVault/SampleFiles/firebase-import.json` jest przykładem importu do Firebase RTDB pod ścieżkę `/datavault/live`, zgodnie z istniejącą instrukcją DataVault.
+- Nie usuwano ani nie zmieniano integracji Firebase. Nie ruszano Web Push, pomocniczych plików testowych i backupowych DataSlate ani generowanych wyników NameGenerator.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `DataVault/SampleFiles/data.json` | Wygenerowany przykładowy backup JSON z neutralnego `Repozytorium.xlsx`. |
+| `DataVault/SampleFiles/firebase-import.json` | Wygenerowany przykładowy wrapper importu Firebase RTDB zgodny z bieżącą logiką panelu administratora. |
+| `DataVault/build_json.py` | Rozszerzono referencyjny parser CLI o zachowanie pełnokomórkowych markerów pogrubienia, kursywy i przekreślenia obok wcześniej obsługiwanego czerwonego tekstu. |
+| `DataVault/xlsxCanonicalParser.js` | Wprowadzono analogiczną zmianę w kanonicznym parserze przeglądarkowym, aby utrzymać zgodność z generatorem CLI. |
+| `DataVault/docs/README.md` | Dodano angielską i polską sekcję użytkową opisującą przykładowe pliki, strukturę XLSX, formatowanie i import RTDB. |
+| `Analizy/Release.md` | Dopisano niniejszą sekcję dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+#### `DataVault/build_json.py`
+
+- Przed zmianą loader stylów sprowadzał styl całej komórki do pojedynczej flagi czerwonego tekstu.
+- Po zmianie loader zachowuje dla stylu całej komórki zestaw flag `red`, `bold`, `italic` i `strike`, a następnie przekazuje je do istniejącej funkcji `_wrap_with_markers()`.
+- Powód zmiany: przykładowe komórki `Bestiary!W3` i `Bestiary!W4` mają przekreślenie zapisane jako styl całej komórki. Bez poprawki wygenerowany plik pomijał ten przykład formatowania.
+
+#### `DataVault/xlsxCanonicalParser.js`
+
+- Przed zmianą parser przeglądarkowy również mapował style całej komórki wyłącznie na flagę czerwonego tekstu.
+- Po zmianie parser przeglądarkowy przenosi ten sam zestaw flag `red`, `bold`, `italic` i `strike`, używając istniejącego modelu markerów.
+- Powód zmiany: zachowanie parytetu z referencyjnym generatorem CLI i wynikami przycisku **Generate data files**.
+
+#### `DataVault/docs/README.md`
+
+- Dodano sekcje **Sample files** i **Przykładowe pliki**.
+- Obie wersje językowe opisują `Repozytorium.xlsx`, `data.json`, `firebase-import.json`, gotową strukturę zakładek i kolumn, przykładowe formatowanie oraz możliwość zastąpienia przykładów własnymi danymi.
+
+### Testy
+
+- Potwierdzono istnienie obu plików wejściowych poleceniem `stat -c '%n | %s bytes' Audio/AudioManifest.xlsx DataVault/SampleFiles/Repozytorium.xlsx`.
+- Wygenerowano przykładowy JSON poleceniem `python3 DataVault/build_json.py DataVault/SampleFiles/Repozytorium.xlsx DataVault/SampleFiles/data.json`.
+- Zweryfikowano składnię Pythona poleceniem `python3 -m py_compile DataVault/build_json.py`.
+- Zweryfikowano składnię parsera JavaScript poleceniem `node --check DataVault/xlsxCanonicalParser.js`.
+- Parsowano oba pliki JSON przy użyciu `json.loads`, sprawdzono round-trip pola `dataJson` wrappera Firebase i potwierdzono zgodność odtworzonego obiektu z `data.json`.
+- Potwierdzono zachowanie formatowania w wygenerowanym `data.json`: 10 otwierających markerów `{{RED}}`, 2 markery `{{S}}`, 2 markery `{{B}}` i 6 markerów `{{I}}`.
+- Sprawdzono strukturę `Audio/AudioManifest.xlsx` jako archiwum XLSX ZIP/XML i potwierdzono wymagane kolumny: `NazwaSampla`, `NazwaPliku`, `LinkDoFolderu`.
+- Przeskanowano teksty komórek i zewnętrzne relacje `Audio/AudioManifest.xlsx` pod kątem URL-i oraz wartości infrastruktury. Jedyny wykryty adres to neutralny przykład `https://example.site/examplefolder/`; nie znaleziono prywatnego URL-a właściciela.
+
+### Ryzyka i następne kroki
+
+- `firebase-import.json` zawiera znacznik czasu `createdAt`, tak samo jak plik pobierany z panelu administratora. Ponowna generacja artefaktu celowo zmieni tę wartość.
+- Poprawka parserów obejmuje istniejący model markerów stylu całej komórki i nie wprowadza nowego formatu danych. Przy kolejnych neutralnych arkuszach warto nadal testować parytet generatora CLI oraz przycisku przeglądarkowego.
+- Test faktycznego importu do projektu Firebase RTDB `/datavault/live` pozostaje krokiem wdrożeniowym dla administratora konfigurującego własny projekt grupy. W ramach tego etapu nie łączono się z żadnym projektem Firebase i nie modyfikowano integracji Firebase.
+- Nie wykonywano zmian w Web Push, DataSlate ani NameGenerator.

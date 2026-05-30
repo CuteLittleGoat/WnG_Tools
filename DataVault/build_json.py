@@ -167,26 +167,32 @@ def _load_styles(z: ZipFile):
   try:
     root = ET.fromstring(z.read("xl/styles.xml"))
   except KeyError:
-    return {"cell_xf_red": []}
+    return {"cell_xf_formats": []}
 
   ns = {"main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
   fonts = []
   for font in root.findall("main:fonts/main:font", ns):
     color = font.find("main:color", ns)
-    fonts.append(_is_red_color(color))
+    fonts.append({
+      "red": _is_red_color(color),
+      "bold": _is_enabled(font.find("main:b", ns)),
+      "italic": _is_enabled(font.find("main:i", ns)),
+      "strike": _is_enabled(font.find("main:strike", ns)),
+    })
 
-  cell_xf_red = []
+  cell_xf_formats = []
   for xf in root.findall("main:cellXfs/main:xf", ns):
     font_id = int(xf.attrib.get("fontId", "0"))
-    cell_xf_red.append(font_id < len(fonts) and fonts[font_id])
+    cell_xf_formats.append(fonts[font_id] if font_id < len(fonts) else {})
 
-  return {"cell_xf_red": cell_xf_red}
+  return {"cell_xf_formats": cell_xf_formats}
 
 
-def _style_is_red(styles, idx: int) -> bool:
+def _style_format(styles, idx: int) -> dict:
   if idx is None:
-    return False
-  return idx < len(styles.get("cell_xf_red", [])) and styles["cell_xf_red"][idx]
+    return {}
+  formats = styles.get("cell_xf_formats", [])
+  return formats[idx] if idx < len(formats) else {}
 
 
 def _col_to_index(ref: str) -> int:
@@ -211,27 +217,27 @@ def _load_rows_from_xml(z: ZipFile, path: str, shared_strings, styles):
       cell_type = cell.attrib.get("t")
       style_idx = cell.attrib.get("s")
       style_idx_int = int(style_idx) if style_idx is not None and str(style_idx).isdigit() else None
-      is_red_style = _style_is_red(styles, style_idx_int)
+      cell_format = _style_format(styles, style_idx_int)
       val_node = cell.find("main:v", ns)
       if cell_type == "s":
         item = shared_strings[int(val_node.text)] if val_node is not None and val_node.text else {"text":"","has_runs":False}
         text = item.get("text", "")
         has_runs = item.get("has_runs", False)
-        if is_red_style and not has_runs and "{{RED}}" not in text:
-          text = _wrap_with_markers(text, red=True)
+        if not has_runs and any(cell_format.values()):
+          text = _wrap_with_markers(text, **cell_format)
         val = text
       elif cell_type == "inlineStr":
         is_node = cell.find("main:is", ns) or cell
         text, has_runs = _rich_text_to_string(is_node, ns)
-        if is_red_style and not has_runs and "{{RED}}" not in text:
-          text = _wrap_with_markers(text, red=True)
+        if not has_runs and any(cell_format.values()):
+          text = _wrap_with_markers(text, **cell_format)
         val = text
       elif cell_type == "b":
         val = "TRUE" if (val_node.text if val_node is not None else "") in ("1","true","TRUE") else "FALSE"
       else:
         val = val_node.text if val_node is not None else ""
-        if is_red_style and isinstance(val, str) and val and "{{RED}}" not in val:
-          val = _wrap_with_markers(val, red=True)
+        if isinstance(val, str) and val and any(cell_format.values()):
+          val = _wrap_with_markers(val, **cell_format)
       cells[col] = val
     rows.append(cells)
   if not rows:
