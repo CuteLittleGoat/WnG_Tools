@@ -3414,3 +3414,202 @@ Na końcu odpowiedzi podaj krótkie podsumowanie:
 - Ponowne globalne wyszukiwanie wymaganych starych nazw po dopisaniu dziennika: PASS po klasyfikacji. Trafienia obejmują przede wszystkim historię, niniejszy prompt audytowy, dozwolone pliki pomocnicze DataSlate, zachowane nazwy techniczne oraz stabilne identyfikatory wewnętrzne.
 - Ponowne globalne wyszukiwanie wymaganych fraz Web Push po dopisaniu dziennika: PASS po klasyfikacji. Trafienia obejmują historię, niniejszy prompt audytowy, ogólne reguły `AGENTS.md`, poprawne instrukcje o braku Web Push oraz komentarze ikony logowania; nie znaleziono aktywnej implementacji Web Push.
 - Ponowne globalne wyszukiwanie wymaganych placeholderów po dopisaniu dziennika: PASS — znaleziono wyłącznie zamierzone placeholdery Release i ich dokumentację.
+
+## Aktualizacja — 2026-05-30 — audyt zbędnych, roboczych i historycznych plików przed publicznym Release
+
+### Oryginalny pełny prompt użytkownika
+
+Teraz trzeba zrobić audyt zbędnych plików, np. DoZrobienia.md
+
+### Zakres prac
+
+Wykonano osobny etap Release obejmujący wyłącznie analizę plików śledzonych przez Git. Nie usunięto ani nie przeniesiono żadnego pliku, nie zmieniono kodu aplikacji, nie ruszono integracji Firebase, nie przywrócono ani nie zmieniono Web Push i nie tłumaczono wyników `NameGenerator`.
+
+Audyt objął:
+
+- odczyt obowiązujących plików `AGENTS.md` oraz `Analizy/Release.md` przed rozpoczęciem analizy;
+- pełną inwentaryzację przez `git ls-files`;
+- sprawdzenie nazw wskazujących na drafty, backupy, testy, pliki robocze i stare wersje;
+- sprawdzenie powiązań podejrzanych plików przez `rg`, analizę odwołań w HTML, JS i dokumentacji oraz porównanie SHA-256 dla roboczych i produkcyjnych logo DataSlate;
+- sprawdzenie lokalizacji i rozmiarów plików binarnych bez prób odczytywania ich zawartości na siłę;
+- przygotowanie rekomendacji do osobnej akceptacji właściciela.
+
+### Metoda audytu
+
+1. Uruchomiono `git status --short`, aby potwierdzić czysty stan początkowy.
+2. Uruchomiono `git ls-files`; repozytorium zawiera **137 śledzonych plików**.
+3. Listę podzielono według roli: runtime aplikacji, konfiguracja i wdrożenie, dokumentacja, przykłady Release, pomocnicze testy i backupy zachowywane decyzją właściciela, materiały robocze/historyczne oraz kandydaci do decyzji.
+4. Dla podejrzanych plików uruchomiono wyszukiwania dokładnych nazw i nazw bez rozszerzeń. Przy ocenie odróżniono aktywne odwołania runtime od wpisów historycznych w `Analizy/Release.md`.
+5. Dla `DataSlate/Draft/Loga/*.png` porównano SHA-256 z `DataSlate/assets/logos/*.png`. Wszystkie 14 plików roboczych mają identyczne odpowiedniki produkcyjne; różni się wyłącznie nazwa roboczego `Chaos.png`, którego identyczny produkcyjny odpowiednik to `Chaos_Undivided.png`.
+6. Dla plików binarnych użyto nazw, lokalizacji, rozmiarów, dokumentacji i odwołań tekstowych. Nie rozpakowywano ani nie interpretowano zawartości binarnej na siłę.
+
+### Pełna inwentaryzacja repozytorium według kategorii
+
+| Kategoria | Pliki lub zakresy plików | Liczba | Ocena |
+| --- | --- | ---: | --- |
+| Główne pliki aplikacji | `Audio/index.html`; `Calculators/index.html`, `Calculators/XPCalculator.html`, `Calculators/CharacterCreation.html`, `Calculators/kalkulatorxp.css`; `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`; `DataVault/index.html`, `DataVault/app.js`, `DataVault/style.css`, `DataVault/xlsxCanonicalParser.js`, `DataVault/build_json.py`; `DiceRoller/index.html`, `DiceRoller/script.js`, `DiceRoller/style.css`; `Main/index.html`; `NPCGenerator/index.html`, `NPCGenerator/style.css`; `NameGenerator/index.html`, `NameGenerator/script.js`, `NameGenerator/style.css`; `shared/access-gate.css`, `shared/firebase-data-loader.js`; `manifest.webmanifest` | 25 | Produkcyjne; zostawić. |
+| Konfiguracje Firebase i instrukcje wdrożeniowe | `shared/firebase-config.js`, `shared/FirebaseREADME.md`; `Audio/config/*`; `Calculators/config/*`; `DataSlate/config/*`; `NPCGenerator/config/*` | 10 | Wymagane przez konfigurowalną architekturę Release; zostawić. |
+| Dokumentacja modułów i dokumenty wymagane publicznie | `Audio/docs/*`, `Audio/Disclaimer.md`; `Calculators/docs/*`; `DataSlate/docs/README.md`, `DataSlate/docs/Documentation.md`; `DataVault/docs/*`; `DiceRoller/docs/*`; `Main/docs/*`; `NPCGenerator/docs/*`; `NameGenerator/docs/*`; `AGENTS.md`; `Analizy/Release.md`; `Main/ZmienneHiperlacza.md` | 21 | Zostawić; `Audio/Disclaimer.md` wymaga decyzji wyłącznie w sprawie sposobu ekspozycji, nie automatycznego usunięcia. |
+| Produkcyjne lub wspierające assety Audio, Calculators, DataVault, Main i root | `Audio/AudioManifest.xlsx`; `Calculators/Koza.gif`, `Calculators/Modal_Icon.png`, `Calculators/Skull.png`, `Calculators/HowToUse/en.pdf`, `Calculators/HowToUse/pl.pdf`; `DataVault/Icon.png`; `Main/wrath-glory-logo-warhammer.png`; `IkonaGlowna.png`; `IkonaPowiadomien2.png` | 10 | Używane albo jawnie zachowane; zostawić. |
+| Produkcyjne i modyfikacyjne assety DataSlate | `DataSlate/assets/backgrounds/*` (10), `DataSlate/assets/logos/*` (14), `DataSlate/assets/ramki/*` (10), `DataSlate/assets/audios/*` (2), `DataSlate/assets/data/DataSlate_manifest.xlsx`, `DataSlate/assets/data/Mapowanie.xlsx`, `DataSlate/assets/data/NiebieskaRamka.md`, `DataSlate/assets/data/data.json` | 40 | Zostawić. Ramki, mapowanie i notatka obliczeniowa wspierają modyfikacje layoutu, nawet gdy część wyników jest zaszyta w HTML. |
+| Publiczne przykłady DataVault | `DataVault/SampleFiles/Repozytorium.xlsx`, `DataVault/SampleFiles/data.json`, `DataVault/SampleFiles/firebase-import.json` | 3 | Celowo zachowane w Release decyzją właściciela. |
+| Pomocnicze testy i backupy DataSlate | `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html`, `DataSlate/Infoczytnik_backup.html` | 4 | Celowo zachowane w Release decyzją właściciela. |
+| Kandydaci do usunięcia po akceptacji | `DoZrobienia.md`; `IkonaPowiadomien.png`; `DataSlate/Draft/Loga/*.png` (14) | 16 | Niepotrzebne w publicznej paczce według audytu; nie usunięto ich w tym etapie. |
+| Kandydaci do archiwizacji po akceptacji | `Kolumny.md`; `DetaleLayout.md`; `Calculators/HowToUse/draft.docx`; `Calculators/Old/HowToUse_Org.pdf`; `Calculators/Old/Kalkulator_Org.html`; `DataSlate/Draft/old_Inquisition.png`; `DataSlate/Draft/old_Mechanicus.png`; `DataSlate/docs/Prefixy_i_Suffixy.txt` | 8 | Zachowują wartość historyczną, projektową albo pomocniczą, ale nie są potrzebne w głównej paczce runtime. |
+
+Suma kategorii: **137 plików**. Kategorie są rozłączne. Pliki wskazane do usunięcia albo archiwizacji nadal fizycznie pozostają w repozytorium po tym audycie.
+
+### Ustalenia i wnioski
+
+#### Znani kandydaci wskazani przez właściciela
+
+- `DoZrobienia.md` istnieje. Jest krótką prywatną listą roboczą zawierającą trzy punkty dotyczące tooltipów DataVault, polskich liter oraz flickera w dawnym Infoczytniku. Nie jest linkowany poza historią `Analizy/Release.md`, nie stanowi dokumentacji Release i powinien zostać usunięty po akceptacji właściciela.
+- `Kolumny.md` istnieje. Jest rozbudowaną techniczną notatką o szerokościach i formatowaniu tabel DataVault, opartą na polskich nazwach arkuszy. Nie jest importowany ani linkowany jako wymagany plik runtime. Może nadal pomagać podczas rozwoju, dlatego bezpieczniej przenieść go do prywatnego archiwum po akceptacji właściciela zamiast usuwać bezpowrotnie.
+- `DetaleLayout.md` istnieje. Jest historyczno-technologicznym dziennikiem decyzji layoutowych. Nadal jest wymieniony w `DataVault/docs/Documentation.md` jako główny dokument opisujący layout, więc archiwizacja wymaga równoczesnej aktualizacji tej aktywnej dokumentacji. Nie należy usuwać go bez przygotowania tej poprawki.
+
+#### Dodatkowe wykryte materiały robocze i historyczne
+
+- `Calculators/HowToUse/draft.docx` nie ma odwołań tekstowych. Produkcyjne instrukcje to `Calculators/HowToUse/en.pdf` i `Calculators/HowToUse/pl.pdf`; draft powinien trafić do archiwum po akceptacji.
+- `Calculators/Old/HowToUse_Org.pdf` i `Calculators/Old/Kalkulator_Org.html` są stare i nie są ścieżką runtime. Obecna dokumentacja wymienia je tylko w drzewie plików. Z uwagi na wartość referencyjną rekomendowana jest archiwizacja, nie natychmiastowe usunięcie.
+- `DataSlate/Draft/Loga/*.png` zawiera 14 roboczych kopii logo. Porównanie SHA-256 potwierdziło, że każdy plik ma identyczny odpowiednik w `DataSlate/assets/logos/`; ścieżki runtime prowadzą do `assets/logos/`, nie do `Draft/Loga/`. Te kopie można usunąć po akceptacji.
+- `DataSlate/Draft/old_Inquisition.png` i `DataSlate/Draft/old_Mechanicus.png` nie mają odwołań poza historią i nie są identyczne z aktualnymi produkcyjnymi logo. Ich nazwy wskazują na starsze wersje projektowe, dlatego rekomendowana jest archiwizacja.
+- `DataSlate/docs/Prefixy_i_Suffixy.txt` nie jest linkowany ani ładowany runtime. Zawiera katalog tekstów tematycznych, który może być użytecznym źródłem projektowym dla przyszłych zmian DataSlate. Rekomendowana jest archiwizacja po akceptacji właściciela, a nie bezpowrotne usunięcie.
+- `IkonaPowiadomien.png` nie ma aktywnych odwołań. Używaną ikoną bramki dostępu jest `IkonaPowiadomien2.png`. Ponieważ Web Push pozostaje poza zakresem Release, nieużywana starsza ikona jest kandydatem do usunięcia po akceptacji.
+
+#### Pliki, które początkowo mogą wyglądać na zbędne, ale należy zostawić
+
+- `DataSlate/assets/data/DataSlate_manifest.xlsx` jest ładowany przez panel GM i opisany w dokumentacji jako źródło importu XLSX → JSON.
+- `DataSlate/assets/data/Mapowanie.xlsx`, `DataSlate/assets/data/NiebieskaRamka.md` oraz `DataSlate/assets/ramki/*` wspierają przeliczanie prostokątów treści dla ramek. Aktualne wyniki są wpisane jako `CONTENT_RECTS_BY_BACKGROUND_ID` w ekranach gracza, a komentarze i dokument pomocniczy wskazują źródłowe mapowanie. Te pliki warto zachować dla użytkowników modyfikujących DataSlate.
+- `Audio/Disclaimer.md` nie jest obecnie linkowany z UI, ale zawiera informację o inspiracji i atrybucję. Nie należy usuwać go automatycznie. Właściciel powinien zdecydować osobno, czy dodać widoczne odwołanie z dokumentacji lub interfejsu.
+- `IkonaGlowna.png` jest używany przez `manifest.webmanifest`.
+- `IkonaPowiadomien2.png` jest używany przez bramki dostępu DataVault i NPCGenerator.
+- `Calculators/HowToUse/en.pdf` oraz `Calculators/HowToUse/pl.pdf` są publicznymi instrukcjami otwieranymi dynamicznie z `CharacterCreation.html`.
+
+### Tabela rekomendacji plików
+
+| Plik | Typ pliku | Obecna rola | Czy jest używany/linkowany | Ryzyko usunięcia | Rekomendacja | Uzasadnienie |
+| --- | --- | --- | --- | --- | --- | --- |
+| `DoZrobienia.md` | notatka Markdown | Prywatna lista trzech zadań roboczych | Tylko historia `Analizy/Release.md` | niskie | usunąć po akceptacji właściciela | Nie jest dokumentacją ani zależnością runtime; zawiera nieaktualne robocze punkty. |
+| `IkonaPowiadomien.png` | PNG | Starsza ikona powiadomień | Brak aktywnych odwołań | niskie | usunąć po akceptacji właściciela | Używana bramka dostępu odwołuje się do `IkonaPowiadomien2.png`; Web Push nie należy do Release. |
+| `DataSlate/Draft/Loga/*.png` (14 plików) | PNG | Robocze kopie logo | Brak aktywnych ścieżek do `Draft/Loga/` | niskie | usunąć po akceptacji właściciela | SHA-256 każdego pliku odpowiada produkcyjnemu plikowi z `DataSlate/assets/logos/`. |
+| `Kolumny.md` | notatka Markdown | Techniczna mapa szerokości tabel DataVault | Nie jest wymagany runtime; zachowuje wartość pomocniczą | średnie | przenieść do archiwum po akceptacji właściciela | Dokument może pomagać w rozwoju, ale zawiera szczegółowe notatki robocze i polskie nazwy arkuszy. |
+| `DetaleLayout.md` | dokument Markdown | Historyczno-techniczny dziennik layoutu | Wymieniony w `DataVault/docs/Documentation.md` | średnie | przenieść do archiwum po akceptacji właściciela | Nie jest zależnością runtime, lecz przed archiwizacją trzeba usunąć lub zastąpić aktywne odwołanie dokumentacyjne. |
+| `Calculators/HowToUse/draft.docx` | DOCX | Draft instrukcji Calculators | Brak odwołań | niskie | przenieść do archiwum po akceptacji właściciela | Produkcyjne instrukcje PDF pozostają; plik źródłowy może mieć wartość edycyjną. |
+| `Calculators/Old/HowToUse_Org.pdf` | PDF | Historyczna instrukcja Calculators | Tylko drzewo plików w dokumentacji Calculators | niskie | przenieść do archiwum po akceptacji właściciela | Nie jest używany runtime, ale może być punktem odniesienia. |
+| `Calculators/Old/Kalkulator_Org.html` | HTML | Historyczna wersja kalkulatora | Tylko drzewo plików w dokumentacji Calculators | niskie | przenieść do archiwum po akceptacji właściciela | Nie jest aktywną stroną; zachowuje wartość referencyjną. |
+| `DataSlate/Draft/old_Inquisition.png` | PNG | Starszy wariant logo | Brak aktywnych odwołań | niskie | przenieść do archiwum po akceptacji właściciela | Stary asset projektowy, odmienny od obecnego logo produkcyjnego. |
+| `DataSlate/Draft/old_Mechanicus.png` | PNG | Starszy wariant logo | Brak aktywnych odwołań | niskie | przenieść do archiwum po akceptacji właściciela | Stary asset projektowy, odmienny od obecnego logo produkcyjnego. |
+| `DataSlate/docs/Prefixy_i_Suffixy.txt` | TXT | Katalog pomocniczych tekstów tematycznych | Brak aktywnych odwołań | średnie | przenieść do archiwum po akceptacji właściciela | Nie jest potrzebny runtime, ale może być materiałem źródłowym przy przyszłych zmianach. |
+| `DataSlate/assets/data/NiebieskaRamka.md` | dokument Markdown | Instrukcja obliczania prostokątów treści | Powiązany z `Mapowanie.xlsx`, ramkami i kodem `CONTENT_RECTS_BY_BACKGROUND_ID` | średnie | zostawić | Dokument wspiera modyfikacje DataSlate i wyjaśnia pochodzenie zaszytych wartości layoutu. |
+| `DataSlate/assets/data/Mapowanie.xlsx` | XLSX | Mapa tło → ramka używana przy przeliczaniu layoutu | Wymieniona w komentarzach ekranów gracza i w `NiebieskaRamka.md` | średnie | zostawić | Jest źródłem pomocniczym dla modyfikacji układu; nie należy usuwać go automatycznie. |
+| `DataSlate/assets/ramki/*` (10 plików) | PNG | Źródłowe nakładki ramek | Opisane w dokumentacji DataSlate i `NiebieskaRamka.md` | średnie | zostawić | Są częścią pakietu modyfikacyjnego DataSlate, nawet jeżeli runtime używa przeliczonych prostokątów. |
+| `Audio/Disclaimer.md` | dokument Markdown | Atrybucja inspiracji dla modułu Audio | Nie jest linkowany z UI | średnie | wymaga decyzji właściciela | Nie usuwać automatycznie; zdecydować, czy dodać widoczne odwołanie z dokumentacji albo UI. |
+| `Audio/AudioManifest.xlsx` | XLSX | Neutralny manifest produkcyjny Audio | Ładowany przez `Audio/index.html`, opisany w dokumentacji | wysokie | celowo zachowany w Release | Jawny wyjątek właściciela i produkcyjne źródło danych. |
+| `DataVault/SampleFiles/Repozytorium.xlsx` | XLSX | Neutralny przykład wejścia DataVault | Opisany jako publiczny sample | wysokie | celowo zachowany w Release | Jawny wyjątek właściciela. |
+| `DataVault/SampleFiles/data.json` | JSON | Neutralny przykład wyniku DataVault | Opisany jako publiczny sample | wysokie | celowo zachowany w Release | Jawny wyjątek właściciela. |
+| `DataVault/SampleFiles/firebase-import.json` | JSON | Neutralny przykład importu Firebase | Opisany jako publiczny sample | wysokie | celowo zachowany w Release | Jawny wyjątek właściciela. |
+| `DataSlate/GM_test.html` | HTML | Pomocniczy panel testowy DataSlate | Opisany w dokumentacji | wysokie | celowo zachowany w Release | Jawna decyzja właściciela: plik pozostaje jako materiał do testowania modyfikacji. |
+| `DataSlate/Infoczytnik_test.html` | HTML | Pomocniczy ekran gracza DataSlate | Opisany w dokumentacji | wysokie | celowo zachowany w Release | Jawna decyzja właściciela: plik pozostaje jako materiał do testowania modyfikacji. |
+| `DataSlate/GM_backup.html` | HTML | Backup referencyjny panelu GM | Opisany w dokumentacji | wysokie | celowo zachowany w Release | Jawna decyzja właściciela: backup pozostaje jako punkt odniesienia. |
+| `DataSlate/Infoczytnik_backup.html` | HTML | Backup referencyjny ekranu gracza | Opisany w dokumentacji | wysokie | celowo zachowany w Release | Jawna decyzja właściciela: backup pozostaje jako punkt odniesienia. |
+
+### Plan kolejnego kroku
+
+#### A. Pliki, które można bezpiecznie usunąć po akceptacji właściciela
+
+- `DoZrobienia.md`;
+- `IkonaPowiadomien.png`;
+- 14 zduplikowanych plików `DataSlate/Draft/Loga/*.png`.
+
+Łącznie: **16 plików**.
+
+#### B. Pliki, które lepiej przenieść do archiwum zamiast usuwać
+
+- `Kolumny.md`;
+- `DetaleLayout.md`;
+- `Calculators/HowToUse/draft.docx`;
+- `Calculators/Old/HowToUse_Org.pdf`;
+- `Calculators/Old/Kalkulator_Org.html`;
+- `DataSlate/Draft/old_Inquisition.png`;
+- `DataSlate/Draft/old_Mechanicus.png`;
+- `DataSlate/docs/Prefixy_i_Suffixy.txt`.
+
+Łącznie: **8 plików**.
+
+#### C. Pliki, które trzeba zostawić
+
+- wszystkie główne pliki HTML, JS i CSS aplikacji;
+- wszystkie publiczne konfiguracje Firebase z placeholderami oraz instrukcje ich wdrożenia;
+- `Main/ZmienneHiperlacza.md`;
+- produkcyjne assety Audio, Calculators, DataVault, Main, NPCGenerator, DataSlate i manifestu PWA;
+- `DataSlate/assets/data/DataSlate_manifest.xlsx`;
+- `DataSlate/assets/data/Mapowanie.xlsx`;
+- `DataSlate/assets/data/NiebieskaRamka.md`;
+- `DataSlate/assets/data/data.json`;
+- `DataSlate/assets/ramki/*`;
+- bieżącą dokumentację modułów, `AGENTS.md` i `Analizy/Release.md`.
+
+#### D. Pliki wymagające decyzji właściciela
+
+- `Audio/Disclaimer.md` — plik należy zachować, ale właściciel powinien zdecydować, czy dodać widoczne odwołanie do atrybucji z dokumentacji albo UI Audio.
+- Pakiet 16 kandydatów z listy A wymaga akceptacji przed usunięciem.
+- Pakiet 8 kandydatów z listy B wymaga akceptacji przed przeniesieniem oraz decyzji, czy archiwum ma pozostać poza publicznym repozytorium, czy w osobnym katalogu publicznym.
+
+#### E. Pliki wyłączone z usuwania na mocy aktualnych decyzji Release
+
+- `Audio/AudioManifest.xlsx`;
+- `DataVault/SampleFiles/Repozytorium.xlsx`;
+- `DataVault/SampleFiles/data.json`;
+- `DataVault/SampleFiles/firebase-import.json`;
+- `DataSlate/GM_test.html`;
+- `DataSlate/Infoczytnik_test.html`;
+- `DataSlate/GM_backup.html`;
+- `DataSlate/Infoczytnik_backup.html`.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `Analizy/Release.md` | Dopisano niniejszą sekcję audytu, inwentaryzację, klasyfikację ryzyka, tabelę rekomendacji, wyniki wyszukiwań i plan następnego kroku. |
+
+### Szczegóły zmian w kodzie
+
+Kod aplikacji nie został zmieniony. Nie usunięto i nie przeniesiono żadnego pliku. Aktualizacja dotyczy wyłącznie analizy i dokumentacji Release.
+
+### Testy i wyszukiwania
+
+- `git status --short` przed audytem: PASS — repozytorium było czyste.
+- `git ls-files`: PASS — zapisano i przeanalizowano listę **137 śledzonych plików**.
+- `rg -n -F "DoZrobienia.md" . || true`: PASS — trafienia wyłącznie w historycznych sekcjach `Analizy/Release.md`; brak aktywnych odwołań.
+- `rg -n -F "Kolumny.md" . || true`: PASS — trafienia wyłącznie w historycznych sekcjach `Analizy/Release.md`; brak aktywnych odwołań do pełnej nazwy pliku.
+- `rg -n -F "DetaleLayout.md" . || true`: PASS — oprócz historii znaleziono aktywne odwołanie dokumentacyjne w `DataVault/docs/Documentation.md`; należy je zaktualizować przy przyszłej archiwizacji.
+- `rg -n -i "do zrobienia|todo|fixme|draft|backup|kopia|robocze|roboczy|testowy|tymczas" . || true`: PASS po klasyfikacji — wykryto historię Release, celowo zachowane testy i backupy DataSlate, draft Calculators oraz materiały robocze sklasyfikowane w tabeli.
+- `git ls-files | rg -i "(backup|test|draft|old|copy|kopia|roboczy|tmp|temp|todo|dozrobienia|do_zrobienia)" || true`: PASS po klasyfikacji — wykryto `Calculators/HowToUse/draft.docx`, `Calculators/Old/*`, `DataSlate/Draft/*`, cztery celowo zachowane pliki testowe/backupowe DataSlate oraz `DoZrobienia.md`.
+- Wyszukiwanie dokładnych nazw kandydatów przez `rg -n -F`: PASS — potwierdzono brak aktywnych odwołań do `DoZrobienia.md`, `IkonaPowiadomien.png`, `Calculators/HowToUse/draft.docx`, `DataSlate/docs/Prefixy_i_Suffixy.txt` i ścieżek `DataSlate/Draft/Loga/`.
+- `sha256sum DataSlate/Draft/Loga/*.png DataSlate/Draft/*.png DataSlate/assets/logos/*.png | sort -k1,1`: PASS — wszystkie 14 plików `DataSlate/Draft/Loga/*.png` mają identyczne produkcyjne odpowiedniki w `DataSlate/assets/logos/`; dwa pliki `DataSlate/Draft/old_*.png` są odrębnymi starszymi wariantami.
+- Wyszukiwanie `DataSlate_manifest.xlsx`, `Mapowanie.xlsx`, `NiebieskaRamka.md`, `IkonaGlowna.png`, `IkonaPowiadomien2.png`, assetów Calculators i danych przykładowych: PASS — potwierdzono role opisane w tabeli i brak podstaw do ich automatycznego usuwania.
+- `git diff --check` przed dopisaniem raportu: PASS.
+
+### Ryzyka
+
+- Archiwizacja `DetaleLayout.md` bez jednoczesnej aktualizacji `DataVault/docs/Documentation.md` pozostawiłaby nieaktualne aktywne odwołanie dokumentacyjne.
+- Usunięcie `DataSlate/assets/ramki/*`, `DataSlate/assets/data/Mapowanie.xlsx` albo `DataSlate/assets/data/NiebieskaRamka.md` utrudniłoby publicznym użytkownikom modyfikowanie layoutu DataSlate, mimo że część plików nie jest pobierana bezpośrednio w zwykłym runtime.
+- `Audio/Disclaimer.md` zawiera atrybucję, ale nie jest widocznie linkowany. Przed publicznym wydaniem właściciel powinien określić sposób ekspozycji informacji zamiast usuwać plik jako „nieużywany”.
+- Pliki przeznaczone do archiwizacji mogą trafić do prywatnego archiwum poza publiczną paczką albo do jawnego katalogu archiwalnego. Właściciel powinien zdecydować, który wariant obowiązuje przed przenoszeniem.
+
+### Proponowany następny krok
+
+Po akceptacji właściciela wykonać osobny, mały etap czyszczenia:
+
+1. usunąć 16 zaakceptowanych plików z listy A;
+2. przenieść 8 zaakceptowanych plików z listy B do ustalonej lokalizacji archiwum;
+3. zaktualizować `DataVault/docs/Documentation.md` przy archiwizacji `DetaleLayout.md` oraz usunąć historyczne wpisy drzewa plików z `Calculators/docs/Documentation.md`, jeżeli archiwum będzie poza publiczną paczką;
+4. zdecydować, gdzie widocznie odwołać się do `Audio/Disclaimer.md`;
+5. ponownie uruchomić wyszukiwania nazw, kontrolę lokalnych odwołań i `git diff --check`.
+
+#### Uzupełnienie kontroli końcowych po dopisaniu raportu
+
+- Skrypt Python klasyfikujący każdy wynik `git ls-files` do dokładnie jednej kategorii: PASS — potwierdzono rozłączny podział wszystkich **137 plików**: 25 głównych plików aplikacji, 10 plików konfiguracji Firebase i instrukcji wdrożeniowych, 21 dokumentów publicznych, 10 pozostałych produkcyjnych assetów, 40 assetów DataSlate, 3 publiczne przykłady DataVault, 4 celowo zachowane testy/backupy DataSlate, 16 kandydatów do usunięcia i 8 kandydatów do archiwizacji.
+- Ponowne `git status --short`: PASS — zmieniony jest wyłącznie `Analizy/Release.md`.
+- Ponowne `git diff --check`: PASS — brak błędów whitespace po dopisaniu raportu.
+- Ponowne wymagane wyszukiwania `rg` po dopisaniu raportu: PASS po klasyfikacji — nowe trafienia w `Analizy/Release.md` są częścią niniejszego dziennika audytu, nie aktywnymi zależnościami aplikacji.
