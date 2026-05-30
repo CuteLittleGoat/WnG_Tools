@@ -1,5 +1,9 @@
 # Infoczytnik — dokumentacja techniczna (odtworzenie 1:1)
 
+## Zakres komunikacji wersji Release
+
+Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. DataSlate nadal używa Firestore do komunikacji panel GM → ekran gracza przez dokument `dataslate/current`. Zwykły ping i audio DataSlate pozostają częścią komunikacji Firestore oraz lokalnych assetów modułu, a nie Web Push.
+
 ## 1. Zakres modułu
 Moduł DataSlate składa się z dwóch ekranów roboczych:
 - `GM_test.html` — panel przygotowania i publikacji komunikatów.

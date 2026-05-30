@@ -5,6 +5,8 @@
 ### Do czego służy moduł
 **DataSlate** wyświetla graczom komunikaty fabularne na osobnym ekranie. Prowadzący steruje treścią, stylem, dźwiękiem i efektami z panelu GM.
 
+Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. Komunikaty GM → ekran gracza, zwykły ping oraz audio DataSlate pozostają częścią komunikacji Firestore i lokalnych assetów modułu.
+
 ### Co otworzyć podczas sesji
 1. Ekran graczy: `DataSlate/Infoczytnik_test.html`.
 2. Ekran prowadzącego: `DataSlate/GM_test.html`.
@@ -92,6 +94,8 @@ Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYK�
 
 ### What this module is for
 **DataSlate** shows narrative messages to players on a dedicated display. The GM controls text, style, sound, and effects from a separate panel.
+
+The Release version does not include Web Push and does not require push-notification configuration. GM → player screen messages, standard ping and DataSlate audio remain part of Firestore communication and local module assets.
 
 ### What to open during play
 1. Player screen: `DataSlate/Infoczytnik_test.html`.
