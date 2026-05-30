@@ -8,6 +8,8 @@ Utwórz własny projekt Firebase i bazę Firestore dla grupy. Skopiuj dane z Fir
 
 Firestore DataSlate zachowuje komunikację panel GM → ekran gracza przez dokument `dataslate/current`.
 
+Wersja Release nie zawiera Web Push i nie wymaga żadnej dodatkowej konfiguracji powiadomień push. Zwykły ping i audio DataSlate są obsługiwane przez komunikację Firestore oraz lokalne assety modułu, a nie przez Web Push.
+
 ## 2) Struktura Firestore (drzewko + typy)
 ```text
 dataslate (kolekcja)
@@ -81,6 +83,8 @@ This file provides a full Node.js script to create `dataslate/current` with the 
 Create your own Firebase project and Firestore database for the group. Copy Firebase Web config values and replace the English placeholders in `DataSlate/config/firebase-config.js` as `window.firebaseConfig`. Do not store passwords, tokens, or service-account files in the repository.
 
 DataSlate Firestore preserves GM panel → player screen communication through the `dataslate/current` document.
+
+The Release version does not include Web Push and does not require any additional push-notification configuration. Standard DataSlate ping and audio are handled through Firestore communication and local module assets, not Web Push.
 
 ## 2) Firestore structure (tree + types)
 ```text

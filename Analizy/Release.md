@@ -1901,3 +1901,349 @@ Zmieniono tytuły kart przeglądarki w publicznej stronie głównej, stronie wej
 
 - Zmiana dotyczy wyłącznie tytułów kart przeglądarki. Nie zmieniano tekstów alternatywnych logo ani innych elementów brandingu, ponieważ nie należały do wskazanego zakresu.
 - Pozostałe tytuły kart innych modułów mogą zostać ujednolicone w osobnym zadaniu, jeżeli właściciel wybierze dla nich docelowe brzmienie.
+
+## Aktualizacja — 2026-05-30 — etap 4 Release: całkowite usunięcie Web Push
+
+### Oryginalny pełny prompt użytkownika
+
+> Uwaga redakcyjna dziennika: wiadomość użytkownika zawierała dwa identyczne wystąpienia poniższego promptu. Aby nie duplikować wielokrotnie tej samej treści w append-only dzienniku, zachowano pełną treść jednego wystąpienia i odnotowano, że drugie wystąpienie było jego dokładnym powtórzeniem.
+
+```text
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj czwarty etap prac Release: całkowite usunięcie Web Push z wersji Release bez naruszenia komunikacji Firestore DataSlate GM -> ekran gracza.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj aktualne pliki:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie usuwaj starszych sekcji z `Analizy/Release.md`.
+- Po zakończeniu prac dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami z `AGENTS.md`.
+- Nie usuwaj integracji Firebase.
+- Nie usuwaj ani nie psuj komunikacji Firestore DataSlate GM -> ekran gracza.
+- Nie usuwaj funkcji `Send`, `Ping`, `Clear message`, `Restore defaults` ani mechanizmu zapisu do dokumentu Firestore `dataslate/current`, o ile są częścią komunikacji DataSlate, a nie Web Push.
+- Nie zmieniaj placeholderów Firebase, chyba że znajdziesz bezpośredni błąd powiązany z Web Push.
+- Nie dodawaj neutralnych makiet XLSX.
+- Nie tłumacz generowanych wyników `NameGenerator`.
+- Nie usuwaj jeszcze starych plików testowych i backupowych DataSlate; one są przeznaczone do późniejszego etapu czyszczenia plików.
+- Nie wykonuj zmian niezwiązanych z usunięciem Web Push.
+- Nie commituj zmian, chyba że środowisko Codex wymaga tego jako sposobu oddania wyniku. Jeżeli commit jest wymagany, zrób jeden logiczny commit.
+
+CEL ETAPU:
+W publicznej wersji Release nie ma być funkcjonalności Web Push, konfiguracji Web Push, placeholderów Web Push, instrukcji Web Push, endpointów Web Push, kluczy VAPID, backendu Web Push ani UI sugerującego obsługę powiadomień push.
+
+Jednocześnie DataSlate ma nadal działać jako narzędzie, w którym:
+- panel GM zapisuje wiadomości do Firestore;
+- ekran gracza odczytuje wiadomości z Firestore;
+- ping DataSlate przez Firestore nadal działa, jeżeli jest częścią obecnego modelu DataSlate;
+- audio i lokalne assety DataSlate pozostają.
+
+ROZRÓŻNIENIE:
+- Web Push = subskrypcje push, VAPID, Notification API, PushManager, service worker używany do powiadomień, endpointy `/api/push/subscribe`, `/api/push/trigger`, konfiguracje `web-push-config`.
+- Firestore DataSlate = normalna komunikacja GM -> ekran gracza przez Firebase/Firestore. Tego nie wolno usuwać.
+- Przycisk `Ping` w DataSlate nie jest automatycznie Web Push. Jeżeli zapisuje typ `ping` do Firestore i służy ekranowi gracza/audio, zostaw go.
+
+ZAKRES PRAC
+
+1. Inwentaryzacja Web Push
+
+Wyszukaj w całym repozytorium wystąpienia związane z Web Push, w szczególności:
+
+- `web-push`
+- `webPush`
+- `Web Push`
+- `infWebPushConfig`
+- `vapid`
+- `VAPID`
+- `subscribeEndpoint`
+- `triggerEndpoint`
+- `PushManager`
+- `Notification`
+- `serviceWorker`
+- `service-worker`
+- `navigator.serviceWorker`
+- `push/subscribe`
+- `push/trigger`
+- `firebase-messaging`
+- `messaging`
+- `getToken`
+- `onMessage`
+- `wrathandglory-push-api`
+- `tarczynski-pawel.workers.dev`
+
+Nie przepisuj prawdziwych kluczy, endpointów ani URL-i do odpowiedzi ani do `Analizy/Release.md`. Opisuj je ogólnie, np. „usunięto aktywny endpoint Web Push”.
+
+2. Usuń konfiguracje Web Push
+
+Usuń z wersji Release pliki konfiguracyjne Web Push, jeżeli służą wyłącznie tej funkcji, w szczególności:
+
+- `DataSlate/config/web-push-config.js`
+- `DataSlate/config/web-push-config.production.example.js`
+
+Jeżeli znajdziesz inne pliki konfiguracyjne Web Push, usuń je albo opisz, dlaczego muszą zostać.
+
+Nie zastępuj Web Push placeholderami. Decyzja właściciela: Web Push nie jest funkcją opcjonalną Release, tylko funkcją do usunięcia.
+
+3. Usuń odwołania skryptowe i importy
+
+Usuń z HTML/JS wszystkie odwołania do plików Web Push, np.:
+
+- `<script src="config/web-push-config.js"></script>`
+- importy lub referencje do `web-push-config`
+- inicjalizacje `window.infWebPushConfig`
+- użycie `subscribeEndpoint`
+- użycie `triggerEndpoint`
+- użycie VAPID key.
+
+Po usunięciu upewnij się, że nie zostają martwe zmienne, martwe funkcje, niedostępne skrypty ani błędy referencji.
+
+4. Usuń logikę Web Push
+
+Usuń logikę dotyczącą:
+
+- proszenia o zgodę na powiadomienia przeglądarkowe;
+- rejestracji subskrypcji push;
+- wysyłania subskrypcji do backendu;
+- triggerowania powiadomienia push po wysłaniu wiadomości przez GM;
+- obsługi klucza VAPID;
+- obsługi endpointów Web Push;
+- service workera używanego wyłącznie do push;
+- komunikatów statusu dotyczących push;
+- UI dotyczącego aktywacji lub konfiguracji powiadomień push.
+
+Jeżeli service worker albo plik zawierający `serviceWorker` służy także do czegoś innego niż Web Push, nie usuwaj go automatycznie. Usuń tylko część związaną z Web Push i opisz decyzję w `Analizy/Release.md`.
+
+5. Usuń UI Web Push
+
+Usuń albo zmień elementy interfejsu, które odnoszą się wyłącznie do Web Push, np.:
+
+- przyciski typu „Enable push notifications”;
+- checkboxy lub statusy Web Push;
+- komunikaty o zgodzie na powiadomienia;
+- instrukcje aktywacji powiadomień push;
+- sekcje panelu GM służące wyłącznie push.
+
+Nie usuwaj przycisku `Ping`, jeżeli działa przez Firestore i jest częścią normalnej komunikacji DataSlate.
+
+6. Dokumentacja
+
+Zaktualizuj dokumentację tylko w zakresie usunięcia Web Push.
+
+Sprawdź i popraw w szczególności:
+
+- `DataSlate/config/FirebaseREADME.md`
+- `DataSlate/docs/README.md`
+- `DataSlate/docs/Documentation.md`
+- inne dokumentacje, jeżeli zawierają Web Push jako funkcję Release;
+- `README.md`, jeżeli zawiera informację o Web Push;
+- `DetaleLayout.md`, jeżeli zawiera instrukcje lub opisy dotyczące Web Push.
+
+Dokumentacja po zmianie ma mówić, że:
+- Release nie zawiera Web Push;
+- konfiguracja Web Push nie jest wymagana;
+- DataSlate nadal używa Firestore do komunikacji GM -> ekran gracza;
+- zwykły ping/audio DataSlate, jeżeli istnieje, nie jest Web Push.
+
+Nie dodawaj instrukcji konfiguracji Web Push.
+Nie zostawiaj placeholderów Web Push.
+Nie zostawiaj informacji sugerujących, że użytkownik może opcjonalnie uruchomić Web Push w publicznym Release.
+
+7. Testy po zmianach
+
+Po zakończeniu zmian wykonaj statyczne testy:
+
+- `git status --short`;
+- wyszukiwanie `web-push`;
+- wyszukiwanie `webPush`;
+- wyszukiwanie `Web Push`;
+- wyszukiwanie `infWebPushConfig`;
+- wyszukiwanie `vapid`;
+- wyszukiwanie `VAPID`;
+- wyszukiwanie `subscribeEndpoint`;
+- wyszukiwanie `triggerEndpoint`;
+- wyszukiwanie `PushManager`;
+- wyszukiwanie `Notification`;
+- wyszukiwanie `navigator.serviceWorker`;
+- wyszukiwanie `push/subscribe`;
+- wyszukiwanie `push/trigger`;
+- wyszukiwanie `wrathandglory-push-api`;
+- wyszukiwanie `tarczynski-pawel.workers.dev`;
+- `git diff --check`.
+
+Dla każdego pozostałego wystąpienia oceń i zapisz, czy:
+- jest błędem i trzeba je usunąć;
+- jest historycznym wpisem w `Analizy/Release.md`, którego nie wolno usuwać;
+- jest ogólną wzmianką w `AGENTS.md`, którego nie wolno modyfikować;
+- jest neutralnym, historycznym lub ostrzegawczym opisem, który powinien zostać;
+- jest częścią innej funkcji niezwiązanej z Web Push.
+
+Sprawdź, czy podstawowe strony nadal istnieją i dają się pobrać przez lokalny HTTP, jeżeli środowisko pozwala:
+
+- `Main/index.html`
+- `Audio/index.html`
+- `DataVault/index.html`
+- `DiceRoller/index.html`
+- `NPCGenerator/index.html`
+- `NameGenerator/index.html`
+- `DataSlate/index.html`
+- `DataSlate/GM.html`
+- `DataSlate/DataSlate.html`
+- `Calculators/index.html`
+- `Calculators/XPCalculator.html`
+- `Calculators/CharacterCreation.html`
+
+Jeżeli środowisko pozwala, wykonaj statyczne sprawdzenie składni JS:
+
+- `node --check DataVault/app.js`
+- `node --check DiceRoller/script.js`
+- `node --check NameGenerator/script.js`
+
+Jeżeli zmieniasz jakikolwiek osobny plik JS związany z DataSlate, sprawdź go również przez `node --check`, o ile jest to możliwe dla tego typu pliku.
+
+8. Kontrola DataSlate po usunięciu Web Push
+
+Po zmianach upewnij się statycznie, że:
+
+- `DataSlate/GM.html` nadal ładuje `config/firebase-config.js`;
+- `DataSlate/GM.html` nadal ładuje Firebase App i Firestore;
+- `DataSlate/GM.html` nadal zapisuje dane do Firestore;
+- `DataSlate/DataSlate.html` nadal ładuje `config/firebase-config.js`;
+- `DataSlate/DataSlate.html` nadal odczytuje dane z Firestore;
+- dokument albo ścieżka `dataslate/current` nadal występuje tam, gdzie była częścią komunikacji DataSlate;
+- funkcje wysyłania wiadomości i ping przez Firestore nie zostały usunięte.
+
+Nie musisz wykonywać pełnego testu integracyjnego z prawdziwym Firebase, ponieważ konfiguracje są placeholderami. Opisz w `Analizy/Release.md`, że test integracyjny wymaga własnego projektu Firebase.
+
+9. Aktualizacja `Analizy/Release.md`
+
+Na końcu dopisz do `Analizy/Release.md` nową sekcję.
+
+Sekcja musi zawierać:
+
+- datę;
+- pełny oryginalny prompt użytkownika;
+- zakres prac;
+- listę usuniętych plików Web Push;
+- listę plików, w których usunięto odwołania Web Push;
+- listę dokumentacji zaktualizowanej w zakresie usunięcia Web Push;
+- opis usuniętych typów wartości prywatnych bez podawania samych wartości;
+- informację, że nie dodano placeholderów Web Push;
+- informację, że Web Push nie jest funkcją opcjonalną Release;
+- informację, że integracja Firebase pozostała;
+- informację, że Firestore DataSlate GM -> ekran gracza nie został naruszony;
+- informację, że nie dodawano makiet XLSX;
+- informację, że nie usuwano jeszcze starych plików testowych i backupowych DataSlate;
+- wyniki testów;
+- pozostałe ryzyka;
+- następne kroki.
+
+W następnych krokach zapisz, że po usunięciu Web Push logicznym kolejnym etapem będzie czyszczenie publicznej paczki z plików testowych, backupowych, `Old`, `Draft` i innych plików roboczych, w tym usunięcie zinwentaryzowanych starych plików DataSlate:
+- `DataSlate/GM_test.html`
+- `DataSlate/Infoczytnik_test.html`
+- `DataSlate/GM_backup.html`
+- `DataSlate/Infoczytnik_backup.html`
+
+10. Wynik końcowy odpowiedzi
+
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+
+- które pliki Web Push usunięto;
+- z których plików usunięto odwołania Web Push;
+- czy zostały jakieś wystąpienia fraz Web Push i dlaczego;
+- czy Firestore DataSlate nadal jest zachowany;
+- czego celowo nie ruszano;
+- czy testy statyczne przeszły;
+- jaki jest proponowany następny krok.
+```
+
+### Zakres prac
+
+- Przeczytano aktualne `AGENTS.md` i `Analizy/Release.md` przed analizą oraz zmianami.
+- Wykonano globalną inwentaryzację fraz i mechanizmów związanych z Web Push, w tym konfiguracji, klucza VAPID, endpointów backendu, subskrypcji, `Notification`, `PushManager`, service workerów i Firebase Messaging.
+- Usunięto artefakty służące wyłącznie Web Push.
+- Sprawdzono produkcyjne pliki `DataSlate/GM.html` i `DataSlate/DataSlate.html`. Nie zawierały one odwołań skryptowych, importów, UI ani aktywnej logiki Web Push wymagającej usunięcia.
+- Zachowano integrację Firebase/Firestore DataSlate oraz lokalne audio i assety.
+- Zaktualizowano dokumentację DataSlate wyłącznie w zakresie decyzji o usunięciu Web Push.
+- Nie zmodyfikowano żadnego pliku `AGENTS.md`.
+
+### Ustalenia i wnioski
+
+- Publiczne produkcyjne ekrany DataSlate komunikują się przez Firestore: panel GM zapisuje payload do `dataslate/current`, a ekran gracza nasłuchuje tego dokumentu przez `onSnapshot`.
+- Funkcja `Ping` nie jest Web Push. Panel GM zapisuje payload typu `ping` do Firestore, a ekran gracza odtwarza lokalny plik audio ping po odebraniu zmiany dokumentu.
+- W produkcyjnych plikach HTML DataSlate nie było aktywnych odwołań do konfiguracji Web Push, backendu push, VAPID, `Notification`, `PushManager` ani service workera push. Nie było zatem martwych importów HTML/JS do usunięcia.
+- Katalog backendu zawierał wyłącznie plik danych subskrypcji Web Push. Po jego usunięciu nie pozostał backend Web Push do publikacji.
+- `Main/index.html` nadal zawiera neutralny mechanizm porządkowy wyrejestrowujący stare service workery. Został zachowany, ponieważ nie rejestruje powiadomień i służy migracyjnemu czyszczeniu starszych rejestracji aplikacji online-only. Powiązana dokumentacja `Main/docs/Documentation.md` pozostaje zgodna z tym zachowaniem.
+- `messagingSenderId` w konfiguracjach Firebase pozostał bez zmian: jest standardowym polem Web SDK Firebase i nie stanowi aktywnej funkcjonalności Web Push.
+
+### Decyzje i wymagania
+
+- Web Push nie jest funkcją opcjonalną wersji Release. Został całkowicie usunięty zamiast zastąpienia wartości placeholderami.
+- Nie dodano żadnych placeholderów Web Push.
+- Integracja Firebase pozostała w repozytorium.
+- Komunikacja Firestore DataSlate panel GM → ekran gracza przez `dataslate/current` nie została naruszona.
+- Zachowano funkcje `Send`, `Ping`, `Clear message`, `Restore defaults`, zapis Firestore oraz odczyt Firestore.
+- Nie dodawano neutralnych makiet XLSX.
+- Nie tłumaczono generowanych wyników `NameGenerator`.
+- Nie usuwano jeszcze starych plików testowych i backupowych DataSlate.
+
+### Zmienione pliki
+
+| Plik | Rodzaj zmiany |
+| --- | --- |
+| `DataSlate/config/web-push-config.js` | usunięto runtime konfigurację Web Push zawierającą klucz publiczny VAPID i aktywne endpointy prywatnej usługi właściciela |
+| `DataSlate/config/web-push-config.production.example.js` | usunięto przykładową konfigurację Web Push, ponieważ Web Push nie jest opcją publicznego Release |
+| `DataSlate/backend/data/subscriptions.json` | usunięto plik danych backendu przeznaczony wyłącznie dla subskrypcji Web Push |
+| `DataSlate/config/FirebaseREADME.md` | dopisano informację PL/EN, że Release nie zawiera Web Push, nie wymaga konfiguracji push, a ping/audio pozostają funkcjami Firestore i lokalnych assetów |
+| `DataSlate/docs/README.md` | dopisano informację użytkową PL/EN o braku Web Push i zachowaniu komunikacji Firestore, ping oraz audio |
+| `DataSlate/docs/Documentation.md` | dopisano techniczne wyjaśnienie zakresu komunikacji Release |
+| `Analizy/Release.md` | dopisano niniejszą append-only sekcję etapu 4 |
+
+### Usunięte typy wartości prywatnych
+
+- Usunięto publiczny klucz VAPID zapisany w konfiguracji Web Push.
+- Usunięto aktywne endpointy prywatnej usługi backendowej Web Push właściciela.
+- Usunięto plik danych subskrypcji przeznaczony wyłącznie dla backendu Web Push.
+- Zgodnie z wymaganiem bezpieczeństwa nie zapisano w tej sekcji samych wartości klucza, endpointów ani prywatnych URL-i.
+
+### Szczegóły zmian w kodzie
+
+- Nie zmieniano kodu `DataSlate/GM.html`: produkcyjny panel GM już nie ładował konfiguracji Web Push ani nie triggerował backendu push. Nadal ładuje `config/firebase-config.js`, Firebase App i Firestore; nadal zapisuje wiadomości oraz ping do `dataslate/current`.
+- Nie zmieniano kodu `DataSlate/DataSlate.html`: produkcyjny ekran gracza już nie subskrybował Web Push. Nadal ładuje `config/firebase-config.js`, Firebase App i Firestore; nadal nasłuchuje `dataslate/current`, czyści komunikat dla typu `clear`, odtwarza lokalny ping dla typu `ping` i audio wiadomości dla typu `message`.
+- Nie zmieniano placeholderów Firebase.
+- Nie zmieniano `Main/index.html`: zachowano niezależny mechanizm czyszczenia starych service workerów, ponieważ nie publikuje on ani nie aktywuje Web Push.
+
+### Ocena pozostałych wystąpień fraz
+
+- `Analizy/Release.md` zawiera historyczne wpisy, wcześniejsze analizy, decyzje i niniejszą dokumentację etapu. Zgodnie z regułą append-only nie wolno ich usuwać.
+- `AGENTS.md` zawiera ogólne wymagania Release dotyczące usunięcia Web Push. Pliku nie wolno modyfikować.
+- `DataSlate/config/FirebaseREADME.md`, `DataSlate/docs/README.md` i `DataSlate/docs/Documentation.md` zawierają neutralne, ostrzegawcze informacje, że Release nie zawiera Web Push i że zwykły ping/audio nie są Web Push. Te wzmianki powinny pozostać.
+- `DetaleLayout.md` zawiera historyczny opis wcześniejszego dodania i późniejszego usunięcia CTA powiadomień w Main. Nie jest instrukcją uruchomienia Web Push ani aktywną konfiguracją; zachowano go jako historyczny dziennik layoutu.
+- `Main/index.html` i `Main/docs/Documentation.md` zawierają neutralne czyszczenie starszych rejestracji service workerów dla aplikacji online-only. Nie jest to rejestracja ani obsługa Web Push.
+- Pola `messagingSenderId` w konfiguracjach Firebase są standardową częścią neutralnych placeholderów Firebase Web SDK i nie są aktywną obsługą Web Push.
+- Trafienia `Notification` w komentarzach slotu ikony powiadomienia DataVault/NPCGenerator oraz fragmenty nazw typu `validationMessages` nie są funkcjonalnością Web Push.
+- Poza powyższymi kategoriami nie pozostały aktywne konfiguracje, klucze VAPID, endpointy, backend, subskrypcje, importy ani UI Web Push.
+
+### Testy
+
+- `git status --short` — wykonano przed zmianami i po zmianach; przed zmianami drzewo było czyste, po zmianach widoczne są wyłącznie celowe usunięcia, aktualizacje dokumentacji oraz niniejsza aktualizacja dziennika.
+- Wykonano osobne wyszukiwania `rg -n -F` dla: `web-push`, `webPush`, `Web Push`, `infWebPushConfig`, `vapid`, `VAPID`, `subscribeEndpoint`, `triggerEndpoint`, `PushManager`, `Notification`, `navigator.serviceWorker`, `push/subscribe`, `push/trigger`, `wrathandglory-push-api`, `tarczynski-pawel.workers.dev` — aktywne wartości Web Push usunięto; pozostałe wyniki sklasyfikowano powyżej.
+- `rg -n -i 'serviceWorker|service-worker|firebase-messaging|messaging|getToken|onMessage' --glob '!AGENTS.md' --glob '!Analizy/Release.md' .` — sprawdzono dodatkowe frazy; pozostały neutralne placeholdery Firebase `messagingSenderId` oraz mechanizm czyszczenia dawnych service workerów Main.
+- Skrypt statycznych asercji Python dla `DataSlate/GM.html` i `DataSlate/DataSlate.html` — zaliczony: potwierdzono konfigurację Firebase, Firebase App, Firestore, `dataslate/current`, zapis wiadomości, zapis ping, `send`, `ping`, `restoreDefaults`, `onSnapshot`, obsługę `ping` i obsługę `clear`.
+- `node --check DataVault/app.js` — zaliczony.
+- `node --check DiceRoller/script.js` — zaliczony.
+- `node --check NameGenerator/script.js` — zaliczony.
+- `python3 -m http.server 8765` oraz skrypt Python pobierający strony — zaliczony: HTTP 200 dla wszystkich 12 wymaganych stron wejściowych: `Main/index.html`, `Audio/index.html`, `DataVault/index.html`, `DiceRoller/index.html`, `NPCGenerator/index.html`, `NameGenerator/index.html`, `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `Calculators/index.html`, `Calculators/XPCalculator.html`, `Calculators/CharacterCreation.html`.
+- `git diff --check` — zaliczony: brak błędów whitespace.
+- Nie wykonano pełnego testu integracyjnego z prawdziwym Firestore, ponieważ wersja Release celowo zawiera placeholdery Firebase. Test integracyjny wymaga własnego projektu Firebase grupy.
+
+### Ryzyka i następne kroki
+
+1. Po wpisaniu własnej konfiguracji Firebase należy wykonać ręczny test integracyjny dwóch ekranów: wysłanie wiadomości GM → ekran gracza, `Ping`, `Clear message`, `Restore defaults`, audio wiadomości oraz lokalne assety.
+2. Logiczny kolejny etap to czyszczenie publicznej paczki z plików testowych, backupowych, `Old`, `Draft` i innych plików roboczych.
+3. W kolejnym etapie należy usunąć zinwentaryzowane stare pliki DataSlate:
+   - `DataSlate/GM_test.html`;
+   - `DataSlate/Infoczytnik_test.html`;
+   - `DataSlate/GM_backup.html`;
+   - `DataSlate/Infoczytnik_backup.html`.
+4. Neutralne makiety XLSX nadal pozostają osobnym późniejszym etapem.
