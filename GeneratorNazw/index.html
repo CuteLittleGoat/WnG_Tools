@@ -1,0 +1,65 @@
+<!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
+<!doctype html>
+<html lang="pl">
+  <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Generator Nazw</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <!-- Główna sekcja widoczna dla użytkownika / Main section visible to the user -->
+<body>
+    <!-- Główna zawartość modułu / Main module content -->
+<main class="wrap">
+      <!-- Wydzielona sekcja funkcjonalna / Dedicated functional section -->
+<section class="panel">
+        <div class="language-switcher language-switcher--hidden">
+          <!-- MIEJSCE ZMIANY WIDOCZNOŚCI PRZEŁĄCZNIKA JĘZYKA / LANGUAGE SWITCHER VISIBILITY CHANGE POINT: usuń klasę language-switcher--hidden, aby pokazać przełącznik / remove language-switcher--hidden to make the switcher visible -->
+          <!-- PRZEŁĄCZNIK WYBORU JĘZYKA / LANGUAGE SELECTOR -->
+          <select id="languageSelect" aria-label="Wersja językowa">
+            <option value="pl">Polski</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="cat" id="labelCategory">Kategoria</label>
+            <select id="cat"></select>
+          </div>
+          <div class="field">
+            <label for="opt" id="labelOption">Opcja</label>
+            <select id="opt"></select>
+          </div>
+          <div class="field">
+            <label for="seed" id="labelSeed">Seed</label>
+            <input id="seed" placeholder="wpis cokolwiek" />
+          </div>
+          <div class="field">
+            <label for="count" id="labelCount">Ile</label>
+            <input id="count" type="number" min="1" max="20" value="10" />
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn" id="gen" type="button">Generuj</button>
+          <button class="btn" id="copy" type="button">Kopiuj wynik</button>
+          <span class="pill" id="modePill">Losowo: TAK</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="panel output">
+          <div class="results" id="res">Wybierz kategorię i kliknij „Generuj”.</div>
+        </div>
+
+        <p class="hint" id="seedHint">
+          Seed = te same ustawienia → te same wyniki. Brak seeda = prawdziwie losowe.
+        </p>
+      </section>
+    </main>
+
+    <!-- Skrypt odpowiedzialny za interakcję strony / Script responsible for page interactions -->
+<script src="script.js"></script>
+  </body>
+</html>
