@@ -24,7 +24,7 @@ Moduł **Main** to ekran startowy całego pakietu Wrath & Glory. Z tego miejsca 
 - **Generator NPC** (admin) – uruchamia generator kart NPC.
 - **Audio** (admin) – uruchamia moduł dźwięków.
 - **Obrazki** – otwiera zewnętrzny link do kanału obrazków.
-- **Mapa** – otwiera zewnętrzny link do mapy.
+- **VTT** – otwiera zewnętrzny link do VTT.
 - **Kalkulator** – otwiera moduł kalkulatora.
 - **Rzut kośćmi** – otwiera DiceRoller.
 
@@ -35,27 +35,27 @@ Moduł **Main** to ekran startowy całego pakietu Wrath & Glory. Z tego miejsca 
 4. Korzystaj z przycisków modułów, aby przejść do odpowiednich narzędzi.
 
 ### Wskazówki
-- **Mapa** i **Obrazki** otwierają się w nowej karcie.
+- **VTT** i **Obrazki** otwierają się w nowej karcie.
 - Pozostałe moduły działają jak zwykłe przejścia w ramach aplikacji.
 - Gdy potrzebujesz opcji administracyjnych, zawsze sprawdź, czy adres kończy się na `?admin=1`.
 
 ---
 
 ### Ważne przy kopiowaniu modułu Main na inny serwer
-Jeżeli kopiujesz aplikację dla innej grupy lub na inną domenę/serwer, **musisz zaktualizować linki zewnętrzne** używane przez przyciski **Mapa** i **Obrazki**.
+Jeżeli kopiujesz aplikację dla innej grupy lub na inną domenę/serwer, **musisz zaktualizować linki zewnętrzne** używane przez przyciski **VTT** i **Obrazki**.
 
 Kroki:
 1. Otwórz plik `Main/ZmienneHiperlacza.md`.
-2. Zastąp angielskie placeholdery `INSERT_YOUR_MAP_LINK` i `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` własnymi adresami URL przy kluczach `Map` i `Images`.
+2. Zastąp angielskie placeholdery `INSERT_YOUR_VTT_LINK` i `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` własnymi adresami URL przy kluczach `Map` i `Images`.
 3. Zapisz plik.
-4. Odśwież `Main/index.html` i kliknij **Mapa** oraz **Obrazki**.
+4. Odśwież `Main/index.html` i kliknij **VTT** oraz **Obrazki**.
 5. Sprawdź, czy otwierają właściwe strony dla nowej grupy.
 
 ---
 
 ## Konfiguracja dla wielu grup (oddzielne serwery)
 Przy kopiowaniu modułu **Main** dla nowej grupy:
-- Ustaw własne adresy dla **Mapa** i **Obrazki** w pliku `Main/ZmienneHiperlacza.md`.
+- Ustaw własne adresy dla **VTT** i **Obrazki** w pliku `Main/ZmienneHiperlacza.md`.
 - Sprawdź w `Main/index.html`, czy wszystkie odnośniki do modułów wskazują poprawne lokalizacje na nowym serwerze.
 - Po zmianach odśwież stronę i kliknij każdy przycisk, aby potwierdzić poprawną nawigację.
 
@@ -97,7 +97,7 @@ The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open ot
 - **NPC Generator** (admin) – opens NPC card builder.
 - **Audio** (admin) – opens sound effects module.
 - **Images** – opens external images channel.
-- **Map** – opens external map room.
+- **VTT** – opens external VTT room.
 - **Calculator** – opens calculator module.
 - **DiceRoller** – opens dice module.
 
@@ -108,22 +108,22 @@ The **Main** module is the launcher for the whole Wrath & Glory toolkit. Open ot
 4. Use module buttons to move quickly between tools during the session.
 
 ### Tips
-- **Map** and **Images** open in a new tab.
+- **VTT** and **Images** open in a new tab.
 - Other modules open as standard in-app navigation.
 - For admin-only options, verify URL includes `?admin=1`.
 
 ### Important when copying Main to another server
-If you copy the app for a different group or another domain/server, you **must update external links** used by **Map** and **Images** buttons.
+If you copy the app for a different group or another domain/server, you **must update external links** used by **VTT** and **Images** buttons.
 
 Steps:
 1. Open `Main/ZmienneHiperlacza.md`.
-2. Replace the English `INSERT_YOUR_MAP_LINK` and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` placeholders with your own URLs under the `Map` and `Images` keys.
+2. Replace the English `INSERT_YOUR_VTT_LINK` and `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK` placeholders with your own URLs under the `Map` and `Images` keys.
 3. Save the file.
-4. Refresh `Main/index.html` and click **Map** and **Images**.
+4. Refresh `Main/index.html` and click **VTT** and **Images**.
 5. Confirm they open correct destinations for the new group.
 ## Multi-group setup (separate servers)
 When copying the **Main** module for a new group:
-- Set group-specific **Map** and **Images** URLs in `Main/ZmienneHiperlacza.md`.
+- Set group-specific **VTT** and **Images** URLs in `Main/ZmienneHiperlacza.md`.
 - Verify in `Main/index.html` that all module links point to valid locations on the new server.
 - Refresh the page and click every button to confirm navigation works correctly.
 
