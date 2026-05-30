@@ -38,6 +38,10 @@ const translations = {
   pl: {
     labels: {
       pageTitle: "ADMINISTRATUM DATA VAULT",
+      accessTitle: "Dostęp do danych z klauzulą tajności K.O.Z.A.",
+      accessDescription: "Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.",
+      accessPasswordLabel: "Litania Dostępu",
+      accessUnlockButton: "Rozpocznij Rytuał",
       updateDataButton: "Generuj pliki danych",
       updateNoteFull: "Kliknij, aby wybrać lokalny plik <code>Repozytorium.xlsx</code>. Aplikacja wygeneruje <code>data.json</code> jako backup oraz <code>firebase-import.json</code> — tylko ten drugi plik importuj do Firebase Realtime Database.",
       mainPageButton: "Strona Główna",
@@ -104,6 +108,10 @@ const translations = {
   en: {
     labels: {
       pageTitle: "ADMINISTRATUM DATA VAULT",
+      accessTitle: "Access to K.O.Z.A. classified data",
+      accessDescription: "The data is sealed by Machine Spirit protocols. Enter the Access Litany to begin the Rite of Authentication.",
+      accessPasswordLabel: "Access Litany",
+      accessUnlockButton: "Begin Rite",
       updateDataButton: "Generate data files",
       updateNoteFull: "Click to choose a local <code>Repozytorium.xlsx</code> file. The app will generate <code>data.json</code> as a backup and <code>firebase-import.json</code> — import only the second file into Firebase Realtime Database.",
       mainPageButton: "Main Page",
