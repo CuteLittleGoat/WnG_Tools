@@ -1,3 +1,28 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`DataVault` is a browser data repository. `index.html`, `style.css`, and `app.js` render searchable and filterable records. Runtime data is obtained through the shared Firebase data loader from the administrator-configured database. The spreadsheet parser and Python helper preserve the canonical import shape.
+
+## 2. Files and dependencies
+- `index.html` defines the access gate and repository workspace.
+- `style.css` defines the dark Administratum visual system, table layout, state styling, and responsive behavior.
+- `app.js` controls authentication state, data loading, filters, tables, detail views, localization, and navigation.
+- `xlsxCanonicalParser.js` converts XLSX XML structures into the canonical browser-side data format.
+- `build_json.py` is the Python generation helper for compatible JSON artifacts.
+- `docs/ZasadyFormatowania.md` describes source formatting conventions.
+- `../shared/firebase-data-loader.js` and `../shared/firebase-config.js` provide shared configured runtime access.
+
+## 3. Interface and data flow
+The public gate starts in English and can switch to Polish. After successful authentication against the administrator’s own Firebase project, the loader retrieves the configured DataVault dataset. The workspace exposes category navigation, filters, search, tables, record details, formatting helpers, and readable empty/error states. Public placeholders alone cannot authenticate or load private records.
+
+## 4. Canonical data maintenance
+Keep spreadsheet parsing, generated JSON structure, and fallback behavior compatible with consumers such as `NPCGenerator`. Do not simplify parser behavior without validating the output shape. Repository secrets, passwords, tokens, and service-account files must never be committed.
+
+## 5. Rebuild checklist
+Restore all frontend files, parser scripts, shared Firebase loader/config templates, and formatting documentation. Configure a separate Firebase project, prepare neutral compatible data, compare parser outputs, verify gate EN → PL → EN switching, login errors, categories, search, filters, details, empty states, and dependent-module compatibility.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Administratum Data Vault — dokumentacja techniczna (super dokładna)
 
 Dokument opisuje **mechanizmy aplikacji i wygląd 1:1**, tak aby ktoś mógł odtworzyć identyczne zachowanie w innej implementacji. Aplikacja to frontend (HTML/CSS/JS) pracujący na danych runtime pobieranych z Firebase Realtime Database (`/datavault/live`) przez wspólny loader `shared/firebase-data-loader.js`, z kanonicznym generowaniem plików importowych po stronie przeglądarki (parser XML XLSX).
@@ -7,7 +32,7 @@ Dokument opisuje **mechanizmy aplikacji i wygląd 1:1**, tak aby ktoś mógł od
 Moduł DataVault korzysta z prywatnego runtime Firebase RTDB `/datavault/live`. Lokalny `data.json` pełni rolę backupu i artefaktu pomocniczego, natomiast do Firebase importowany jest `firebase-import.json` wygenerowany z lokalnego pliku `Repozytorium.xlsx`.
 
 ---
-Bieżąca logika zakładek: zakładka `Kary do ST` została dopisana do zbioru zakładek zasad walki (`COMBAT_RULES_SHEETS`), dzięki czemu jest ukrywana/pokazywana przez checkbox `#toggleCombatTabs` i dziedziczy czerwony styl `.tab--combat` zarówno w trybie admina, jak i użytkownika.
+Zakładka `Kary do ST` należy do zbioru zakładek zasad walki (`COMBAT_RULES_SHEETS`), dzięki czemu jest ukrywana/pokazywana przez checkbox `#toggleCombatTabs` i dziedziczy czerwony styl `.tab--combat` zarówno w trybie admina, jak i użytkownika.
 
 ---
 Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
@@ -62,7 +87,6 @@ Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
 
 ### 2.1 Nagłówek i akcje
 
-- Dodano przycisk `#btnMainPage` (klasy: `.btn.secondary`) z etykietą tłumaczoną przez i18n (`mainPageButton`) i nawigacją do `../Main/index.html`.
 - Logika JS ukrywa `#btnMainPage` wyłącznie w trybie admina (`ADMIN_MODE === true`).
 - Główny kontener aplikacji: `.app` (flex kolumnowy).
 - Górny pasek: `.topbar`.
@@ -136,7 +160,6 @@ Efekty i obwódki:
 -- `--div: rgba(22,198,12,.18)`
 -- `--hbg: rgba(22,198,12,.06)`
 - `--zebra-odd: rgba(22,198,12,.02)` (ciemniejszy pas dla wierszy nieparzystych)
-- `--zebra-even: rgba(22,198,12,.12)` (jaśniejszy pas dla wierszy parzystych; odpowiada wcześniejszemu kolorowi hover)
 - `--hover: rgba(22,198,12,.16)` (podświetlenie po najechaniu kursorem; takie samo jak zaznaczenie)
 - `--row-selected: rgba(22,198,12,.16)` (podświetlenie zaznaczonego wiersza)
 -- `--glow: 0 0 25px rgba(22, 198, 12, 0.45)`
@@ -651,7 +674,7 @@ Mapowanie na `getElementById`:
   - wiersz 1: nazwy kolumn + `sortMark`.
   - wiersz 2: `input` filtrów + przycisk `▾` (filtr listowy).
 - Dodaje kolumnę checkboxów `✓` na początku.
-- Komórka filtra dla kolumny `✓` ma klasę `noFilterCell` i pozostaje pusta (usunięto napis „filtr...”, bo brak logiki filtrowania dla tej kolumny).
+- Komórka filtra dla kolumny `✓` ma klasę `noFilterCell` i pozostaje pusta, ponieważ ta kolumna nie ma logiki filtrowania.
 - Tooltip przycisku filtru listowego to „Filtr listy”.
 - Po zbudowaniu nagłówka uruchamiane jest `updateFilterIndicators()`, które synchronizuje klasy aktywnego filtra z aktualnym stanem `view`.
 
@@ -861,7 +884,7 @@ Obsługuje trzy przypadki:
 
 ### 14.1 Pipeline danych (Python + parser kanoniczny JS)
 - `build_json.py`
-  - `_wrap_with_markers()` obsługuje teraz czwarty marker: `S`.
+  - `_wrap_with_markers()` obsługuje czwarty marker: `S`.
   - `_rich_text_to_string()` mapuje `<strike/>` z `rPr` na `{{S}}...{{/S}}`.
 - `xlsxCanonicalParser.js`
   - `wrapWithMarkers()` obsługuje `strike`.
@@ -869,7 +892,7 @@ Obsługuje trzy przypadki:
 - Obie ścieżki (CLI i parser kanoniczny) używają identycznego porządku markerów, więc wygenerowany `data.json` pozostaje spójny semantycznie.
 
 ### 14.2 Parser/renderer UI
-- `stripMarkers(s)` usuwa teraz także `{{S}}`.
+- `stripMarkers(s)` usuwa także `{{S}}`.
 - `parseInlineSegments(raw)` rozpoznaje zestaw markerów: `RED`, `B`, `I`, `S`.
 - `formatInlineHTML(raw)` dodaje klasę `.inline-strike` dla segmentów ze stylem `S`.
 - `htmlToStyleMarkers(html)` mapuje strike z:
@@ -882,7 +905,6 @@ Obsługuje trzy przypadki:
 - `renderRow()` ustawia klasę `row-old` dla rekordów archiwalnych.
 
 ### 14.4 CSS i priorytet kolorów
-- Dodano token `--text-old: #7f9b7f`.
 - `.dataTable tbody tr.row-old` wymusza kolor bazowy archiwalny.
 - `.inline-strike`:
   - `text-decoration: line-through`,
@@ -891,7 +913,6 @@ Obsługuje trzy przypadki:
 - Dla `row-old` doprecyzowano kolory: `.keyword-comma`, `.ref`, `.caretref`, `.slash` dziedziczą kolor archiwalny.
 
 ### 14.5 Reguły kolumn
-- W `Bestiariusz` dodano regułę kolumny `Typ`:
   - `min-width: 14ch`,
   - `text-align: left`.
 ### 14.6 Alias kolumny statusu
@@ -920,7 +941,7 @@ Po uproszczeniu `docs/README.md` (wersja użytkowa) przeniesiono i utrwalono tut
    - Przycisk administracyjny generujący `data.json` zachowuje spójność z kanoniczną logiką parsera/generatora (w tym markerów inline i normalizacji formatowania).
 
 Ta sekcja jest utrzymywana jako techniczne uzupełnienie po odchudzeniu README do instrukcji nietechnicznej.
-## 22) Uzupełnienie audytowe — pełna specyfikacja „ciemne tło / zielone akcenty”
+## 22) Pełna specyfikacja „ciemne tło / zielone akcenty”
 Aby uniknąć opisów skrótowych, poniżej literalne wartości:
 - Tło bazowe: `#031605`.
 - Gradient tła: `rgba(0,255,128,0.06)` + `rgba(0,255,128,0.08)` + `#031605`.
@@ -934,10 +955,10 @@ Aby uniknąć opisów skrótowych, poniżej literalne wartości:
 - Hover i zaznaczenie: `rgba(22,198,12,.16)`.
 - Glow: `0 0 25px rgba(22, 198, 12, 0.45)`; glow nagłówków: `0 0 18px rgba(22, 198, 12, 0.35)`.
 
-## 23) Uzupełnienie audytowe — katalog funkcji krytycznych
+## 23) Katalog funkcji krytycznych
 W `app.js` funkcje kluczowe dla rekonstrukcji 1:1 to m.in.: normalizacja (`norm`, `normaliseDB`), budowa konfiguracji widoku (`createSheetViewState`, `applyDefaultViewForSheet`, `applyFullViewForSheet`), formatowanie inline (`formatInlineHTML`, `formatTextHTML`, `formatKeywordHTML`), render (`buildTableSkeleton`, `renderBody`, `renderRow`), clamp (`measureRenderedLines`, `updateClampableHints`), filtrowanie/sortowanie (`passesFilters`, `sortRows`, `compareByColumn`), parsowanie XLSX (`getCellTextWithMarkers`, `extractSheetRowsWithFormatting`, `buildDataJsonFromSheets`).
 
-## 18) Wymaganie aktualizacji hiperłącza `Strona Główna`
+## 18) Hiperłącze `Strona Główna`
 - `#btnMainPage` jest przyciskiem nawigującym do modułu Main.
 - Po migracji aplikacji do innej lokalizacji należy zweryfikować i w razie potrzeby zaktualizować docelowy adres odnośnika.
 
@@ -955,22 +976,9 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 ## Uwaga krytyczna: domyślne filtry zależne od nazw zakładek (PL)
 
@@ -981,18 +989,6 @@ Przy dodawaniu nowego języka (np. FR/DE) trzeba wykonać **jedną** z dwóch ś
 2. zaktualizować wszystkie zbiory/warunki zależne od nazw zakładek.
 
 Bez tej aktualizacji część domyślnych filtrów, sortowania i formatowania nie zadziała poprawnie.
-
-## Critical note: default filters depend on tab names (EN)
-
-Default-view rules and part of formatting logic rely on `sheetName` values loaded from `data.json` (for example `KEYWORD_SHEETS_COMMA_NEUTRAL`, `ADMIN_ONLY_SHEETS`, `DEFAULT_VIEW_CONFIG`).
-
-When adding a new language (for example FR/DE), you must do **one** of the following:
-1. add alias mapping from localized tab names to current canonical keys, or
-2. update every set/condition that depends on tab names.
-
-Without this update, part of default filters, sorting and formatting will not work correctly.
-
-
 
 ## Runtime data security update
 Generator danych nie pobiera już `Repozytorium.xlsx` przez `fetch`. Zamiast tego używa systemowego okna `input type=file` i czyta lokalny plik przez `arrayBuffer()`. Dzięki temu źródłowy XLSX nie musi istnieć jako publiczny zasób hostingu.
@@ -1006,43 +1002,4 @@ Parser nadal generuje `data.json` oraz wrapper `firebase-import.json` (`schemaVe
 - Service worker must not cache private payloads.
 
 
-## Widoczność przełącznika języka / Language switch visibility
-
-
-## Firebase Auth session lifecycle (DataVault runtime)
-- Loader `shared/firebase-data-loader.js` utrzymuje stały listener `onAuthStateChanged` (bez natychmiastowego `unsubscribe`), a bieżący stan sesji trzyma w `currentAuthUser`.
-- `authReadyPromise` służy tylko do potwierdzenia, że pierwszy stan Auth został odczytany; nie jest już jedynym źródłem informacji o użytkowniku.
-- Po `signInWithEmailAndPassword(...)` loader natychmiast aktualizuje `currentAuthUser`, odświeża token (`getIdToken(true)`) i ustawia `authReadyPromise = Promise.resolve(currentAuthUser)`.
-- `loadDataVaultLive()` wykonuje defensywne sprawdzenie `auth.currentUser || currentAuthUser`, dopiero potem odczyt `/datavault/live`.
-- Dodano bezpieczny debug (`debugAuthState`) logujący tylko: `hasAuth`, `hasCurrentUser`, `uid`, `email`.
-- Rozszerzono mapowanie błędów o:
-  - `auth/invalid-api-key`,
-  - `auth/configuration-not-found`,
-  - rozszerzony opis `NOT_AUTHENTICATED` po loginie.
-
-
-## Runtime auth/session
-- DataVault i NPCGenerator korzystają z shared/firebase-data-loader.js oraz tej samej sesji Firebase Auth (browserLocalPersistence).
-- UI nie posiada publicznego przycisku wylogowania; reset dostępu realizuje się przez Firebase Auth (zmiana hasła) lub wyczyszczenie danych strony.
-
-## Named Firebase app for private data
-- Warstwa UI bramki dostępu (`#accessGate`) zawiera slot ikony `.accessGate__iconSlot` o stałym rozmiarze `72px × 72px` oraz obraz `.accessGate__icon` (`object-fit: contain`) z plikiem `../IkonaPowiadomien2.png`.
-- Cel techniczny: eliminacja CLS (layout shift) w karcie logowania zanim obraz ikony zostanie w pełni wyrenderowany.
-- Private loader (`shared/firebase-data-loader.js`) tworzy/odzyskuje wyłącznie nazwaną aplikację `wg-private-data` (wyszukiwanie po `getApps().find(...)`).
-- Usunięto ryzykowny fallback `getApp()` bez nazwy, który mógł wskazać projekt favorites zamiast `wg-private-data`.
-- Debug auth (`debugAuthState`) loguje teraz także `appName`, `projectId`, `databaseURL` (bez hasła i bez payloadu danych), co ułatwia diagnostykę konfliktów projektów Firebase.
-
-
-## Okno dostępu do danych prywatnych (K.O.Z.A.)
-- Warstwa UI (`#accessGate`) używa nowych tekstów PL/EN zgodnie z motywem K.O.Z.A.: tytuł, opis, etykieta hasła i CTA zostały podmienione na warianty „Litanii Dostępu” i „Rytuału Uwierzytelnienia”.
-- Logika komunikatów błędów pochodzi ze wspólnego pliku `shared/firebase-data-loader.js`, więc DataVault i NPCGenerator wyświetlają identyczne, zaktualizowane komunikaty o błędach (walidacja hasła, limity prób, błędy konfiguracji Firebase, brak danych, uszkodzone dane).
-
-
-## Technical update: `build_json.py` (EN)
-The unused `sheet_to_records(ws)` function was removed. The current active record-generation flow in `build_json.py` is based on the minimal XLSX parser (`load_xlsx_minimal(...)`) and conversion through `rows_to_records(...)`, followed by `merge_range(...)` and `merge_traits(...)` transformations.
-
-## 🇵🇱 Układ techniczny bramki hasła (Litania Dostępu)
-Formularz `#accessForm` używa teraz kontenera `.accessGate__credentials` opartego o CSS Grid (2 kolumny). Lewa kolumna zawiera etykietę `.accessGate__label`, prawa kolumna zawiera `#accessPassword` (`.accessGate__password`) i przycisk `.accessGate__submit` w drugim wierszu. W breakpoint `max-width: 640px` układ przechodzi do jednej kolumny z jawną kolejnością wierszy w `shared/access-gate.css` (`.accessGate__label` wiersz 1, `.accessGate__password` wiersz 2, `.accessGate__submit` wiersz 3), co zapobiega nakładaniu etykiety i pola hasła na mobile.
-
-## 🇬🇧 Technical password-gate layout (Litany of Access)
-The `#accessForm` now uses a `.accessGate__credentials` container based on a 2-column CSS Grid. The left column contains `.accessGate__label`, while the right column contains `#accessPassword` (`.accessGate__password`) and `.accessGate__submit` in the second row. At `max-width: 640px`, the layout switches to a single-column flow with explicit row order enforced in `shared/access-gate.css` (`.accessGate__label` row 1, `.accessGate__password` row 2, `.accessGate__submit` row 3), preventing label/input overlap on mobile.
+## Widoczność przełącznika języka

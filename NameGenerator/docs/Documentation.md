@@ -1,3 +1,19 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`NameGenerator` is a static browser generator for names, titles, ships, machines, units, and operation codenames. It has no backend dependency. `index.html` defines the form, `style.css` defines presentation, and `script.js` contains dictionaries, seeded randomness, generators, rendering, clipboard handling, and localization.
+
+## 2. Interface and language behavior
+The interface starts in English and the visible selector can switch the UI to Polish. The category selector controls the option selector. The optional seed makes output reproducible, the count field limits the number of results, `Generate` renders values, and `Copy result` sends the rendered output to the clipboard. Generated results intentionally continue to use the existing dictionaries and may retain their present source-language wording.
+
+## 3. JavaScript mechanics
+`script.js` implements hash-based seeded RNG (`xfnv1a`, `mulberry32`, `makeRng`), secure random fallback, weighted selection, boundary cleanup, quality retries, category-specific generator functions, result formatting, and UI translation dictionaries. Preserve category identifiers and dictionary shapes when extending content.
+
+## 4. Styling and reconstruction
+The page uses a dark panel, responsive grid fields, prominent action buttons, a status pill, and a result area. To rebuild it, restore the three files, preserve referenced element IDs, reconnect generator categories and options, and verify random mode, identical output for repeated seeds, count limits, clipboard success/error handling, category updates, and EN → PL → EN switching.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Generator Nazw — dokumentacja techniczna (1:1)
 
 Dokument opisuje **struktury HTML**, **style CSS**, **logikę JS**, oraz dane wejściowe generatora.
@@ -276,24 +292,9 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-
-## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
-- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+## Widoczność przełącznika języka
+- Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.

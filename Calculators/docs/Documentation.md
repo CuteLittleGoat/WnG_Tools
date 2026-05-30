@@ -1,3 +1,27 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`Calculators` is a static browser module for Wrath & Glory character planning. `index.html` is the launcher, `XPCalculator.html` calculates XP costs, and `CharacterCreation.html` provides the character-creation sheet. Character save/load uses Firestore only after an administrator supplies a Firebase project.
+
+## 2. Files and dependencies
+- `index.html` links the two production tools and the bundled PDF instructions.
+- `XPCalculator.html` contains XP inputs, validation, cost tables, the attribute-maximum modal, and the hidden navigation interaction.
+- `CharacterCreation.html` contains the character sheet, translated interface dictionaries, racial maximums, calculations, and save/load controls.
+- `kalkulatorxp.css` provides the shared visual system.
+- `Koza.gif`, `Modal_Icon.png`, and `Skull.png` are interface assets; `HowToUse/en.pdf` and `HowToUse/pl.pdf` are user references.
+- `config/firebase-config.js` is the public Firebase template.
+
+## 3. Interface, calculations, and responsiveness
+The launcher uses large navigation cards. The calculators use dark panels, highlighted values, numeric fields, modal overlays, and responsive wrapping for narrow screens. XP values are derived from the cost dictionaries embedded in the HTML pages. Attribute limits and default speed are selected from the character ancestry/race rules represented by the page data.
+
+## 4. Firebase and configuration
+Firestore is used for complete character persistence across devices. The public file must contain English placeholders such as `INSERT_YOUR_API_KEY`, never passwords or private keys. Without configuration, local calculations remain useful but shared persistence is unavailable.
+
+## 5. Rebuild checklist
+Restore the launcher, both HTML tools, shared CSS, image assets, PDF files, and Firebase template. Verify XP totals, input validation, the maximum-value modal, defaults, save/load behavior with a test Firebase project, the readable missing-config state, responsive layout, and EN → PL → EN switching.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Documentation – szczegółowy opis kodu narzędzi Wrath & Glory
 
 ## 1. Cel i ogólny opis
@@ -242,8 +266,7 @@ Elementy modalu:
 - tabela `#speciesMaxTable`.
 
 Etykieta przycisku jest tłumaczona:
-- PL: „Maksymalne wartości atrybutów”,
-- EN: „Maximum attribute values”.
+- „Maksymalne wartości atrybutów”,
 
 Renderer `renderSpeciesMaxTable()` buduje `thead` i `tbody` dynamicznie dla aktualnego języka. Dane tabeli pochodzą z tablicy `maxAttributeRows` oraz słowników `races` i `maxAttributes` w obiekcie tłumaczeń.
 
@@ -395,7 +418,7 @@ Najważniejsze założenia:
 3. Nie zawiera osobnej informacji o limicie umiejętności = 8 (zgodnie z bieżącą decyzją funkcjonalną).
 4. Nie ustawiono logiki walidacji pól wejściowych ani algorytmu liczenia XP.
 
-### 10.2. Zmiany w HTML (`XPCalculator.html`)
+### 10.2. HTML (`XPCalculator.html`)
 W `div.calcGrid` zawiera nową sekcję:
 - `<section class="calcCard referenceCard">`
 - nagłówek `#maxAttributesTitle`
@@ -404,7 +427,7 @@ W `div.calcGrid` zawiera nową sekcję:
 
 Ta sekcja znajduje się po kartach **Atrybuty** i **Umiejętności**, więc wizualnie trafia dokładnie pod nie.
 
-### 10.3. Zmiany w JS (`XPCalculator.html`)
+### 10.3. JavaScript (`XPCalculator.html`)
 Zawiera nowe struktury danych:
 - `attributeMaximumRows` – 10 rekordów ras (`race_1..race_10`) i tablice 8 wartości (`Attribute_1..Attribute_8`).
 - `attributeKeys` – stabilna lista kluczy `attribute_1..attribute_8` używana do budowy nagłówków kolumn.
@@ -424,14 +447,14 @@ Ustawiono `applyLanguage(lang)`:
 - aktualizuje `#maxAttributesTitle`,
 - wywołuje `renderMaxAttributesTable(lang)` po podmianie etykiet, dzięki czemu tabela referencyjna natychmiast przełącza nazwy PL/EN.
 
-### 10.4. Korekta nazewnictwa
+### 10.4. Nazewnictwo
 Zastosowano korektę copywritingu w sekcji referencyjnej `XPCalculator.html`:
 1. Tytuł sekcji skrócono z:
    - `Maksymalne wartości atrybutów (informacyjne)` → `Maksymalne wartości atrybutów`,
    - `Maximum attribute values (reference)` → `Maximum attribute values`.
-2. Usunięto tłumaczeniowy klucz `labels.raceHeader` i podpis pierwszej kolumny tabeli (`Rasa / Species`), pozostawiając samą listę ras jako wartości wierszy.
+2. Pierwsza kolumna tabeli nie ma podpisu `Rasa / Species`; zawiera listę ras jako wartości wierszy.
 
-### 10.5. Zmiany w CSS (`kalkulatorxp.css`)
+### 10.5. CSS (`kalkulatorxp.css`)
 Dodane klasy:
 - `.referenceCard { grid-column: 1 / -1; }`
   - wymusza pełną szerokość karty referencyjnej pod dwoma kartami wejściowymi.
@@ -470,9 +493,9 @@ Poniżej pełna paleta używana przez trzy strony modułu:
 - `XPCalculator.html`: `clampValue`, `calculateRowCost`, `recalcTable`, `recalcAll`, `renderMaxAttributesTable`, `applyLanguage`.
 - `CharacterCreation.html`: `updateLanguage`, `renderSpeciesMaxTable`, `resetAll`, `recalcXP`, `displayError`, `checkSkillTree`, `attachDefaultOnBlur`, `adjustTalentFontSize`, `toggleSpeciesMaxModal`.
 
-## 13. Firebase i aktualizacja konfiguracji
+## 13. Firebase i konfiguracja
 - W stylach inline sekcji `confirm-modal` ustawiono kontener `.confirm-modal__media` na stałą wysokość `192px` (`height` + `min-height`), aby wymusić rezerwację miejsca na grafikę jeszcze przed pełnym wczytaniem bitmapy.
-- Klasa `.confirm-modal__image` została ustawiona na `height: 192px`, `width: auto`, `max-width: 100%`, `object-fit: contain`; to zachowuje proporcje nowego pliku `Modal_Icon.png` i utrzymuje docelową wysokość zgodną z poprzednią ikoną referencyjną `Modal_Icon_old.png`.
+- Klasa `.confirm-modal__image` ma `height: 192px`, `width: auto`, `max-width: 100%`, `object-fit: contain`; zachowuje proporcje pliku `Modal_Icon.png` i docelową wysokość obrazu.
 - W znaczniku `<img id="confirmModalImage">` zawiera atrybuty `width="1980"` i `height="2048"` (natywny rozmiar nowego pliku) oraz `decoding="async"`, aby przeglądarka mogła uprzednio obliczyć proporcje i utrzymać stabilny layout modala podczas ładowania obrazu.
 
 ## 14. Detale layoutu ekranu startowego
@@ -498,7 +521,7 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
 ## 17. Bootstrap Node.js
@@ -511,7 +534,6 @@ This is the update map for adding another language (for example FR/DE):
 4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
 5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
 
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
 ## 18. Konfiguracja multi-tenant

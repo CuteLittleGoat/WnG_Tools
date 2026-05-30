@@ -1,37 +1,4 @@
-# Generator Nazw — instrukcja użytkownika / User Guide
-
-## 🇵🇱 Instrukcja dla użytkownika (PL)
-
-### Do czego służy moduł
-**Generator Nazw** tworzy gotowe nazwy w klimacie Warhammer 40k (postacie, pojazdy, okręty i inne style zależnie od wybranej kategorii).
-
-### Jak używać
-1. Otwórz `NameGenerator/index.html`.
-2. W polu **Kategoria** wybierz obszar, z którego chcesz nazwy.
-3. W polu **Opcja** doprecyzuj styl, na przykład frakcję albo wariant.
-4. Opcjonalnie w polu **Seed** wpisz własny tekst, jeśli chcesz mieć powtarzalne wyniki.
-5. W polu **Ile** ustaw liczbę propozycji.
-6. Kliknij **Generuj**.
-7. Kliknij **Kopiuj wynik**, aby skopiować listę do schowka.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-
-## Dodawanie nowej wersji językowej (PL)
-
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
-
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
-
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-## 🇬🇧 User instructions (EN)
+# 🇬🇧 User instructions (EN)
 
 The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
@@ -62,4 +29,39 @@ This is the update map for adding another language (for example FR/DE):
 
 Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
+### Interface language and generated results
+The interface starts in English. Use the language selector to switch the interface to Polish. Generated names, titles, and codenames still use the existing dictionaries, so individual results may retain their current source-language wording.
 
+# 🇵🇱 Instrukcja dla użytkownika (PL)
+
+### Do czego służy moduł
+**Generator Nazw** tworzy gotowe nazwy w klimacie Warhammer 40k (postacie, pojazdy, okręty i inne style zależnie od wybranej kategorii).
+
+### Jak używać
+1. Otwórz `NameGenerator/index.html`.
+2. W polu **Kategoria** wybierz obszar, z którego chcesz nazwy.
+3. W polu **Opcja** doprecyzuj styl, na przykład frakcję albo wariant.
+4. Opcjonalnie w polu **Seed** wpisz własny tekst, jeśli chcesz mieć powtarzalne wyniki.
+5. W polu **Ile** ustaw liczbę propozycji.
+6. Kliknij **Generuj**.
+7. Kliknij **Kopiuj wynik**, aby skopiować listę do schowka.
+
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+
+
+## Dodawanie nowej wersji językowej (PL)
+
+To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+
+1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
+2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
+3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
+4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
+5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+
+### Język interfejsu i generowanych wyników
+Interfejs uruchamia się po angielsku. Przełącznik języka pozwala zmienić język interfejsu na polski. Generowane nazwy, tytuły i kryptonimy nadal korzystają z dotychczasowych słowników, dlatego poszczególne wyniki mogą zachowywać obecne brzmienie językowe.

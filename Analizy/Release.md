@@ -2872,3 +2872,136 @@ Plików tych nie należy usuwać podczas finalnego czyszczenia publicznej paczki
 1. Pełne testy funkcjonalne DataSlate przez Firestore wymagają własnej konfiguracji Firebase nowej grupy. W tym zadaniu celowo nie czyszczono ani nie modyfikowano Firebase.
 2. Następny zalecany krok to osobny, kontrolowany etap czyszczenia prywatnych konfiguracji Firebase i usuwania Web Push z wersji Release, bez naruszania komunikacji Firestore DataSlate i bez usuwania zachowanych materiałów testowych oraz backupowych.
 3. W środowisku z przeglądarką warto dodatkowo wykonać ręczny test wizualny launchera oraz pełny przepływ GM → Firestore → ekran gracza dla widoków produkcyjnych i pomocniczych.
+
+## Aktualizacja — 2026-05-30 — uporządkowanie dwujęzycznej dokumentacji modułów
+
+### Oryginalny pełny prompt użytkownika
+
+> Pracujesz w repozytorium `WnG_Tools`.
+>
+> Wykonaj poboczne zadanie dokumentacyjne: przeedytuj wszystkie pliki dokumentacji typu `README.md` i `Documentation.md` tak, aby miały pełną wersję angielską na początku oraz pełną wersję polską po niej.
+>
+> WAŻNE: przed rozpoczęciem przeczytaj `AGENTS.md` i `Analizy/Release.md`; nie usuwaj starszych sekcji dziennika; po zakończeniu dopisz do `Analizy/Release.md` nową sekcję zgodną z instrukcjami; nie traktuj `README.md` ani `Documentation.md` jako changeloga; nie dopisuj historii zmian; opisuj wyłącznie aktualny stan aplikacji; nie zmieniaj kodu aplikacji poza ewentualną oczywistą literówką w linku dokumentacyjnym; nie czyść Firebase; nie zmieniaj Web Push; nie dodawaj neutralnych makiet XLSX; nie tłumacz generowanych wyników `NameGenerator`; nie usuwaj testowych ani backupowych plików DataSlate; nie commituj zmian, chyba że środowisko Codex wymaga jednego logicznego commita.
+>
+> CEL: wszystkie pliki dokumentacyjne typu `README.md` i `Documentation.md` mają zostać uporządkowane językowo i merytorycznie. Każdy `README.md` ma mieć najpierw `# 🇬🇧 User instructions (EN)` z pełną angielską instrukcją użytkownika, a potem `# 🇵🇱 Instrukcja dla użytkownika (PL)` z pełną instrukcją polską. Każdy `Documentation.md` ma mieć najpierw `# 🇬🇧 Technical documentation (EN)` z pełną dokumentacją techniczną po angielsku, a potem `# 🇵🇱 Dokumentacja techniczna (PL)` z pełną dokumentacją techniczną po polsku. Nie wolno mieszać języków sekcja po sekcji.
+>
+> ZAKRES: znajdź wszystkie `README.md` i `Documentation.md` w repozytorium; nie edytuj `Analizy/Release.md` poza końcową sekcją; nie edytuj `AGENTS.md`; nie edytuj plików niebędących dokumentacją poza ewentualną oczywistą korektą bezpośrednio linkowanej ścieżki; nie usuwaj automatycznie dokumentów archiwalnych i szkiców.
+>
+> README: przygotuj szczegółową, prostą, praktyczną instrukcję dla osoby nietechnicznej. Wyjaśnij cel modułu, uruchomienie, kliknięcia, efekty przycisków, funkcje, mechaniki, komunikaty, pola, przełączniki, widoki, typowe sytuacje, błędy, puste stany, brak konfiguracji Firebase tam, gdzie dotyczy, oraz role produkcyjnych, testowych i backupowych widoków DataSlate.
+>
+> DOCUMENTATION: przygotuj szczegółową, precyzyjną, aktualną dokumentację techniczną dla programisty lub agenta odtwarzającego moduł 1:1. Opisz strukturę plików, role plików, style, layouty, kolory, fonty, odstępy, responsywność, JavaScript, logikę, obliczenia, mechaniki UI, Firebase, strukturę danych, zależności, skrypty pomocnicze, procedurę odtworzenia, placeholdery oraz role produkcyjnych, testowych i backupowych plików DataSlate. Nie zapisuj historii zmian.
+>
+> DATASLATE: zapisz aktualny stan: produkcyjny panel GM to `DataSlate/GM.html`, produkcyjny ekran gracza to `DataSlate/DataSlate.html`, launcher to `DataSlate/index.html`; `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html` i `DataSlate/Infoczytnik_backup.html` mają pozostać, służą testowaniu własnych modyfikacji i nie są główną produkcyjną ścieżką.
+>
+> FIREBASE: opisuj własną konfigurację użytkownika lub administratora z angielskimi placeholderami; nie wpisuj prywatnych wartości właściciela; wyjaśnij konieczność własnego projektu; nie zapisuj sekretów w repozytorium; nie opisuj Web Push jako funkcji publicznej wersji.
+>
+> MAIN: opisuj mapę jako `VTT`; używaj `INSERT_YOUR_VTT_LINK` i `INSERT_YOUR_IMAGE_FOLDER_OR_CHANNEL_LINK`; nie używaj `INSERT_YOUR_MAP_LINK` jako aktualnego placeholdera.
+>
+> NAMEGENERATOR: opisz angielski domyślny interfejs, przełącznik UI na polski i fakt, że generowane wyniki nadal mogą korzystać z dotychczasowych słowników.
+>
+> DATAVAULT I NPCGENERATOR: przy bramce dostępu opisz angielski ekran domyślny, polską wersję z selektora, publiczne placeholdery Firebase niełączące aplikacji z prywatną bazą oraz konieczność konfiguracji własnego Firebase, aby hasło działało.
+>
+> KONTROLA JAKOŚCI: znajdź wszystkie `README.md` i `Documentation.md`; sprawdź obecność sekcji `🇬🇧` i `🇵🇱` oraz kolejność EN → PL; wyszukaj `wcześniej`, `stara wersja`, `dodano`, `zmieniono`, `Release`, `INSERT_YOUR_MAP_LINK`, `INSERT_YOUR_VTT_LINK`, `Web Push`, `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, `Infoczytnik_backup.html`; oceń każde pozostałe wystąpienie; wykonaj `git diff --check`.
+>
+> AKTUALIZACJA `Analizy/Release.md`: dopisz datę, pełny oryginalny prompt, zakres prac, listy znalezionych i przeedytowanych `README.md` oraz `Documentation.md`, układ językowy, informację że dokumentacja nie jest changelogiem, decyzję o zachowaniu plików testowych i backupowych DataSlate, brak zmian kodu aplikacji, brak zmian Firebase, brak zmian Web Push, brak makiet XLSX, wyniki testów, ryzyka i następne kroki.
+>
+> WYNIK KOŃCOWY: podaj liczbę przeedytowanych `README.md` i `Documentation.md`, potwierdź pełne wersje EN i PL, angielski jako pierwszą wersję, usunięcie informacji historycznych/changelogowych, zapisanie decyzji DataSlate, wynik testów statycznych i proponowane następne kroki.
+
+Uwaga ewidencyjna: prompt został przekazany w wiadomości użytkownika dwukrotnie w identycznym brzmieniu. Powyżej zapisano pełną treść merytoryczną jednego egzemplarza bez ponownego wklejania identycznego duplikatu.
+
+### Zakres prac
+
+1. Przeczytano obowiązujący `AGENTS.md` oraz aktualną treść `Analizy/Release.md` przed zmianami.
+2. Znaleziono wszystkie bieżące pliki `README.md` i `Documentation.md` w repozytorium.
+3. Uporządkowano 8 instrukcji użytkownika oraz 8 dokumentacji technicznych w układzie pełna wersja angielska → pełna wersja polska.
+4. Usunięto z dokumentacji modułowych historyczne i changelogowe sformułowania. Dokumentacja opisuje aktualny stan aplikacji.
+5. Uporządkowano aktualny opis DataSlate: produkcyjne punkty wejścia, pomocnicze widoki testowe oraz zachowane backupy.
+6. Poprawiono oczywistą nieaktualną ścieżkę dokumentacyjną `Audio/config/Firebase-config.md` na istniejący plik `Audio/config/FirebaseREADME.md`.
+7. Nie edytowano kodu aplikacji, konfiguracji Firebase, logiki Web Push ani arkuszy XLSX.
+
+### Ustalenia i wnioski
+
+- Repozytorium zawiera dokładnie 8 aktualnych plików `README.md` oraz 8 aktualnych plików `Documentation.md` w katalogach `docs/` modułów.
+- Każdy dokument zaczyna się pełną angielską wersją i zawiera pełną polską wersję po niej.
+- Dokumentacja modułowa nie pełni funkcji changeloga. Historia, decyzje i opis prac pozostają w `Analizy/Release.md`.
+- W dokumentacji `Main` aktualnym placeholderem VTT jest `INSERT_YOUR_VTT_LINK`; `INSERT_YOUR_MAP_LINK` nie występuje w bieżących instrukcjach ani dokumentacji technicznej.
+- Dokumentacja DataSlate jednoznacznie rozróżnia produkcyjne punkty wejścia (`index.html`, `GM.html`, `DataSlate.html`) oraz pomocnicze pliki testowe i backupowe.
+- Wyszukiwanie `Web Push` w bieżących `README.md` i `Documentation.md` nie zwraca wyników. W tym zadaniu logika aplikacji nie była modyfikowana.
+
+### Decyzje i wymagania
+
+- Obowiązującym układem każdego `README.md` jest:
+  1. `# 🇬🇧 User instructions (EN)`;
+  2. pełna instrukcja angielska;
+  3. `# 🇵🇱 Instrukcja dla użytkownika (PL)`;
+  4. pełna instrukcja polska.
+- Obowiązującym układem każdego `Documentation.md` jest:
+  1. `# 🇬🇧 Technical documentation (EN)`;
+  2. pełna dokumentacja techniczna angielska;
+  3. `# 🇵🇱 Dokumentacja techniczna (PL)`;
+  4. pełna dokumentacja techniczna polska.
+- Pliki `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html` i `DataSlate/Infoczytnik_backup.html` mają pozostać w publicznej paczce jako pomocnicze materiały do testowania własnych modyfikacji oraz punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną DataSlate.
+
+### Zmienione pliki
+
+#### Znalezione i przeedytowane pliki `README.md`
+
+| Plik | Opis |
+| --- | --- |
+| `Audio/docs/README.md` | Pełna instrukcja EN → PL; bieżący opis widoku użytkownika, admina, manifestu audio i Firebase. |
+| `Calculators/docs/README.md` | Pełna instrukcja EN → PL; bieżący opis kalkulatora XP, tworzenia postaci i zapisu Firebase. |
+| `DataSlate/docs/README.md` | Pełna instrukcja EN → PL; produkcyjne punkty wejścia, zachowane testy i backupy, Firestore oraz aktualne opcje logo. |
+| `DataVault/docs/README.md` | Pełna instrukcja EN → PL; bramka dostępu, runtime danych, XLSX i własny Firebase. |
+| `DiceRoller/docs/README.md` | Pełna instrukcja EN → PL; pola testu, rzuty, wyniki i walidacja. |
+| `Main/docs/README.md` | Pełna instrukcja EN → PL; launcher, widoki, VTT i publiczne placeholdery linków. |
+| `NPCGenerator/docs/README.md` | Pełna instrukcja EN → PL; generowanie NPC, ulubione, bramka dostępu i własny Firebase. |
+| `NameGenerator/docs/README.md` | Pełna instrukcja EN → PL; generowanie, seed, kopiowanie, język UI i dotychczasowe słowniki wyników. |
+
+#### Znalezione i przeedytowane pliki `Documentation.md`
+
+| Plik | Opis |
+| --- | --- |
+| `Audio/docs/Documentation.md` | Pełna dokumentacja EN → PL; architektura, manifest, UI, Firestore i poprawiona ścieżka referencji Firebase. |
+| `Calculators/docs/Documentation.md` | Pełna dokumentacja EN → PL; struktura, obliczenia XP, tworzenie postaci, style i Firebase. |
+| `DataSlate/docs/Documentation.md` | Pełna dokumentacja EN → PL; produkcja, testy, backupy, assety i przepływ Firestore. |
+| `DataVault/docs/Documentation.md` | Pełna dokumentacja EN → PL; runtime, loader, parser XLSX, generator Python i zależność NPCGenerator. |
+| `DiceRoller/docs/Documentation.md` | Pełna dokumentacja EN → PL; frontend, mechanika kości, layout i rekonstrukcja. |
+| `Main/docs/Documentation.md` | Pełna dokumentacja EN → PL; launcher, layout, linki VTT i zachowanie przeglądarki. |
+| `NPCGenerator/docs/Documentation.md` | Pełna dokumentacja EN → PL; UI, DataVault, Firebase, tabele, druk i rekonstrukcja. |
+| `NameGenerator/docs/Documentation.md` | Pełna dokumentacja EN → PL; pliki, RNG, słowniki, generatory, UI i rekonstrukcja. |
+
+#### Dziennik Release
+
+| Plik | Opis |
+| --- | --- |
+| `Analizy/Release.md` | Dopisano niniejszą sekcję zadania dokumentacyjnego bez usuwania starszych wpisów. |
+
+### Szczegóły zmian w kodzie
+
+- Kod aplikacji nie został zmieniony.
+- Nie zmieniono plików HTML, CSS, JavaScript, Python, konfiguracji Firebase ani arkuszy XLSX.
+- Jedyna korekta ścieżki dotyczyła tekstu dokumentacji: w `Audio/docs/Documentation.md` wskazano istniejący plik `Audio/config/FirebaseREADME.md` zamiast nieistniejącego `Audio/config/Firebase-config.md`.
+- Nie czyszczono Firebase.
+- Nie zmieniano Web Push.
+- Nie dodawano neutralnych makiet XLSX.
+- Nie tłumaczono generowanych wyników `NameGenerator`.
+- Nie usuwano plików testowych ani backupowych DataSlate.
+
+### Testy
+
+- `find . -type f -name README.md -print | sort` — znaleziono 8 bieżących instrukcji użytkownika.
+- `find . -type f -name Documentation.md -print | sort` — znaleziono 8 bieżących dokumentacji technicznych.
+- Skrypt Python sprawdzający nagłówki i kolejność sekcji — zaliczony dla wszystkich 16 dokumentów: każdy dokument zawiera dokładnie jedną wymaganą sekcję EN i jedną wymaganą sekcję PL, a EN występuje pierwsze.
+- Wyszukiwania `wcześniej`, `stara wersja`, `dodano`, `zmieniono`, `Release`, `INSERT_YOUR_MAP_LINK` i `Web Push` w bieżących `README.md` oraz `Documentation.md` — brak wystąpień.
+- Wyszukiwanie `INSERT_YOUR_VTT_LINK` — oczekiwane wystąpienia wyłącznie w bieżącej dokumentacji `Main`.
+- Wyszukiwania `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` — oczekiwane wystąpienia w bieżącej dokumentacji DataSlate potwierdzające ich zachowanie i role pomocnicze.
+- `test -f` dla `DataSlate/index.html`, `DataSlate/GM.html`, `DataSlate/DataSlate.html`, `DataSlate/GM_test.html`, `DataSlate/Infoczytnik_test.html`, `DataSlate/GM_backup.html` i `DataSlate/Infoczytnik_backup.html` — zaliczony; wszystkie wymagane pliki istnieją.
+- `rg -n 'Firebase-config\\.md'` dla dokumentacji — brak wystąpień nieaktualnej ścieżki.
+- `git diff --check` — zaliczony; brak błędów whitespace.
+
+### Ryzyka i następne kroki
+
+1. To zadanie porządkowało dokumentację i nie weryfikowało funkcjonalnie aplikacji w przeglądarce. Kolejne zmiany kodu powinny aktualizować obie pełne wersje językowe dokumentacji.
+2. Osobny etap powinien wyczyścić prywatne konfiguracje Firebase oraz usunąć Web Push z kodu publicznej wersji bez naruszenia komunikacji Firestore DataSlate.
+3. Po dostarczeniu neutralnych arkuszy należy osobno sprawdzić `AudioManifest.xlsx` i neutralny `DataVault/Repozytorium.xlsx` zgodnie z zasadami parserów i loaderów.
+4. Warto wykonać ręczny przegląd dokumentacji przez użytkownika nietechnicznego oraz osobny przegląd techniczny procedur rekonstrukcji modułów.

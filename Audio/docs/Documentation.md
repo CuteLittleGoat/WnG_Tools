@@ -1,3 +1,26 @@
+# 🇬🇧 Technical documentation (EN)
+
+## 1. Purpose and architecture
+`Audio` is a single-page soundboard. `Audio/index.html` supports the regular listener view and the administrator view selected with `?admin=1`. It loads sound metadata from `AudioManifest.xlsx`, opens audio URLs, and synchronizes shared favorites through Firestore when a project administrator provides configuration.
+
+## 2. Files and dependencies
+- `index.html` contains markup, CSS, JavaScript, localization dictionaries, rendering logic, and Firebase SDK imports.
+- `AudioManifest.xlsx` is the expected spreadsheet name. Its important columns are `NazwaSampla`, `NazwaPliku`, and `LinkDoFolderu`.
+- `config/firebase-config.js` exposes `window.firebaseConfig` and contains English public placeholders.
+- `config/FirebaseREADME.md` is the Firebase setup reference.
+- External runtime dependencies are Google Fonts, SheetJS for XLSX parsing, and Firebase Web SDK modules.
+
+## 3. Interface and layout
+The page uses a dark panel layout with status pills, tile grids, filters, search fields, favorites lists, and navigation buttons. Administrator mode adds manifest reload, tag filtering, aliases, favorite-list editing, ordering, and main-view management. The normal view exposes playback and navigation only. Both language selectors start in English and allow switching to Polish.
+
+## 4. Data and behavior
+Each manifest row becomes a sound record. Search, tag selection, aliases, and favorite collections change rendered lists without modifying the source spreadsheet. Shared lists are stored in Firestore under the audio favorites document described by the code. If Firebase is missing, the page must communicate that shared settings are unavailable rather than exposing any private infrastructure.
+
+## 5. Rebuild checklist
+Restore `index.html`, the manifest with the exact expected filename and columns, the Firebase config template, and the setup reference. Verify regular view, `?admin=1`, XLSX loading, search, tags, playback links, favorites, main-view ordering, EN → PL → EN switching, and the readable missing-config state.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
 # Dokumentacja techniczna modułu Audio (opis 1:1)
 
 > Ten dokument opisuje **dokładny** wygląd i logikę modułu Audio: strukturę HTML, style CSS, zasady działania, mapowanie danych z `AudioManifest.xlsx`, integrację Firebase oraz wszystkie kluczowe funkcje. Celem jest umożliwienie wiernego odtworzenia aplikacji 1:1.
@@ -274,14 +297,14 @@ window.firebaseConfig = {
 - **Brak dźwięku:** zweryfikuj poprawność `LinkDoFolderu` i `NazwaPliku` w manifestie.
 
 ## 12. Dokument referencyjny Firebase
-- Pełna specyfikacja konfiguracji Firebase dla modułu Audio została wydzielona do pliku: `Audio/config/Firebase-config.md`.
+- Specyfikacja konfiguracji Firebase dla modułu Audio znajduje się w pliku: `Audio/config/FirebaseREADME.md`.
 - Dokument zawiera:
   1. Template `firebase-config.js`.
   2. Oczekiwaną strukturę `audio/favorites` (kolekcja/dokument/pola).
   3. Skrypt Node.js do inicjalizacji dokumentu.
   4. Instrukcję konfiguracji krok-po-kroku w języku polskim i angielskim.
 
-## 13. Uzupełnienie: precyzyjne kolory i wartości UI (bez opisów ogólnych)
+## 13. Precyzyjne kolory i wartości UI
 - `--bg`: radialne gradienty (`rgba(0,255,128,0.06)` + `rgba(0,255,128,0.08)`) i baza `#031605`.
 - `--panel`: `#000`; `--panel-alt`: `#041b08`.
 - `--border`: `#16c60c`; `--accent`: `#16c60c`; `--accent-dark`: `#0d7a07`; `--accent-strong`: `#1ee616`.
@@ -292,7 +315,7 @@ window.firebaseConfig = {
 - Border toolbarów/paneli filtrów: `rgba(22, 198, 12, 0.6)` do `rgba(22, 198, 12, 0.7)` (w zależności od sekcji).
 - Focus ring pól i selectów: zielone obwódki oparte o `rgba(22, 198, 12, 0.25)`.
 
-## 14. Uzupełnienie: logika funkcjonalna (pełny przepływ)
+## 14. Logika funkcjonalna (pełny przepływ)
 1. Import manifestu XLSX -> normalizacja rekordów -> budowa listy SFX i drzewa tagów.
 2. Nadpisanie aliasów z zapisanych ustawień (`aliases`) po `itemId`.
 3. Render widoku admina i widoku użytkownika z tego samego źródła stanu.
@@ -305,7 +328,6 @@ window.firebaseConfig = {
 - `docs/README.md` modułu Audio musi zawierać jasną informację, że Firebase/Firestore jest wymagane do współdzielonych list i ustawień między urządzeniami.
 - Instrukcja użytkowa powinna prowadzić przez pełny proces konsoli Firebase: projekt → aplikacja web → `config/firebase-config.js` → Firestore Database → reguły → test trwałości list.
 ## 16. Wdrożenie wielu niezależnych grup
-- W `Audio/index.html` dodano komentarze `WAŻNE/IMPORTANT` przy ładowaniu `config/firebase-config.js` oraz przy walidacji `window.firebaseConfig`.
 - Mechanika:
   - brak klucza `apiKey` -> moduł przechodzi w tryb lokalny,
   - poprawny config -> aktywacja Firestore (`audio/favorites`).
@@ -324,24 +346,9 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
 
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-
-## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
-- EN: The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+## Widoczność przełącznika języka
+- Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.

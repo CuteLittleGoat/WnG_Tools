@@ -1,11 +1,109 @@
-# Infoczytnik — instrukcja użytkownika / User Guide
+# 🇬🇧 User instructions (EN)
 
-## 🇵🇱 Instrukcja dla użytkownika (PL)
+### What this module is for
+**DataSlate** shows narrative messages to players on a dedicated display. The GM controls text, style, sound, and effects from a separate panel.
+
+GM → player screen messages, standard ping, and DataSlate audio use Firestore communication and local module assets.
+
+### What to open during play
+1. Player screen: `DataSlate/DataSlate.html`.
+2. GM screen: `DataSlate/GM.html`.
+
+> Best setup: both pages open at the same time (separate devices or dual monitor).
+
+### Supporting test and backup files
+The `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, and `Infoczytnik_backup.html` files are intentionally available. They are helper tools for users testing their own modifications and reference points for experiments. They are not the main DataSlate entry points for regular sessions.
+
+### Quick start (first message)
+1. In GM panel choose **Background** and **Logo**.
+2. Choose **Font** and optional **Message audio**.
+3. Toggle: **Logo**, **Shadow rectangle**, **Flicker**, **Fillers**, **Audio**.
+4. Enter text in **Message content**.
+5. Click **Send**.
+6. Check player screen — message should appear immediately.
+
+### GM panel button actions
+- **Send** – publishes current message to player screen.
+- **Ping** – plays attention sound without changing message text. The button uses `DataSlate/assets/audios/ping/Ping.mp3`.
+- **Clear message** – clears input text only.
+- **Restore defaults** – resets panel settings to default values.
+- **Update data from XLSX** – reads `DataSlate_manifest.xlsx` and generates a refreshed JSON export.
+- After refresh, data is saved to `assets/data/data.json` and is immediately ready to use in the panel.
+
+### Most-used settings
+- In filler data, line separators are newline and pipe `|`. Semicolon stays inside the text and does not split one entry into multiple elements.
+- **Message text color and size**.
+- **Prefix/suffix color and size**.
+- **Filler line count** and prefix/suffix area height.
+- **Preview mode**:
+  - **Content** – text layer preview.
+  - **Background** – background-only preview.
+
+### In-session workflow
+1. Prepare a style preset (background/font/colors) per scene.
+2. Send shorter messages more often instead of one long block.
+3. Use **Ping** for immediate player attention.
+4. If layout becomes messy after many changes, press **Restore defaults**.
+
+### Common issues and quick fixes
+- **No message on player screen** → refresh both pages and send again.
+- **No sound** → check **Audio** toggle and system volume.
+- **Different look on projector/mobile** → reselect background and send shorter text.
+
+### Firebase integration — required
+**DataSlate** requires Firebase (Firestore), because GM and player screens exchange data live through the database.
+
+#### Step by step — how to create the database
+1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
+2. Click **Create a project**.
+3. Enter project name and continue.
+4. Choose Analytics settings (optional) and finish project creation.
+5. In project dashboard click the **Web** icon (`</>`) and register a web app.
+6. Copy `firebaseConfig` values.
+7. Open `DataSlate/config/firebase-config.js` and paste project config.
+8. In left menu click **Firestore Database**.
+9. Click **Create database**.
+10. Choose initial mode and click **Next**.
+11. Select region and click **Enable**.
+12. In **Rules** tab set access for your group.
+13. Save rules.
+14. Launch `DataSlate/GM_test.html` and `DataSlate/Infoczytnik_test.html` and confirm sent message appears immediately on player screen.
+## Copying module for a new group
+- In each new module copy, set a dedicated `DataSlate/config/firebase-config.js`.
+- This ensures GM panel and reader screen use separate Firestore data and do not mix messages between groups.
+- After setup, run `GM_test.html` and `Infoczytnik_test.html`, send a test message, and verify reader output.
+
+
+## Adding a new language version (EN)
+
+This is the update map for adding another language (for example FR/DE):
+
+1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
+2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
+3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
+4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
+5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
+
+Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+### Logo color (GM panel)
+- Directly below **Logo** there is a **Logo color** panel (HEX field, picker, and preset chips).
+- The default logo color is **gold** (`#d4af37`).
+- When **Logo** is disabled, the logo color panel becomes gray and inactive.
+- Preset chips affect only logo color and do not change **Prefix + Suffix (shared) color**.
+- Changes appear immediately in GM preview and on the player screen after sending.
+- Available logo presets include **Black (`#000000`)**. Decorative logos render as PNG masks without a text-image fallback.
+
+### DataSlate data
+- `assets/data/data.json` contains the full list of 14 logos from `assets/logos/`.
+- The default GM-panel logo is **Aquila** (`id: 3`, `assets/logos/Aquila.png`).
+
+# 🇵🇱 Instrukcja dla użytkownika (PL)
 
 ### Do czego służy moduł
 **DataSlate** wyświetla graczom komunikaty fabularne na osobnym ekranie. Prowadzący steruje treścią, stylem, dźwiękiem i efektami z panelu GM.
 
-Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. Komunikaty GM → ekran gracza, zwykły ping oraz audio DataSlate pozostają częścią komunikacji Firestore i lokalnych assetów modułu.
+Komunikaty GM → ekran gracza, zwykły ping oraz audio DataSlate korzystają z komunikacji Firestore i lokalnych assetów modułu.
 
 ### Co otworzyć podczas sesji
 1. Ekran graczy: `DataSlate/DataSlate.html`.
@@ -14,7 +112,7 @@ Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push.
 > Najwygodniej uruchomić oba okna równocześnie (osobne urządzenia albo dwa monitory).
 
 ### Pomocnicze pliki testowe i backupowe
-Pliki `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` pozostają w wersji Release celowo. Służą jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje oraz jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką uruchamiania DataSlate podczas sesji.
+Pliki `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` są celowo dostępne. Służą jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje oraz jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką uruchamiania DataSlate podczas sesji.
 
 ### Szybki start (pierwsza wiadomość)
 1. W panelu GM wybierz **Tło** i **Logo**.
@@ -91,120 +189,17 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-## 🇬🇧 User instructions (EN)
-
-### What this module is for
-**DataSlate** shows narrative messages to players on a dedicated display. The GM controls text, style, sound, and effects from a separate panel.
-
-The Release version does not include Web Push and does not require push-notification configuration. GM → player screen messages, standard ping and DataSlate audio remain part of Firestore communication and local module assets.
-
-### What to open during play
-1. Player screen: `DataSlate/DataSlate.html`.
-2. GM screen: `DataSlate/GM.html`.
-
-> Best setup: both pages open at the same time (separate devices or dual monitor).
-
-### Supporting test and backup files
-The `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, and `Infoczytnik_backup.html` files intentionally remain in the Release. They are helper tools for users testing their own modifications and reference points for experiments. They are not the main DataSlate entry points for regular sessions.
-
-### Quick start (first message)
-1. In GM panel choose **Background** and **Logo**.
-2. Choose **Font** and optional **Message audio**.
-3. Toggle: **Logo**, **Shadow rectangle**, **Flicker**, **Fillers**, **Audio**.
-4. Enter text in **Message content**.
-5. Click **Send**.
-6. Check player screen — message should appear immediately.
-
-### GM panel button actions
-- **Send** – publishes current message to player screen.
-- **Ping** – plays attention sound without changing message text. The button uses `DataSlate/assets/audios/ping/Ping.mp3`.
-- **Clear message** – clears input text only.
-- **Restore defaults** – resets panel settings to default values.
-- **Update data from XLSX** – reads `DataSlate_manifest.xlsx` and generates a refreshed JSON export.
-- Po odświeżeniu dane zapisują się do `assets/data/data.json` i od razu są gotowe do użycia w panelu. / After refresh, data is saved to `assets/data/data.json` and is immediately ready to use in the panel.
-
-### Most-used settings
-- In filler data, line separators are newline and pipe `|`. Semicolon stays inside the text and does not split one entry into multiple elements.
-- **Message text color and size**.
-- **Prefix/suffix color and size**.
-- **Filler line count** and prefix/suffix area height.
-- **Preview mode**:
-  - **Content** – text layer preview.
-  - **Background** – background-only preview.
-
-### In-session workflow
-1. Prepare a style preset (background/font/colors) per scene.
-2. Send shorter messages more often instead of one long block.
-3. Use **Ping** for immediate player attention.
-4. If layout becomes messy after many changes, press **Restore defaults**.
-
-### Common issues and quick fixes
-- **No message on player screen** → refresh both pages and send again.
-- **No sound** → check **Audio** toggle and system volume.
-- **Different look on projector/mobile** → reselect background and send shorter text.
-
-### Firebase integration — required
-**DataSlate** requires Firebase (Firestore), because GM and player screens exchange data live through the database.
-
-#### Step by step — how to create the database
-1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Click **Create a project**.
-3. Enter project name and continue.
-4. Choose Analytics settings (optional) and finish project creation.
-5. In project dashboard click the **Web** icon (`</>`) and register a web app.
-6. Copy `firebaseConfig` values.
-7. Open `DataSlate/config/firebase-config.js` and paste project config.
-8. In left menu click **Firestore Database**.
-9. Click **Create database**.
-10. Choose initial mode and click **Next**.
-11. Select region and click **Enable**.
-12. In **Rules** tab set access for your group.
-13. Save rules.
-14. Launch `DataSlate/GM_test.html` and `DataSlate/Infoczytnik_test.html` and confirm sent message appears immediately on player screen.
-## Copying module for a new group
-- In each new module copy, set a dedicated `DataSlate/config/firebase-config.js`.
-- This ensures GM panel and reader screen use separate Firestore data and do not mix messages between groups.
-- After setup, run `GM_test.html` and `Infoczytnik_test.html`, send a test message, and verify reader output.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 
 ### Kolor logo (panel GM)
-- Pod polem **Logo** znajduje się panel **Kolor logo** (pole HEX + próbnik + gotowe kolory).
+- Pod polem **Logo** znajduje się panel **Kolor logo** (pole HEX, próbnik i gotowe kolory).
 - Domyślny kolor logo to **złoty** (`#d4af37`).
 - Gdy przełącznik **Logo** jest wyłączony, panel koloru logo robi się szary i nie można go kliknąć.
-- Zmiana koloru jest widoczna od razu w podglądzie panelu GM i po wysłaniu komunikatu na ekranie gracza.
-- Gotowe kolory w panelu **Kolor logo** zmieniają tylko kolor logo i nie wpływają na pole **Kolor Prefix + Suffix (wspólny)**.
+- Gotowe kolory wpływają tylko na kolor logo i nie zmieniają pola **Kolor Prefix + Suffix (wspólny)**.
+- Zmiana jest widoczna od razu w podglądzie GM i po wysłaniu na ekranie gracza.
+- Dostępne presety logo obejmują **Czarny (`#000000`)**. Dekoracyjne logo renderuje się jako maska PNG bez tekstowego fallbacku obrazu.
 
-### Logo color (GM panel)
-- Directly below **Logo** there is a **Logo color** panel (HEX field + picker + preset chips).
-- Default logo color is **gold** (`#d4af37`).
-- When **Logo** toggle is off, the logo color panel becomes gray and inactive.
-- Preset chips in the **Logo color** panel affect only the logo color and do not change **Prefix + Suffix (shared) color**.
-- Color changes are visible immediately in GM preview and, after sending, on the player screen.
-
-
-- Kolor logo w szybkich presetach obejmuje teraz wariant **Czarny (#000000)** zamiast czerwonego, a logo renderowane jest na elementach dekoracyjnych bez fallbacku tekstowego IMG, co eliminuje artefakty podczas zoomu.
-
-## Aktualne dane DataSlate / Current DataSlate data
-
-### 🇵🇱
-- `assets/data/data.json` zawiera teraz pełną listę 14 logo z folderu `assets/logos/`.
-- Domyślne logo panelu GM to teraz **Aquila** (`id: 3`, `assets/logos/Aquila.png`).
-
-### 🇬🇧
-- `assets/data/data.json` now contains the full list of 14 logos from `assets/logos/`.
-- The default logo in the GM panel is now **Aquila** (`id: 3`, `assets/logos/Aquila.png`).
+### Dane DataSlate
+- `assets/data/data.json` zawiera pełną listę 14 logo z folderu `assets/logos/`.
+- Domyślne logo panelu GM to **Aquila** (`id: 3`, `assets/logos/Aquila.png`).

@@ -1,6 +1,87 @@
-# Generator NPC — instrukcja użytkownika / User Guide
+# 🇬🇧 User instructions (EN)
 
-## 🇵🇱 Instrukcja dla użytkownika (PL)
+The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+
+### What this module is for
+**NPC Generator** helps you quickly build enemy/NPC sheets for sessions. Pick a base profile, adjust values, and generate a ready card.
+
+### Getting started
+1. Open `NPCGenerator/index.html`.
+2. Wait until **Data source** confirms the data is loaded.
+
+### Build an NPC step by step
+1. In **Base selection**, choose an entry from **Bestiary · Name**.
+2. (Optional) add custom notes in **Record notes**.
+3. In **Base preview**, adjust values you want to change (e.g., Wounds, Defense, Speed).
+4. In **Active modules**, enable blocks that should appear on final card (e.g., Weapons, Talents, Psionics).
+5. In active blocks, select specific items.
+6. Click **Generate card**.
+7. The final card opens in a new browser tab.
+8. The top card row always shows **Level 1, 2, 3, 4, 5** columns.
+9. The **Threat** row fills those columns from left to right:
+   - if an entry has 5 symbols (for example `PPPPP`), all 1–5 columns are filled,
+   - if an entry has fewer symbols (for example `?`), only the first column is filled and the rest stay empty.
+
+### How “Favorites” works
+1. Configure NPC setup.
+2. (Optional) enter a custom **Alias**.
+3. Click **Add to favorites**.
+4. Saved setups can be:
+   - loaded,
+   - removed,
+   - moved up/down.
+5. **Refresh** reloads favorites list.
+
+### Main buttons
+- **Generate card** – creates final NPC card.
+- **Reset** – clears setup back to defaults.
+- **Edit** (next to skills) – allows manual text updates.
+
+### Best practices
+- Choose base profile first, then edit numbers.
+- Save recurring opponents as favorites.
+- If your table is bilingual, review card after language switch before print/share.
+
+### Firebase integration — required for shared favorites
+To keep **Favorites** shared and persistent across devices, **NPC Generator** requires Firebase (Firestore). Without it, favorites are local only.
+
+#### Step by step — create project and database
+1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
+2. Click **Create a project**.
+3. Enter project name and click **Continue**.
+4. Configure Analytics (optional) and finish creation.
+5. Add a web app using **Web** icon (`</>`).
+6. Copy `firebaseConfig` values.
+7. Paste values into `NPCGenerator/config/firebase-config.js`.
+8. Go to **Firestore Database**.
+9. Click **Create database**.
+10. Choose mode, click **Next**, select region, click **Enable**.
+11. Set access rules in **Rules**.
+12. Open `NPCGenerator/index.html`.
+13. Add one favorite and refresh page — entry should still be present.
+## Copying module for a new group
+- Replace `NPCGenerator/config/firebase-config.js` with the group-specific Firebase configuration.
+- Verify Firebase configuration (`config/firebase-config.js` and `../shared/firebase-config.js`) for your group environment.
+- The module loads core data through `../shared/firebase-data-loader.js` from private DataVault runtime (`/datavault/live`) after authorization.
+- After changes, generate a test card and save favorites to confirm everything works.
+
+
+## Adding a new language version (EN)
+
+This is the update map for adding another language (for example FR/DE):
+
+1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
+2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
+3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
+4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
+5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
+
+Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+### Access gate and your Firebase project
+The public Firebase placeholders do not connect the module to a private database. To use the password gate, the administrator must configure the group’s own Firebase project. Never store passwords, tokens, service-account files, or private keys in the repository.
+
+# 🇵🇱 Instrukcja dla użytkownika (PL)
 
 ### Do czego służy moduł
 **Generator NPC** pomaga szybko zbudować kartę przeciwnika lub postaci niezależnej na sesję. Wybierasz bazę, dopasowujesz statystyki i generujesz gotową kartę do wydruku/podglądu.
@@ -82,135 +163,9 @@ To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka
 4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
 5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
 
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
 
 Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
 
-## 🇬🇧 User instructions (EN)
-
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
-
-### What this module is for
-**NPC Generator** helps you quickly build enemy/NPC sheets for sessions. Pick a base profile, adjust values, and generate a ready card.
-
-### Getting started
-1. Open `NPCGenerator/index.html`.
-2. Wait until **Data source** confirms the data is loaded.
-
-### Build an NPC step by step
-1. In **Base selection**, choose an entry from **Bestiary · Name**.
-2. (Optional) add custom notes in **Record notes**.
-3. In **Base preview**, adjust values you want to change (e.g., Wounds, Defense, Speed).
-4. In **Active modules**, enable blocks that should appear on final card (e.g., Weapons, Talents, Psionics).
-5. In active blocks, select specific items.
-6. Click **Generate card**.
-7. The final card opens in a new browser tab.
-8. The top card row always shows **Level 1, 2, 3, 4, 5** columns.
-9. The **Threat** row fills those columns from left to right:
-   - if an entry has 5 symbols (for example `PPPPP`), all 1–5 columns are filled,
-   - if an entry has fewer symbols (for example `?`), only the first column is filled and the rest stay empty.
-
-### How “Favorites” works
-1. Configure NPC setup.
-2. (Optional) enter a custom **Alias**.
-3. Click **Add to favorites**.
-4. Saved setups can be:
-   - loaded,
-   - removed,
-   - moved up/down.
-5. **Refresh** reloads favorites list.
-
-### Main buttons
-- **Generate card** – creates final NPC card.
-- **Reset** – clears setup back to defaults.
-- **Edit** (next to skills) – allows manual text updates.
-
-### Best practices
-- Choose base profile first, then edit numbers.
-- Save recurring opponents as favorites.
-- If your table is bilingual, review card after language switch before print/share.
-
-### Firebase integration — required for shared favorites
-To keep **Favorites** shared and persistent across devices, **NPC Generator** requires Firebase (Firestore). Without it, favorites are local only.
-
-#### Step by step — create project and database
-1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Click **Create a project**.
-3. Enter project name and click **Continue**.
-4. Configure Analytics (optional) and finish creation.
-5. Add a web app using **Web** icon (`</>`).
-6. Copy `firebaseConfig` values.
-7. Paste values into `NPCGenerator/config/firebase-config.js`.
-8. Go to **Firestore Database**.
-9. Click **Create database**.
-10. Choose mode, click **Next**, select region, click **Enable**.
-11. Set access rules in **Rules**.
-12. Open `NPCGenerator/index.html`.
-13. Add one favorite and refresh page — entry should still be present.
-## Copying module for a new group
-- Replace `NPCGenerator/config/firebase-config.js` with the group-specific Firebase configuration.
-- Verify Firebase configuration (`config/firebase-config.js` and `../shared/firebase-config.js`) for your group environment.
-- The module loads core data through `../shared/firebase-data-loader.js` from private DataVault runtime (`/datavault/live`) after authorization.
-- After changes, generate a test card and save favorites to confirm everything works.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-
-## Źródło danych / Data source
-PL: Interfejs informuje, że dane pochodzą z prywatnej bazy DataVault po autoryzacji Firebase.
-EN: The UI states that data comes from a private DataVault database after Firebase authorization.
-
-
-## Runtime danych / Data runtime
-PL: NPCGenerator ładuje dane przez `shared/firebase-data-loader.js` (Firebase Auth + RTDB `/datavault/live`).
-EN: NPCGenerator loads data via `shared/firebase-data-loader.js` (Firebase Auth + RTDB `/datavault/live`).
-
-
-## Widoczność przełącznika języka / Language switch visibility
-- PL: Przełącznik PL/EN jest widoczny; domyślną opcją jest English, a Polski pozostaje dostępny.
-- EN: The PL/EN language switcher is visible; English is the default option and Polish remains available.
-
-
-## Dostęp do prywatnych danych / Private data access
-- PL: W oknie dostępu do prywatnych danych dodano ikonę `IkonaPowiadomien2.png` ze stałym miejscem 72×72 px, aby zapobiec „skakaniu” rozmiaru okna w trakcie ładowania.
-- EN: The private-data access window now includes `IkonaPowiadomien2.png` in a fixed 72×72 px slot to prevent dialog size jumps during loading.
-- PL: NPCGenerator ładuje dane wyłącznie z prywatnej bazy DataVault po autoryzacji i używa tej samej sesji co DataVault.
-- EN: NPCGenerator loads data only from the private DataVault database after authorization and uses the same session as DataVault.
-- PL: Okno logowania jest takie samo jak w DataVault.
-- EN: The login gate is visually and textually identical to DataVault.
-
-## Rozdzielenie sesji Firebase (DataVault vs Ulubione) / Firebase session separation (DataVault vs Favorites)
-- PL: Generator NPC korzysta teraz z oddzielnej, nazwanej aplikacji Firebase dla panelu **Ulubione** (`generator-npc-favorites`), dzięki czemu nie zakłóca logowania do prywatnych danych DataVault.
-- EN: Generator NPC now uses a separate named Firebase app for **Favorites** (`generator-npc-favorites`), so it no longer interferes with DataVault private-data login.
-- PL: Jeśli połączenie z Ulubionymi się nie powiedzie, generator nadal ładuje główne dane NPC i działa normalnie.
-- EN: If Favorites connection fails, the generator still loads core NPC data and remains usable.
-
-
-## Teksty okna dostępu K.O.Z.A. / K.O.Z.A. gate wording
-- PL: Okno hasła w NPCGenerator ma teraz identyczne słownictwo jak DataVault: **„Dostęp do danych z klauzulą tajności K.O.Z.A.”**, **„Litania Dostępu”**, **„Rozpocznij Rytuał”** oraz opis rytuału uwierzytelnienia.
-- EN: NPCGenerator now matches DataVault wording: **“Access to K.O.Z.A. Classified Data”**, **“Litany of Access”**, **“Begin Rite”**, and the Rite of Authentication description.
-- PL/EN: Komunikaty błędów logowania i odczytu prywatnych danych również używają nowej narracji „Machine Spirit / Duch Maszyny”.
-
-## 🇵🇱 Układ pola „Litania Dostępu”
-W oknie dostępu etykieta **„Litania Dostępu”** jest ustawiona po lewej stronie, a pole hasła po prawej. Przycisk **„Rozpocznij Rytuał”** znajduje się pod polem hasła, po prawej stronie. Na wąskich ekranach (telefon) elementy mają wymuszoną kolejność pionową: wiersz 1 etykieta, wiersz 2 pole hasła, wiersz 3 przycisk, a komunikat błędu pozostaje pod formularzem.
-
-## 🇬🇧 “Litany of Access” field layout
-In the access window, the **“Litany of Access”** label is positioned on the left, while the password field is on the right. The **“Begin Rite”** button is placed below the password field on the right side. On narrow screens (mobile), the order is explicitly vertical: row 1 label, row 2 password field, row 3 button, while the error message remains below the form.
-
-
-## Okno dostępu na telefonie / Access gate on phones
-- PL: Wspólny overlay `shared/access-gate.css` jest zakotwiczony do viewportu (`width:100vw`, `max-width:100vw`, `height:100dvh`) i ma `overflow:auto`, dzięki czemu karta hasła pozostaje widoczna nawet przy szerokim layoucie modułu.
-- EN: Shared overlay `shared/access-gate.css` is anchored to the viewport (`width:100vw`, `max-width:100vw`, `height:100dvh`) and uses `overflow:auto`, so the password card stays visible even when the module layout is very wide.
-- PL: W `NPCGenerator/style.css` karty danych mają `overflow-x:auto`, a `.data-table` ma `min-width:max-content`, więc szerokie tabele przewijają się wewnątrz kart zamiast rozszerzać cały dokument.
-- EN: In `NPCGenerator/style.css`, data cards use `overflow-x:auto` and `.data-table` uses `min-width:max-content`, so wide tables scroll inside cards instead of stretching the whole document.
+### Bramka dostępu i własny projekt Firebase
+Publiczne placeholdery Firebase nie łączą modułu z prywatną bazą. Aby używać bramki hasła, administrator musi skonfigurować własny projekt Firebase grupy. Nie zapisuj w repozytorium haseł, tokenów, plików kont usługowych ani prywatnych kluczy.

@@ -1,15 +1,39 @@
-# Infoczytnik — dokumentacja techniczna (odtworzenie 1:1)
+# 🇬🇧 Technical documentation (EN)
 
-## Zakres komunikacji wersji Release
+## 1. Purpose and production entry points
+`DataSlate` publishes GM-prepared messages to a player-facing screen. The production launcher is `index.html`, the production GM panel is `GM.html`, and the production player screen is `DataSlate.html`. Firestore communication uses the `dataslate/current` document or the equivalent path documented in the configured deployment.
 
-Wersja Release nie zawiera Web Push i nie wymaga konfiguracji powiadomień push. DataSlate nadal używa Firestore do komunikacji panel GM → ekran gracza przez dokument `dataslate/current`. Zwykły ping i audio DataSlate pozostają częścią komunikacji Firestore oraz lokalnych assetów modułu, a nie Web Push.
+## 2. Supported helper files
+`GM_test.html` and `Infoczytnik_test.html` are helper views for users testing their own modifications. `GM_backup.html` and `Infoczytnik_backup.html` are reference backups for experiments. These four files are intentionally distributed, but they are not the normal production route.
+
+## 3. Files, assets, and data
+- `index.html` links production and helper entry points.
+- `GM.html` writes the current payload; `DataSlate.html` listens and renders it.
+- The `_test.html` pair supports modification testing; the `_backup.html` pair is retained as reference material.
+- `config/firebase-config.js` contains the administrator-supplied Firebase Web SDK configuration template.
+- `assets/backgrounds/`, `assets/ramki/`, `assets/logos/`, and `assets/audios/` contain local presentation assets.
+- `assets/data/data.json`, spreadsheets, and mapping notes support selectable content and maintenance.
+
+## 4. Runtime mechanics
+The GM panel assembles a payload from message type, content, background, frame, logo, filler, ping, and audio controls, then writes a full current-state snapshot to Firestore. The player screen listens for the current document and updates presentation immediately. Local assets provide visuals and typing/audio effects; Firestore provides synchronization.
+
+## 5. Styling and reconstruction
+The presentation uses full-screen themed backgrounds, overlay frames, logos, text layers, and responsive scaling for player displays. To rebuild the module, restore every production, helper, backup, config, and asset file; configure a separate Firebase project; open `GM.html` and `DataSlate.html`; publish each content type; then verify visuals, fillers, ping, audio, and Firestore synchronization. Use the helper pair separately when testing modifications.
+
+# 🇵🇱 Dokumentacja techniczna (PL)
+
+# DataSlate — dokumentacja techniczna (odtworzenie 1:1)
+
+## Zakres komunikacji
+
+DataSlate używa Firestore do komunikacji panel GM → ekran gracza przez dokument `dataslate/current`. Zwykły ping i audio DataSlate korzystają z komunikacji Firestore oraz lokalnych assetów modułu.
 
 ## 1. Zakres modułu
 Główną ścieżkę produkcyjnego uruchamiania DataSlate tworzą dwa ekrany:
 - `GM.html` — panel przygotowania i publikacji komunikatów.
 - `DataSlate.html` — ekran odczytu komunikatów dla graczy.
 
-Pliki testowe (`GM_test.html`, `Infoczytnik_test.html`) oraz backupowe (`GM_backup.html`, `Infoczytnik_backup.html`) celowo pozostają w wersji Release. Służą użytkownikom jako narzędzia pomocnicze do testowania własnych modyfikacji i jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną modułu. Funkcjonalnie punktem rozwoju pozostają pliki `_test`.
+Pliki testowe (`GM_test.html`, `Infoczytnik_test.html`) oraz backupowe (`GM_backup.html`, `Infoczytnik_backup.html`) celowo są dostępne. Służą użytkownikom jako narzędzia pomocnicze do testowania własnych modyfikacji i jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną modułu. Funkcjonalnie punktem rozwoju pozostają pliki `_test`.
 
 ## 2. Struktura katalogów i odpowiedzialność plików
 - `index.html` — launcher modułu z linkami do widoków produkcyjnych i pomocniczych widoków testowych.
@@ -336,10 +360,9 @@ Przy wdrożeniu dla osobnej grupy należy sprawdzić:
 - ścieżki używane przez panel GM i ekran DataSlate,
 - zgodność konfiguracji Firebase z docelowym projektem.
 
-## 14. Rozszerzenie testowe: panel koloru logo
-- W `GM_test.html` dodano panel `logoColorPanel` pod wyborem logo i nad `Zestaw fillerów`.
+## 14. Panel koloru logo
 - Domyślna wartość `DEFAULT_FORM_STATE.logoColor` to `#d4af37`.
-- Payload publikowany do Firestore rozszerzono o pole `logoColor` (HEX), aby ekran odbiorcy renderował identyczny kolor co panel GM.
+- Payload publikowany do Firestore zawiera pole `logoColor` (HEX), aby ekran odbiorcy renderował identyczny kolor co panel GM.
 - W `renderPreview()` logo podglądu jest kolorowane przez CSS mask (`mask-image`/`-webkit-mask-image`) i zmienną koloru, dzięki czemu podgląd reaguje natychmiast.
 - Gdy `showLogo=false`, funkcja `updateLogoColorPanelState()` wyszarza panel i blokuje interakcję (`opacity` + `pointer-events`).
 - Zdarzenia `.chip[data-target]` rozdzielają trzy cele (`msg`, `logo`, `ps`), aby presety koloru logo nie nadpisywały koloru prefix/suffix.
@@ -347,11 +370,10 @@ Przy wdrożeniu dla osobnej grupy należy sprawdzić:
 - W `Infoczytnik_test.html` logo odbiorcy również renderowane jest jako maska PNG z jednolitym kolorem (`--logoColor`), pobieranym z payloadu (`d.logoColor`).
 
 
-- Kolor logo w szybkich presetach obejmuje teraz wariant **Czarny (#000000)** zamiast czerwonego, a logo renderowane jest na elementach dekoracyjnych bez fallbacku tekstowego IMG, co eliminuje artefakty podczas zoomu.
+- Kolor logo w szybkich presetach obejmuje wariant **Czarny (#000000)**, a logo renderowane jest na elementach dekoracyjnych bez fallbacku tekstowego IMG, co eliminuje artefakty podczas zoomu.
 
-## 15. DataSlate manifest snapshot (current)
-
-- `assets/data/data.json` was refreshed to match the current logo asset set in `assets/logos/`.
-- The `logos` array now contains 14 entries and points to PNG files from `assets/logos/`.
-- In `GM_test.html`, `DEFAULT_FORM_STATE.logoId` is set to `3`, which selects `Aquila` (`assets/logos/Aquila.png`) as the default logo.
-- `INF_VERSION` was synchronized in `GM_test.html` and `Infoczytnik_test.html` to keep cache-busting consistent for both test entry points.
+## 20. Dane manifestu DataSlate
+- `assets/data/data.json` odpowiada zestawowi assetów logo w `assets/logos/`.
+- Tablica `logos` zawiera 14 wpisów wskazujących pliki PNG z `assets/logos/`.
+- W `GM_test.html` wartość `DEFAULT_FORM_STATE.logoId` wynosi `3`, co wybiera logo `Aquila` (`assets/logos/Aquila.png`).
+- Wartość `INF_VERSION` powinna być zgodna w `GM_test.html` i `Infoczytnik_test.html`, aby cache-busting obu pomocniczych punktów wejścia działał spójnie.

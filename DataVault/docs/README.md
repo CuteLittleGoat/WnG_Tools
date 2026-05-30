@@ -1,98 +1,3 @@
-# 🇵🇱 Instrukcja dla użytkownika (PL)
-
-## Do czego służy DataVault
-**DataVault** to wyszukiwarka wiedzy do Wrath & Glory. W jednym miejscu przeglądasz tabele, zasady i opisy potrzebne podczas gry.
-
-## Jak otworzyć
-- Widok standardowy: `DataVault/index.html`
-- Widok rozszerzony (admin): `DataVault/index.html?admin=1`
-
-## Co znajdziesz na ekranie
-- **Zakładki** – przełączają między grupami danych.
-- **Szukaj (globalnie)** – szuka wpisów w aktualnym obszarze.
-- **Filtry kolumnowe** – zawężają wyniki w konkretnych kolumnach; aktywny filtr jest oznaczony jasnoczerwonym podświetleniem i kropką przy ikonie filtra.
-- **Pełen Widok** – czyści filtry/sortowanie i pokazuje pełną listę.
-- **Widok Domyślny** – przywraca domyślny układ danych.
-- **Porównaj zaznaczone** – otwiera porównanie wybranych pozycji.
-- **Ikona DataVault w nagłówku** – w lewym górnym rogu widzisz ikonę `Icon.png` osadzoną w stałym zielonym polu 48×48 px (ikona wypełnia całe pole bez ucinania), dzięki czemu nagłówek nie „skacze” podczas ładowania.
-- **Oznaczenia odnośników stron** – zapisy w nawiasach typu `str. 123`, `strona 123`, `page 123` i `p. 123` są automatycznie wyróżniane.
-
-## Jak pracować krok po kroku
-1. Wejdź do modułu i wybierz zakładkę odpowiadającą tematowi, którego szukasz.
-2. Wpisz słowo kluczowe w polu wyszukiwania.
-3. Jeśli wyników jest dużo, ustaw filtry tylko na interesujących kolumnach.
-4. Zaznacz 2 lub więcej wierszy.
-5. Kliknij **Porównaj zaznaczone**, aby zobaczyć dane obok siebie.
-6. Po zakończeniu kliknij **Pełen Widok**, aby wrócić do pełnych danych.
-
-## Różnice: użytkownik vs admin
-- **Użytkownik**: widzi zestaw najczęściej używanych danych na sesji.
-- **Admin**: ma dodatkowe zakładki i przycisk utrzymaniowy.
-- Domyślna zakładka po wejściu:
-  - użytkownik: **Bronie**,
-  - admin: **Notatki**.
-
-## Przycisk „Generuj pliki danych” (tylko admin)
-Używaj go, gdy chcesz odświeżyć dane modułu po aktualizacji pliku źródłowego. Po kliknięciu wybierasz lokalny plik **`Repozytorium.xlsx`** z dysku (plik nie musi być zapisany w repozytorium), a system przygotowuje nowe pliki danych dla aplikacji.
-
-## Wymagania dla pliku XLSX
-- Wskazywany plik wejściowy powinien mieć nazwę **`Repozytorium.xlsx`**.
-- Plik wybierasz w oknie systemowym po kliknięciu **Generuj pliki danych**; nie ma wymogu trzymania go stale w folderze `DataVault` ani commitowania do repozytorium.
-- W praktyce używane są zakładki widoczne w interfejsie DataVault (np. `Bronie`, `Archetypy`, `Bestiariusz`, `Skrót Zasad`, `Pakiety Wyniesienia`). Brak zakładki oznacza brak tej tabeli w aplikacji.
-- Każda zakładka powinna zachować stałe nazwy kolumn. Najważniejsze kolumny wspólne dla wielu zakładek to m.in. `Nazwa`, `Opis`, `Podręcznik`, `Strona`, `Słowa Kluczowe`.
-- Kolorowanie i styl tekstu są czytane z formatowania komórek (rich text):
-  - czerwony tekst -> podświetlenie czerwone w aplikacji,
-  - pogrubienie/kursywa/przekreślenie -> zachowane 1:1 w aplikacji.
-- Odnośniki stron w nawiasach (np. `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) są automatycznie wyświetlane jaśniejszym kolorem.
-- W kolumnach `Słowa Kluczowe` obowiązują dodatkowe reguły renderowania (np. neutralny przecinek, wyjątek dla `Pakiety Wyniesienia`), opisane szczegółowo w `docs/ZasadyFormatowania.md`.
-
-## Aktualne źródło danych
-Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup) oraz `firebase-import.json` (tylko ten plik importuj do Firebase RTDB `/datavault/live`).
-
-## Runtime danych
-Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) przez Firebase Auth i wspólny loader `shared/firebase-data-loader.js`. Publiczny `data.json` nie jest używany jako runtime.
-
-## Logowanie do prywatnych danych Firebase
-- W oknie logowania wyświetla się ikona `IkonaPowiadomien2.png` w stałym polu (72×72 px), więc karta logowania nie zmienia rozmiaru podczas doczytywania zasobów.
-- Po wpisaniu poprawnego hasła bramka zamyka się, a dane ładują się od razu z prywatnej bazy.
-- Jeżeli sesja logowania nie zostanie wykryta po wpisaniu hasła, zobaczysz dokładny komunikat z informacją, że problem dotyczy sesji Auth, a niekoniecznie samego hasła.
-
-## Aktualny dostęp do danych
-- DataVault i NPCGenerator używają wspólnego logowania Firebase. Zalogowanie w jednym module odblokowuje drugi bez ponownego wpisywania hasła w tej samej przeglądarce.
-- Przycisk „WYLOGUJ / ZABLOKUJ DANE” nie jest dostępny w interfejsie.
-
-## Wspólna sesja z NPCGenerator
-DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wg-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
-
-## Okno dostępu K.O.Z.A.
-Okno hasła używa narracji K.O.Z.A. i Ducha Maszyny:
-- tytuł: **„Dostęp do danych z klauzulą tajności K.O.Z.A.”**,
-- opis: **Rytuał Uwierzytelnienia**,
-- etykieta pola: **„Litania Dostępu”**,
-- przycisk: **„Rozpocznij Rytuał”**.
-
-## Układ pola „Litania Dostępu”
-W oknie dostępu etykieta **„Litania Dostępu”** jest ustawiona po lewej stronie, a pole hasła po prawej. Przycisk **„Rozpocznij Rytuał”** znajduje się pod polem hasła, po prawej stronie. Na wąskich ekranach (telefon) elementy mają wymuszoną kolejność pionową: wiersz 1 etykieta, wiersz 2 pole hasła, wiersz 3 przycisk, a komunikat błędu pozostaje pod formularzem.
-
-## Dodawanie nowej wersji językowej
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
-
-Miejsca w kodzie zostały oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-## Ważne przy kopiowaniu modułu
-W module jest przycisk **Strona Główna / Main Page**. Po skopiowaniu aplikacji do innej lokalizacji (inna domena, inny katalog) **zaktualizuj jego hiperłącze**, żeby poprawnie wracał do strony startowej.
-
-## Generator referencyjny
-Skrypt `DataVault/build_json.py` jest referencyjną ścieżką generowania plików danych z `Repozytorium.xlsx` przy użyciu parsera XLSX ZIP/XML. Wynik powinien odpowiadać plikom tworzonym w aplikacji przez przycisk **Generuj pliki danych**.
-
----
-
 # 🇬🇧 User instructions (EN)
 
 ## What DataVault is for
@@ -185,3 +90,104 @@ This module includes a **Strona Główna / Main Page** button. After copying the
 
 ## Reference generator
 The `DataVault/build_json.py` script is the reference path for generating data files from `Repozytorium.xlsx` using the XLSX ZIP/XML parser. Its output should match the files generated in the app by the **Generate data files** button.
+
+### Access gate and your Firebase project
+The public Firebase placeholders do not connect the module to a private database. To use the password gate, the administrator must configure the group’s own Firebase project. Never store passwords, tokens, service-account files, or private keys in the repository.
+
+# 🇵🇱 Instrukcja dla użytkownika (PL)
+
+## Do czego służy DataVault
+**DataVault** to wyszukiwarka wiedzy do Wrath & Glory. W jednym miejscu przeglądasz tabele, zasady i opisy potrzebne podczas gry.
+
+## Jak otworzyć
+- Widok standardowy: `DataVault/index.html`
+- Widok rozszerzony (admin): `DataVault/index.html?admin=1`
+
+## Co znajdziesz na ekranie
+- **Zakładki** – przełączają między grupami danych.
+- **Szukaj (globalnie)** – szuka wpisów w aktualnym obszarze.
+- **Filtry kolumnowe** – zawężają wyniki w konkretnych kolumnach; aktywny filtr jest oznaczony jasnoczerwonym podświetleniem i kropką przy ikonie filtra.
+- **Pełen Widok** – czyści filtry/sortowanie i pokazuje pełną listę.
+- **Widok Domyślny** – przywraca domyślny układ danych.
+- **Porównaj zaznaczone** – otwiera porównanie wybranych pozycji.
+- **Ikona DataVault w nagłówku** – w lewym górnym rogu widzisz ikonę `Icon.png` osadzoną w stałym zielonym polu 48×48 px (ikona wypełnia całe pole bez ucinania), dzięki czemu nagłówek nie „skacze” podczas ładowania.
+- **Oznaczenia odnośników stron** – zapisy w nawiasach typu `str. 123`, `strona 123`, `page 123` i `p. 123` są automatycznie wyróżniane.
+
+## Jak pracować krok po kroku
+1. Wejdź do modułu i wybierz zakładkę odpowiadającą tematowi, którego szukasz.
+2. Wpisz słowo kluczowe w polu wyszukiwania.
+3. Jeśli wyników jest dużo, ustaw filtry tylko na interesujących kolumnach.
+4. Zaznacz 2 lub więcej wierszy.
+5. Kliknij **Porównaj zaznaczone**, aby zobaczyć dane obok siebie.
+6. Po zakończeniu kliknij **Pełen Widok**, aby wrócić do pełnych danych.
+
+## Różnice: użytkownik vs admin
+- **Użytkownik**: widzi zestaw najczęściej używanych danych na sesji.
+- **Admin**: ma dodatkowe zakładki i przycisk utrzymaniowy.
+- Domyślna zakładka po wejściu:
+  - użytkownik: **Bronie**,
+  - admin: **Notatki**.
+
+## Przycisk „Generuj pliki danych” (tylko admin)
+Używaj go, gdy chcesz odświeżyć dane modułu po aktualizacji pliku źródłowego. Po kliknięciu wybierasz lokalny plik **`Repozytorium.xlsx`** z dysku (plik nie musi być zapisany w repozytorium), a system przygotowuje nowe pliki danych dla aplikacji.
+
+## Wymagania dla pliku XLSX
+- Wskazywany plik wejściowy powinien mieć nazwę **`Repozytorium.xlsx`**.
+- Plik wybierasz w oknie systemowym po kliknięciu **Generuj pliki danych**; nie ma wymogu trzymania go stale w folderze `DataVault` ani commitowania do repozytorium.
+- W praktyce używane są zakładki widoczne w interfejsie DataVault (np. `Bronie`, `Archetypy`, `Bestiariusz`, `Skrót Zasad`, `Pakiety Wyniesienia`). Brak zakładki oznacza brak tej tabeli w aplikacji.
+- Każda zakładka powinna zachować stałe nazwy kolumn. Najważniejsze kolumny wspólne dla wielu zakładek to m.in. `Nazwa`, `Opis`, `Podręcznik`, `Strona`, `Słowa Kluczowe`.
+- Kolorowanie i styl tekstu są czytane z formatowania komórek (rich text):
+  - czerwony tekst -> podświetlenie czerwone w aplikacji,
+  - pogrubienie/kursywa/przekreślenie -> zachowane 1:1 w aplikacji.
+- Odnośniki stron w nawiasach (np. `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) są automatycznie wyświetlane jaśniejszym kolorem.
+- W kolumnach `Słowa Kluczowe` obowiązują dodatkowe reguły renderowania (np. neutralny przecinek, wyjątek dla `Pakiety Wyniesienia`), opisane szczegółowo w `docs/ZasadyFormatowania.md`.
+
+## Aktualne źródło danych
+Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup) oraz `firebase-import.json` (tylko ten plik importuj do Firebase RTDB `/datavault/live`).
+
+## Runtime danych
+Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) przez Firebase Auth i wspólny loader `shared/firebase-data-loader.js`. Publiczny `data.json` nie jest używany jako runtime.
+
+## Logowanie do prywatnych danych Firebase
+- W oknie logowania wyświetla się ikona `IkonaPowiadomien2.png` w stałym polu (72×72 px), więc karta logowania nie zmienia rozmiaru podczas doczytywania zasobów.
+- Po wpisaniu poprawnego hasła bramka zamyka się, a dane ładują się od razu z prywatnej bazy.
+- Jeżeli sesja logowania nie zostanie wykryta po wpisaniu hasła, zobaczysz dokładny komunikat z informacją, że problem dotyczy sesji Auth, a niekoniecznie samego hasła.
+
+## Aktualny dostęp do danych
+- DataVault i NPCGenerator używają wspólnego logowania Firebase. Zalogowanie w jednym module odblokowuje drugi bez ponownego wpisywania hasła w tej samej przeglądarce.
+- Przycisk „WYLOGUJ / ZABLOKUJ DANE” nie jest dostępny w interfejsie.
+
+## Wspólna sesja z NPCGenerator
+DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wg-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
+
+## Okno dostępu K.O.Z.A.
+Okno hasła używa narracji K.O.Z.A. i Ducha Maszyny:
+- tytuł: **„Dostęp do danych z klauzulą tajności K.O.Z.A.”**,
+- opis: **Rytuał Uwierzytelnienia**,
+- etykieta pola: **„Litania Dostępu”**,
+- przycisk: **„Rozpocznij Rytuał”**.
+
+## Układ pola „Litania Dostępu”
+W oknie dostępu etykieta **„Litania Dostępu”** jest ustawiona po lewej stronie, a pole hasła po prawej. Przycisk **„Rozpocznij Rytuał”** znajduje się pod polem hasła, po prawej stronie. Na wąskich ekranach (telefon) elementy mają wymuszoną kolejność pionową: wiersz 1 etykieta, wiersz 2 pole hasła, wiersz 3 przycisk, a komunikat błędu pozostaje pod formularzem.
+
+## Dodawanie nowej wersji językowej
+1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
+2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
+3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
+4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
+5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+
+Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+
+Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+
+## Ważne przy kopiowaniu modułu
+W module jest przycisk **Strona Główna / Main Page**. Po skopiowaniu aplikacji do innej lokalizacji (inna domena, inny katalog) **zaktualizuj jego hiperłącze**, żeby poprawnie wracał do strony startowej.
+
+## Generator referencyjny
+Skrypt `DataVault/build_json.py` jest referencyjną ścieżką generowania plików danych z `Repozytorium.xlsx` przy użyciu parsera XLSX ZIP/XML. Wynik powinien odpowiadać plikom tworzonym w aplikacji przez przycisk **Generuj pliki danych**.
+
+---
+
+### Bramka dostępu i własny projekt Firebase
+Publiczne placeholdery Firebase nie łączą modułu z prywatną bazą. Aby używać bramki hasła, administrator musi skonfigurować własny projekt Firebase grupy. Nie zapisuj w repozytorium haseł, tokenów, plików kont usługowych ani prywatnych kluczy.
