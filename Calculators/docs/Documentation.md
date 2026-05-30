@@ -331,7 +331,7 @@ const skillCosts = {
   - `#closeSpeciesMaxButton`, kliknięcie tła overlay lub `Escape` zamyka modal.
 
 ### 6.7. Domyślne wartości po starcie
-- `currentLanguage = 'pl'`.
+- `currentLanguage = 'en'`.
 - `xpPool = 155`.
 - Atrybuty = 1, umiejętności = 0, talenty = 0.
 - `updateLanguage()` + `recalcXP()` uruchamiane po `DOMContentLoaded`.

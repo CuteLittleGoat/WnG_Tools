@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
-<html lang="pl">
+<html lang="en">
 <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
 <head>
   <meta charset="UTF-8">
@@ -269,8 +269,8 @@
     <!-- Przełącznik języka w prawym górnym rogu / Language switcher in the top right corner -->
     <div class="language-switcher">
       <select id="languageSelect">
-        <option value="pl">Polski</option>
         <option value="en">English</option>
+        <option value="pl">Polski</option>
       </select>
       <button type="button" id="manualButton">Instrukcja</button>
       <button type="button" id="backToMainButton">Strona Główna</button>
@@ -608,8 +608,8 @@ const translations = {
         }
       };
 
-      // --- Domyślny język (polski) / Default language (Polish) ---
-      let currentLanguage = 'pl';
+      // --- Domyślny język (angielski) / Default language (English) ---
+      let currentLanguage = 'en';
 
       const maxAttributeRows = [
         { race: 'race_1', values: [8, 8, 8, 8, 8, 8, 8, 8] },

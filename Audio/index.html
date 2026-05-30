@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
-<html lang="pl">
+<html lang="en">
 <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
 <head>
   <meta charset="UTF-8">
@@ -542,11 +542,10 @@
 <header class="admin-only">
       <h1 id="headerTitle">Audio — panel dźwięków</h1>
       <p id="headerSubtitle">Odtwarzanie SFX, zarządzanie listami „Ulubione” oraz synchronizacja przez Firebase.</p>
-      <div class="language-switcher language-switcher--hidden">
-          <!-- MIEJSCE ZMIANY WIDOCZNOŚCI PRZEŁĄCZNIKA JĘZYKA / LANGUAGE SWITCHER VISIBILITY CHANGE POINT: usuń klasę language-switcher--hidden, aby pokazać przełącznik / remove language-switcher--hidden to make the switcher visible -->
+      <div class="language-switcher">
         <select id="languageSelect" aria-label="Wersja językowa">
-          <option value="pl">Polski</option>
           <option value="en">English</option>
+          <option value="pl">Polski</option>
         </select>
       </div>
       <div class="status-bar admin-only">
@@ -623,11 +622,10 @@
       <div class="user-layout">
         <div class="panel">
           <div class="user-language user-only">
-            <div class="language-switcher language-switcher--hidden">
-          <!-- MIEJSCE ZMIANY WIDOCZNOŚCI PRZEŁĄCZNIKA JĘZYKA / LANGUAGE SWITCHER VISIBILITY CHANGE POINT: usuń klasę language-switcher--hidden, aby pokazać przełącznik / remove language-switcher--hidden to make the switcher visible -->
+            <div class="language-switcher">
               <select id="languageSelectUser" aria-label="Wersja językowa">
-                <option value="pl">Polski</option>
                 <option value="en">English</option>
+                <option value="pl">Polski</option>
               </select>
             </div>
           </div>
@@ -839,7 +837,7 @@ const translations = {
       },
     };
 
-    let currentLanguage = "pl";
+    let currentLanguage = "en";
 
     const formatText = (template, vars = {}) =>
       template.replace(/\{(\w+)\}/g, (_, key) => (key in vars ? vars[key] : ""));

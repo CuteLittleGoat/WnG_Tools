@@ -1,11 +1,11 @@
 <!-- Plik interfejsu modułu: struktura sekcji i elementy interaktywne / Module UI file: section structure and interactive elements -->
 <!doctype html>
-<html lang="pl">
+<html lang="en">
 <!-- Sekcja konfiguracji dokumentu i zasobów / Document configuration and asset section -->
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DataSlate - panel GM</title>
+  <title>DataSlate - GM panel</title>
   <!-- Skrypt odpowiedzialny za interakcję strony / Script responsible for page interactions -->
 <script>
     (function autoCacheBust(){
@@ -55,62 +55,62 @@
 </head>
 <!-- Główna sekcja widoczna dla użytkownika / Main section visible to the user -->
 <body>
-<div class="wrap"><h1>DataSlate - panel GM</h1><div class="card">
+<div class="wrap"><h1>DataSlate - GM panel</h1><div class="card">
   <div class="row">
     <div class="col">
-      <label>Tło</label><select id="backgroundSelect"></select>
+      <label>Background</label><select id="backgroundSelect"></select>
       <label>Logo</label><select id="logoSelect"></select>
-      <label>Kolor logo</label>
+      <label>Logo color</label>
       <div id="logoColorPanel">
         <div class="pair"><input type="text" id="logoColorText" value="#d4af37" placeholder="#RRGGBB"><input type="color" id="logoColorPicker" value="#d4af37"></div>
         <div class="chips" id="logoColorChips">
-          <div class="chip" data-target="logo" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>Biały</span></div>
-          <div class="chip" data-target="logo" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Zielony</span></div>
-          <div class="chip" data-target="logo" data-color="#000000"><span class="swatch" style="background:#000000"></span><span>Czarny</span></div>
-          <div class="chip" data-target="logo" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Złoty</span></div>
+          <div class="chip" data-target="logo" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>White</span></div>
+          <div class="chip" data-target="logo" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Green</span></div>
+          <div class="chip" data-target="logo" data-color="#000000"><span class="swatch" style="background:#000000"></span><span>Black</span></div>
+          <div class="chip" data-target="logo" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Gold</span></div>
         </div>
       </div>
-      <label>Zestaw fillerów</label><select id="fillerSelect"></select>
+      <label>Filler set</label><select id="fillerSelect"></select>
       <label>Font</label><select id="fontSelect"></select>
-      <label>Audio wiadomości</label><select id="audioSelect"></select>
+      <label>Message audio</label><select id="audioSelect"></select>
       <div class="toggles">
         <label class="inline"><input type="checkbox" id="showLogo" checked style="width:auto"> Logo</label>
-        <label class="inline"><input type="checkbox" id="movingOverlay" checked style="width:auto"> Prostokąt cienia</label>
+        <label class="inline"><input type="checkbox" id="movingOverlay" checked style="width:auto"> Shadow rectangle</label>
         <label class="inline"><input type="checkbox" id="flicker" checked style="width:auto"> Flicker</label>
         <label class="inline"><input type="checkbox" id="fillersEnabled" checked style="width:auto"> Fillery</label>
         <label class="inline"><input type="checkbox" id="audioEnabled" checked style="width:auto"> Audio</label>
       </div>
       <div id="flickerHint" class="small"></div>
-      <label>Ilość linii fillerów</label><input type="number" id="fillerLineCount" min="1" max="5" value="3">
-      <label>Wysokość stref Prefix/Suffix (linie)</label><input type="number" id="fillerBandLines" min="1" max="6" value="2">
-      <div id="fillersHint" class="small">Fillery aktywne.</div>
+      <label>Number of filler lines</label><input type="number" id="fillerLineCount" min="1" max="5" value="3">
+      <label>Prefix/Suffix zone height (lines)</label><input type="number" id="fillerBandLines" min="1" max="6" value="2">
+      <div id="fillersHint" class="small">Fillers enabled.</div>
     </div>
     <div class="col">
-      <label>Kolor fontu (treść wiadomości)</label>
+      <label>Font color (message content)</label>
       <div class="pair"><input type="text" id="messageColorText" value="#00ff66" placeholder="#RRGGBB"><input type="color" id="messageColorPicker" value="#00ff66"></div>
       <div class="chips" id="messageColorChips">
-        <div class="chip" data-target="msg" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Zielony</span></div>
-        <div class="chip" data-target="msg" data-color="#ff3333"><span class="swatch" style="background:#ff3333"></span><span>Czerwony</span></div>
-        <div class="chip" data-target="msg" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Złoty</span></div>
-        <div class="chip" data-target="msg" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>Biały</span></div>
+        <div class="chip" data-target="msg" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Green</span></div>
+        <div class="chip" data-target="msg" data-color="#ff3333"><span class="swatch" style="background:#ff3333"></span><span>Red</span></div>
+        <div class="chip" data-target="msg" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Gold</span></div>
+        <div class="chip" data-target="msg" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>White</span></div>
       </div>
-      <label>Wielkość fontu (treść) px</label><input type="number" id="msgFontSize" min="12" max="80" value="20">
-      <label>Kolor Prefix + Suffix (wspólny)</label>
+      <label>Font size (content) px</label><input type="number" id="msgFontSize" min="12" max="80" value="20">
+      <label>Prefix + Suffix color (shared)</label>
       <div class="pair"><input type="text" id="psColorText" value="#ffffff" placeholder="#RRGGBB"><input type="color" id="psColorPicker" value="#ffffff"></div>
       <div class="chips" id="psColorChips">
-        <div class="chip" data-target="ps" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Zielony</span></div>
-        <div class="chip" data-target="ps" data-color="#ff3333"><span class="swatch" style="background:#ff3333"></span><span>Czerwony</span></div>
-        <div class="chip" data-target="ps" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Złoty</span></div>
-        <div class="chip" data-target="ps" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>Biały</span></div>
+        <div class="chip" data-target="ps" data-color="#00ff66"><span class="swatch" style="background:#00ff66"></span><span>Green</span></div>
+        <div class="chip" data-target="ps" data-color="#ff3333"><span class="swatch" style="background:#ff3333"></span><span>Red</span></div>
+        <div class="chip" data-target="ps" data-color="#d4af37"><span class="swatch" style="background:#d4af37"></span><span>Gold</span></div>
+        <div class="chip" data-target="ps" data-color="#ffffff"><span class="swatch" style="background:#ffffff"></span><span>White</span></div>
       </div>
-      <label>Wielkość fontu Prefix + Suffix px</label><input type="number" id="psFontSize" min="10" max="60" value="12">
+      <label>Prefix + Suffix font size px</label><input type="number" id="psFontSize" min="10" max="60" value="12">
 
       <div class="previewModeRow">
-        <span class="small">Podgląd:</span>
-        <label class="inline"><input type="radio" name="previewMode" id="previewModeContent" value="content" checked style="width:auto"> Treść</label>
-        <label class="inline"><input type="radio" name="previewMode" id="previewModeBackground" value="background" style="width:auto"> Tło</label>
+        <span class="small">Preview:</span>
+        <label class="inline"><input type="radio" name="previewMode" id="previewModeContent" value="content" checked style="width:auto"> Content</label>
+        <label class="inline"><input type="radio" name="previewMode" id="previewModeBackground" value="background" style="width:auto"> Background</label>
       </div>
-      <div class="small">Treść = warstwa tekstowa bez grafiki tła • Tło = pojedyncza miniatura wybranego pliku tła.</div>
+      <div class="small">Content = text layer without background graphics • Background = a single thumbnail of the selected background file.</div>
       <div class="livePreviewBox" id="livePreview">
         <img id="previewBackgroundThumb" class="previewBackgroundThumb" alt="background thumbnail">
         <div id="previewLogo" class="previewLogo" aria-hidden="true"></div>
@@ -121,21 +121,21 @@
     </div>
   </div>
 
-  <label>Treść komunikatu</label>
-  <textarea id="message" placeholder="Wpisz komunikat dla graczy..."></textarea>
+  <label>Message content</label>
+  <textarea id="message" placeholder="Enter a message for players..."></textarea>
 
   <div class="btnrow">
-    <button class="primary" id="sendBtn">Wyślij</button>
+    <button class="primary" id="sendBtn">Send</button>
     <button class="warn" id="pingBtn">Ping</button>
-    <button id="clearMessageBtn">Wyczyść komunikat</button>
-    <button id="restoreDefaultsBtn">Przywróć domyślne</button>
-    <button id="rerollFillersBtn">Wylosuj fillery</button>
+    <button id="clearMessageBtn">Clear message</button>
+    <button id="restoreDefaultsBtn">Restore defaults</button>
+    <button id="rerollFillersBtn">Reroll fillers</button>
   </div>
 
-  <label>Log importu</label>
+  <label>Import log</label>
   <div class="importRow">
     <textarea id="importLog" class="importLog" readonly></textarea>
-    <button id="updateDataBtn" class="primary importUpdateBtn" type="button">Aktualizuj dane z XLSX</button>
+    <button id="updateDataBtn" class="primary importUpdateBtn" type="button">Update data from XLSX</button>
   </div>
 
   <div class="small">Status: <span class="status" id="status">…</span></div>
@@ -153,7 +153,7 @@ const PING_URL = 'assets/audios/ping/Ping.mp3?v=' + encodeURIComponent(window.__
 const PREVIEW_MODE_KEY = 'infoczytnik.gm.previewMode';
 
 // --- WAŻNE: Każda grupa musi mieć własny Firebase, inaczej dane będą współdzielone między serwerami. / IMPORTANT: Each group must have its own Firebase, otherwise data will be shared across servers. ---
-if(!window.firebaseConfig){ alert('Brak window.firebaseConfig'); throw new Error('Missing firebase config'); }
+if(!window.firebaseConfig){ alert('Missing window.firebaseConfig'); throw new Error('Missing firebase config'); }
 firebase.initializeApp(window.firebaseConfig);
 const db = firebase.firestore();
 const currentRef = db.collection('dataslate').doc('current');
@@ -210,7 +210,7 @@ function fillSelect(select,list,labelKey){
   });
 }
 
-function writeImportLog(lines){ el.importLog.value = (lines||[]).length ? lines.join('\n') : 'Brak błędów importu.'; }
+function writeImportLog(lines){ el.importLog.value = (lines||[]).length ? lines.join('\n') : 'No import errors.'; }
 
 const MANIFEST_XLSX_PATH = 'assets/data/DataSlate_manifest.xlsx';
 
@@ -269,20 +269,20 @@ function buildManifestFromWorkbook(workbook){
   const logs = [];
   const mapBasic = (sheetName, cfg)=>{
     const rows = parseSheetRows(workbook, sheetName);
-    if(!rows.length){ logs.push(`Brak arkusza lub pusty arkusz: ${sheetName}`); return []; }
+    if(!rows.length){ logs.push(`Missing or empty sheet: ${sheetName}`); return []; }
     return rows.map((row, idx)=>{
       const id = toInt(pickValue(row,['id']), idx+1);
       const name = toStr(pickValue(row,['name','nazwa']));
       const file = toStr(pickValue(row,['file','plik','url']));
       const item = {id, name};
       item[cfg.thirdKey] = cfg.thirdKey === 'font' ? toStr(pickValue(row,['font','czcionka'])) : file;
-      if(!item.name || !item[cfg.thirdKey]) logs.push(`${sheetName}: niepełny rekord ID ${id}`);
+      if(!item.name || !item[cfg.thirdKey]) logs.push(`${sheetName}: incomplete record ID ${id}`);
       return item;
     });
   };
 
   const fillersRows = parseSheetRows(workbook, 'fillers');
-  if(!fillersRows.length) logs.push('Brak arkusza lub pusty arkusz: fillers');
+  if(!fillersRows.length) logs.push('Missing or empty sheet: fillers');
 
   const manifestData = {
     backgrounds: mapBasic('backgrounds', {thirdKey:'file'}),
@@ -300,7 +300,7 @@ function buildManifestFromWorkbook(workbook){
 
   manifestData.fillers.forEach(item=>{
     if(!item.name || !item.prefixes.length || !item.suffixes.length){
-      logs.push(`fillers: niepełny rekord ID ${item.id}`);
+      logs.push(`fillers: incomplete record ID ${item.id}`);
     }
   });
 
@@ -321,7 +321,7 @@ function downloadJson(filename, data){
 
 async function updateDataFromXlsx(){
   if(typeof XLSX === 'undefined'){
-    setStatus('Błąd: biblioteka XLSX niedostępna');
+    setStatus('Error: XLSX library unavailable');
     return;
   }
   const btn = el.updateDataBtn;
@@ -331,7 +331,7 @@ async function updateDataFromXlsx(){
   setStatus('Aktualizacja data.json z DataSlate_manifest.xlsx...');
   try{
     const response = await fetch(`${MANIFEST_XLSX_PATH}?v=${encodeURIComponent(window.__dsVersion || '')}`, {cache:'no-store'});
-    if(!response.ok) throw new Error('Nie udało się pobrać DataSlate_manifest.xlsx');
+    if(!response.ok) throw new Error('Could not download DataSlate_manifest.xlsx');
     const bytes = await response.arrayBuffer();
     const workbook = XLSX.read(bytes, {type:'array'});
     const nextManifest = buildManifestFromWorkbook(workbook);
@@ -347,8 +347,8 @@ async function updateDataFromXlsx(){
     setStatus('Gotowe: wygenerowano nowy data.json (plik pobrany).');
   }catch(err){
     console.error(err);
-    setStatus('Błąd aktualizacji danych');
-    writeImportLog([`Błąd aktualizacji: ${err.message || err}`]);
+    setStatus('Data update error');
+    writeImportLog([`Update error: ${err.message || err}`]);
   }finally{
     btn.disabled = false;
     btn.textContent = previousLabel;
@@ -357,7 +357,7 @@ async function updateDataFromXlsx(){
 
 async function loadManifest(){
   const res = await fetch(`assets/data/data.json?v=${encodeURIComponent(window.__dsVersion || '')}`);
-  if(!res.ok) throw new Error('Nie udało się wczytać assets/data/data.json');
+  if(!res.ok) throw new Error('Could not load assets/data/data.json');
   manifest = await res.json();
   fillSelect(el.backgroundSelect, manifest.backgrounds || []);
   fillSelect(el.logoSelect, manifest.logos || []);
@@ -381,7 +381,7 @@ function syncFlickerDependency(){
   if(!el.movingOverlay.checked){
     el.flicker.checked = false;
     el.flicker.disabled = true;
-    el.flickerHint.textContent = 'Flicker wymaga włączonego prostokąta cienia.';
+    el.flickerHint.textContent = 'Flicker requires the shadow rectangle to be enabled.';
     el.flickerHint.className = 'small disabled-note';
   } else {
     el.flicker.disabled = false;
@@ -464,7 +464,7 @@ function renderPreview(){
   if(!isBackgroundMode && el.showLogo.checked && logo){ el.previewLogo.style.display='block'; el.previewLogo.style.webkitMaskImage = `url(${logo.file})`; el.previewLogo.style.maskImage = `url(${logo.file})`; } else { el.previewLogo.style.display='none'; el.previewLogo.style.webkitMaskImage = 'none'; el.previewLogo.style.maskImage = 'none'; }
   const fillersOff = !el.fillersEnabled.checked;
   el.fillerLineCount.disabled = fillersOff;
-  el.fillersHint.textContent = fillersOff ? 'Fillery wyłączone — pole nieaktywne.' : 'Fillery aktywne.';
+  el.fillersHint.textContent = fillersOff ? 'Fillers disabled — field inactive.' : 'Fillers enabled.';
   el.fillersHint.className = 'small' + (fillersOff ? ' disabled-note' : '');
 }
 
@@ -504,16 +504,16 @@ function getPayload(type){
 }
 
 async function send(type){
-  setStatus('wysyłam…');
+  setStatus('sending…');
   await currentRef.set(getPayload(type), {merge:false});
-  setStatus(type === 'clear' ? 'wyczyszczono' : 'wysłano');
+  setStatus(type === 'clear' ? 'cleared' : 'sent');
 }
 
 async function ping(){
   setStatus('ping…');
   // --- Ping zapisujemy pełnym obiektem bez wartości `undefined`, bo Firestore odrzuca takie pola / Save ping as a full object without `undefined`, because Firestore rejects such fields ---
   await currentRef.set(getPayload('ping'), {merge:false});
-  setStatus('ping wysłany');
+  setStatus('ping sent');
 }
 
 function restoreDefaults(sendReset=true){
@@ -533,7 +533,7 @@ function restoreDefaults(sendReset=true){
   el.message.value = '';
   setPreviewMode(DEFAULT_FORM_STATE.previewMode);
   rerollFillers();
-  if(sendReset){ send('clear').catch(e=>{setStatus('BŁĄD'); alert(e.message||e);}); }
+  if(sendReset){ send('clear').catch(e=>{setStatus('ERROR'); alert(e.message||e);}); }
 }
 
 ['input','change'].forEach(evt=>{
@@ -569,15 +569,15 @@ document.querySelectorAll('.chip[data-target]').forEach(chip=>{
     renderPreview();
   });
 });
-el.sendBtn.addEventListener('click',()=>send('message').catch(e=>{setStatus('BŁĄD'); alert(e.message||e);}));
+el.sendBtn.addEventListener('click',()=>send('message').catch(e=>{setStatus('ERROR'); alert(e.message||e);}));
 el.clearMessageBtn.addEventListener('click',()=>{el.message.value=''; el.message.focus();});
 el.restoreDefaultsBtn.addEventListener('click',()=>restoreDefaults(true));
-el.pingBtn.addEventListener('click',()=>ping().catch(e=>{setStatus('BŁĄD ping'); alert(e.message||e);}));
+el.pingBtn.addEventListener('click',()=>ping().catch(e=>{setStatus('PING ERROR'); alert(e.message||e);}));
 el.updateDataBtn.addEventListener('click',()=>updateDataFromXlsx());
 
 (async()=>{
   try{ loadSavedPreviewMode(); await loadManifest(); await preloadManifestFonts(); renderPreview(); setStatus('gotowe'); }
-  catch(e){ setStatus('BŁĄD'); writeImportLog([String(e.message||e)]); alert(e.message||e); }
+  catch(e){ setStatus('ERROR'); writeImportLog([String(e.message||e)]); alert(e.message||e); }
 })();
 </script>
 </body>
