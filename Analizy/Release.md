@@ -2247,3 +2247,318 @@ Na końcu odpowiedzi podaj krótkie podsumowanie:
    - `DataSlate/GM_backup.html`;
    - `DataSlate/Infoczytnik_backup.html`.
 4. Neutralne makiety XLSX nadal pozostają osobnym późniejszym etapem.
+
+## Aktualizacja — 2026-05-30 — angielska bramka dostępu DataVault i NPCGenerator
+
+### Oryginalny pełny prompt użytkownika
+
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj małą poprawkę błędu językowego bramki dostępu do prywatnych danych.
+
+KONTEKST:
+Po etapie Release aplikacja ma domyślnie działać po angielsku. Obecnie ekran hasła / access gate w `DataVault` i `NPCGenerator` wyświetla polskie teksty:
+- „Dostęp do danych z klauzulą tajności K.O.Z.A.”
+- „Dane są zapieczętowane protokołami Ducha Maszyny...”
+- „Litania Dostępu”
+- „Rozpocznij Rytuał”
+
+To jest błąd. Bramka dostępu ma być powiązana z aktualną wersją językową modułu i domyślnie wyświetlać się po angielsku.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie przywracaj prywatnej konfiguracji Firebase właściciela.
+- Nie wpisuj prawdziwych kluczy Firebase ani prawdziwego e-maila technicznego.
+- Nie próbuj naprawiać hasła przez podłączenie repo do prywatnego Firebase.
+- Nie zmieniaj Web Push.
+- Nie usuwaj plików testowych ani backupowych.
+- Nie wykonuj zmian niezwiązanych z bramką dostępu.
+- Po zakończeniu dopisz krótką aktualizację do `Analizy/Release.md`.
+
+CEL:
+Bramka dostępu w `DataVault` i `NPCGenerator` ma:
+- domyślnie pokazywać teksty po angielsku;
+- przełączać teksty razem z selektorem języka EN/PL;
+- nadal pokazywać polską wersję po wybraniu `Polski`;
+- pokazywać komunikaty błędów w aktualnym języku;
+- przy placeholderach Firebase pokazywać zrozumiały angielski komunikat, że konfiguracja Firebase nie jest ustawiona.
+
+PLIKI DO SPRAWDZENIA I POPRAWY:
+- `DataVault/index.html`
+- `DataVault/app.js`
+- `NPCGenerator/index.html`
+- główny plik JS modułu `NPCGenerator`, w którym znajdują się `translations`, `currentLanguage`, `applyLanguage` albo odpowiednik tej logiki
+- `shared/firebase-data-loader.js`, tylko jeżeli trzeba doprecyzować angielski komunikat błędu dla placeholderów; nie zmieniaj logiki logowania bez potrzeby
+
+ZADANIA:
+
+1. Popraw domyślne teksty HTML bramki dostępu w:
+   - `DataVault/index.html`
+   - `NPCGenerator/index.html`
+
+   Domyślna treść HTML ma być po angielsku, na przykład:
+   - `Access to K.O.Z.A. classified data`
+   - `The data is sealed by Machine Spirit protocols. Enter the Access Litany to begin the Rite of Authentication.`
+   - `Access Litany`
+   - `Begin Rite`
+
+   Dzięki temu, jeśli JS nie zdąży się wykonać albo pojawi się wczesny błąd konfiguracji, użytkownik nie zobaczy polskiego overlayu w domyślnej wersji Release.
+
+2. Dodaj brakujące klucze tłumaczeń do słowników PL/EN w `DataVault/app.js`:
+   - `accessTitle`
+   - `accessDescription`
+   - `accessPasswordLabel`
+   - `accessUnlockButton`
+
+   Wersja EN ma odpowiadać domyślnym tekstom HTML.
+   Wersja PL może zachować obecny styl:
+   - `Dostęp do danych z klauzulą tajności K.O.Z.A.`
+   - `Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.`
+   - `Litania Dostępu`
+   - `Rozpocznij Rytuał`
+
+3. Wykonaj analogiczną poprawkę w module `NPCGenerator`:
+   - dodaj te same klucze do jego systemu tłumaczeń;
+   - upewnij się, że `applyLanguage("en")` albo równoważna inicjalizacja obejmuje elementy bramki dostępu z `data-i18n`.
+
+4. Upewnij się, że zmiana języka przez selektor działa także na otwartej bramce dostępu:
+   - EN pokazuje angielskie teksty bramki;
+   - PL pokazuje polskie teksty bramki;
+   - ponowny powrót do EN znowu pokazuje angielskie teksty.
+
+5. Sprawdź komunikaty błędów:
+   - `shared/firebase-data-loader.js` już ma funkcję `getReadableAccessError(error, lang)`.
+   - Nie zmieniaj jej logiki, jeżeli działa poprawnie.
+   - Upewnij się tylko, że `DataVault` i `NPCGenerator` wywołują ją z aktualnym językiem, np. `currentLanguage`.
+   - Przy placeholderach Firebase aplikacja ma pokazać angielski komunikat konfiguracji, a nie polski tekst domyślny bramki.
+
+6. Nie naprawiaj hasła przez przywracanie prywatnego Firebase:
+   - obecne placeholdery w `shared/firebase-config.js` oznaczają, że publiczna wersja nie jest połączona z Firebase właściciela;
+   - to jest zgodne z celem Release;
+   - prawdziwe hasło z prywatnego projektu nie będzie działać, dopóki użytkownik nie skonfiguruje własnego Firebase albo lokalnie nie podstawi własnych wartości.
+
+TESTY:
+Po zmianach wykonaj:
+- `git status --short`
+- wyszukiwanie tekstu `Dostęp do danych z klauzulą tajności K.O.Z.A.`
+- wyszukiwanie tekstu `Litania Dostępu`
+- wyszukiwanie tekstu `Rozpocznij Rytuał`
+- wyszukiwanie kluczy:
+  - `accessTitle`
+  - `accessDescription`
+  - `accessPasswordLabel`
+  - `accessUnlockButton`
+- `node --check DataVault/app.js`
+- analogiczny `node --check` dla głównego pliku JS `NPCGenerator`, jeżeli plik nadaje się do sprawdzenia przez Node
+- `git diff --check`
+
+Jeżeli polskie teksty bramki pozostają w słowniku `pl`, to jest poprawne. Błędem jest tylko sytuacja, w której domyślny ekran Release po angielsku pokazuje polskie teksty.
+
+AKTUALIZACJA `Analizy/Release.md`:
+Na końcu dopisz nową sekcję zawierającą:
+- datę;
+- pełny prompt użytkownika;
+- opis błędu;
+- przyczynę błędu;
+- listę zmienionych plików;
+- informację, że bramka dostępu domyślnie jest teraz po angielsku;
+- informację, że bramka jest powiązana z selektorem języka;
+- informację, że hasło nie działa z placeholderami Firebase, ponieważ publiczna wersja nie jest już połączona z prywatnym Firebase właściciela;
+- informację, że nie przywracano prywatnej konfiguracji Firebase;
+- wyniki testów;
+- ryzyka i następne kroki.
+
+WYNIK:
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- co zmieniono;
+- czy bramka startuje po angielsku;
+- czy przełącznik EN/PL działa na bramce;
+- czy hasło nadal wymaga prawdziwej konfiguracji Firebase;
+- czy testy statyczne przeszły.
+Pracujesz w repozytorium `WnG_Tools`.
+
+Wykonaj małą poprawkę błędu językowego bramki dostępu do prywatnych danych.
+
+KONTEKST:
+Po etapie Release aplikacja ma domyślnie działać po angielsku. Obecnie ekran hasła / access gate w `DataVault` i `NPCGenerator` wyświetla polskie teksty:
+- „Dostęp do danych z klauzulą tajności K.O.Z.A.”
+- „Dane są zapieczętowane protokołami Ducha Maszyny...”
+- „Litania Dostępu”
+- „Rozpocznij Rytuał”
+
+To jest błąd. Bramka dostępu ma być powiązana z aktualną wersją językową modułu i domyślnie wyświetlać się po angielsku.
+
+WAŻNE:
+- Przed rozpoczęciem przeczytaj:
+  - `AGENTS.md`
+  - `Analizy/Release.md`
+- Nie modyfikuj żadnego pliku `AGENTS.md`.
+- Nie przywracaj prywatnej konfiguracji Firebase właściciela.
+- Nie wpisuj prawdziwych kluczy Firebase ani prawdziwego e-maila technicznego.
+- Nie próbuj naprawiać hasła przez podłączenie repo do prywatnego Firebase.
+- Nie zmieniaj Web Push.
+- Nie usuwaj plików testowych ani backupowych.
+- Nie wykonuj zmian niezwiązanych z bramką dostępu.
+- Po zakończeniu dopisz krótką aktualizację do `Analizy/Release.md`.
+
+CEL:
+Bramka dostępu w `DataVault` i `NPCGenerator` ma:
+- domyślnie pokazywać teksty po angielsku;
+- przełączać teksty razem z selektorem języka EN/PL;
+- nadal pokazywać polską wersję po wybraniu `Polski`;
+- pokazywać komunikaty błędów w aktualnym języku;
+- przy placeholderach Firebase pokazywać zrozumiały angielski komunikat, że konfiguracja Firebase nie jest ustawiona.
+
+PLIKI DO SPRAWDZENIA I POPRAWY:
+- `DataVault/index.html`
+- `DataVault/app.js`
+- `NPCGenerator/index.html`
+- główny plik JS modułu `NPCGenerator`, w którym znajdują się `translations`, `currentLanguage`, `applyLanguage` albo odpowiednik tej logiki
+- `shared/firebase-data-loader.js`, tylko jeżeli trzeba doprecyzować angielski komunikat błędu dla placeholderów; nie zmieniaj logiki logowania bez potrzeby
+
+ZADANIA:
+
+1. Popraw domyślne teksty HTML bramki dostępu w:
+   - `DataVault/index.html`
+   - `NPCGenerator/index.html`
+
+   Domyślna treść HTML ma być po angielsku, na przykład:
+   - `Access to K.O.Z.A. classified data`
+   - `The data is sealed by Machine Spirit protocols. Enter the Access Litany to begin the Rite of Authentication.`
+   - `Access Litany`
+   - `Begin Rite`
+
+   Dzięki temu, jeśli JS nie zdąży się wykonać albo pojawi się wczesny błąd konfiguracji, użytkownik nie zobaczy polskiego overlayu w domyślnej wersji Release.
+
+2. Dodaj brakujące klucze tłumaczeń do słowników PL/EN w `DataVault/app.js`:
+   - `accessTitle`
+   - `accessDescription`
+   - `accessPasswordLabel`
+   - `accessUnlockButton`
+
+   Wersja EN ma odpowiadać domyślnym tekstom HTML.
+   Wersja PL może zachować obecny styl:
+   - `Dostęp do danych z klauzulą tajności K.O.Z.A.`
+   - `Dane są zapieczętowane protokołami Ducha Maszyny. Wprowadź Litanię Dostępu, aby rozpocząć Rytuał Uwierzytelnienia.`
+   - `Litania Dostępu`
+   - `Rozpocznij Rytuał`
+
+3. Wykonaj analogiczną poprawkę w module `NPCGenerator`:
+   - dodaj te same klucze do jego systemu tłumaczeń;
+   - upewnij się, że `applyLanguage("en")` albo równoważna inicjalizacja obejmuje elementy bramki dostępu z `data-i18n`.
+
+4. Upewnij się, że zmiana języka przez selektor działa także na otwartej bramce dostępu:
+   - EN pokazuje angielskie teksty bramki;
+   - PL pokazuje polskie teksty bramki;
+   - ponowny powrót do EN znowu pokazuje angielskie teksty.
+
+5. Sprawdź komunikaty błędów:
+   - `shared/firebase-data-loader.js` już ma funkcję `getReadableAccessError(error, lang)`.
+   - Nie zmieniaj jej logiki, jeżeli działa poprawnie.
+   - Upewnij się tylko, że `DataVault` i `NPCGenerator` wywołują ją z aktualnym językiem, np. `currentLanguage`.
+   - Przy placeholderach Firebase aplikacja ma pokazać angielski komunikat konfiguracji, a nie polski tekst domyślny bramki.
+
+6. Nie naprawiaj hasła przez przywracanie prywatnego Firebase:
+   - obecne placeholdery w `shared/firebase-config.js` oznaczają, że publiczna wersja nie jest połączona z Firebase właściciela;
+   - to jest zgodne z celem Release;
+   - prawdziwe hasło z prywatnego projektu nie będzie działać, dopóki użytkownik nie skonfiguruje własnego Firebase albo lokalnie nie podstawi własnych wartości.
+
+TESTY:
+Po zmianach wykonaj:
+- `git status --short`
+- wyszukiwanie tekstu `Dostęp do danych z klauzulą tajności K.O.Z.A.`
+- wyszukiwanie tekstu `Litania Dostępu`
+- wyszukiwanie tekstu `Rozpocznij Rytuał`
+- wyszukiwanie kluczy:
+  - `accessTitle`
+  - `accessDescription`
+  - `accessPasswordLabel`
+  - `accessUnlockButton`
+- `node --check DataVault/app.js`
+- analogiczny `node --check` dla głównego pliku JS `NPCGenerator`, jeżeli plik nadaje się do sprawdzenia przez Node
+- `git diff --check`
+
+Jeżeli polskie teksty bramki pozostają w słowniku `pl`, to jest poprawne. Błędem jest tylko sytuacja, w której domyślny ekran Release po angielsku pokazuje polskie teksty.
+
+AKTUALIZACJA `Analizy/Release.md`:
+Na końcu dopisz nową sekcję zawierającą:
+- datę;
+- pełny prompt użytkownika;
+- opis błędu;
+- przyczynę błędu;
+- listę zmienionych plików;
+- informację, że bramka dostępu domyślnie jest teraz po angielsku;
+- informację, że bramka jest powiązana z selektorem języka;
+- informację, że hasło nie działa z placeholderami Firebase, ponieważ publiczna wersja nie jest już połączona z prywatnym Firebase właściciela;
+- informację, że nie przywracano prywatnej konfiguracji Firebase;
+- wyniki testów;
+- ryzyka i następne kroki.
+
+WYNIK:
+Na końcu odpowiedzi podaj krótkie podsumowanie:
+- co zmieniono;
+- czy bramka startuje po angielsku;
+- czy przełącznik EN/PL działa na bramce;
+- czy hasło nadal wymaga prawdziwej konfiguracji Firebase;
+- czy testy statyczne przeszły.
+
+### Zakres prac
+
+- Przeczytano `AGENTS.md` i aktualny dziennik `Analizy/Release.md` przed rozpoczęciem zmian.
+- Sprawdzono domyślny markup HTML bramki dostępu, słowniki PL/EN, inicjalizację `currentLanguage`, funkcje `applyLanguage`, obsługę selektora języka oraz wywołania `getReadableAccessError(error, currentLanguage)` w `DataVault` i `NPCGenerator`.
+- Zmieniono wyłącznie pliki związane z bramką dostępu oraz niniejszy dziennik Release. Nie zmieniano Web Push, plików testowych, backupów ani konfiguracji Firebase właściciela.
+
+### Ustalenia i wnioski
+
+- Błąd `DataVault` miał dwie przyczyny: domyślny markup HTML overlayu pozostawał po polsku, a słowniki `translations.pl.labels` i `translations.en.labels` nie zawierały kluczy `accessTitle`, `accessDescription`, `accessPasswordLabel` oraz `accessUnlockButton`. Funkcja `applyLanguage` przeglądała elementy `[data-i18n]`, ale nie mogła zaktualizować elementów bramki bez brakujących kluczy.
+- `NPCGenerator` miał już klucze PL/EN oraz poprawne przejście po wszystkich elementach `[data-i18n]` w `applyLanguage`, lecz domyślny markup HTML overlayu nadal był zapisany po polsku. Ujednolicono angielską treść słownika z nowym domyślnym markupem.
+- W `NPCGenerator/index.html` poprawiono również osadzony markup bramki znajdujący się w generowanym HTML karty, aby w tym samym pliku nie pozostawał drugi domyślny polski wariant overlayu.
+- Oba moduły już przekazywały aktualny `currentLanguage` do `getReadableAccessError`; zachowano ten model.
+- Publiczne placeholdery `INSERT_YOUR_*` były wartościami niepustymi, więc wcześniejsza walidacja mogła próbować inicjalizować Firebase zamiast od razu wyświetlić czytelny komunikat o braku konfiguracji. Dodano małą walidację placeholderów przed inicjalizacją Firebase i czytelny komunikat PL/EN.
+
+### Decyzje i wymagania
+
+- Domyślny markup HTML bramki dostępu jest teraz po angielsku, dzięki czemu ekran Release nie miga polskim overlayem przed wykonaniem JavaScriptu ani przy wczesnym błędzie konfiguracji.
+- Bramka pozostaje powiązana z istniejącym selektorem języka. `English` pokazuje teksty angielskie, `Polski` pokazuje zachowane teksty polskie, a ponowny wybór `English` przywraca teksty angielskie.
+- Hasło nie działa z placeholderami Firebase, ponieważ publiczna wersja nie jest już połączona z prywatnym Firebase właściciela. Aby uruchomić dostęp do prywatnych danych, nowa grupa musi podać własne ustawienia Firebase oraz własny techniczny e-mail dostępu.
+- Nie przywracano prywatnej konfiguracji Firebase właściciela, prawdziwych kluczy ani prawdziwego technicznego e-maila.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `DataVault/index.html` | Zmieniono domyślną treść HTML bramki z polskiej na angielską. |
+| `DataVault/app.js` | Dodano brakujące klucze tłumaczeń bramki w słownikach PL/EN; istniejący `applyLanguage` obejmuje teraz overlay przez `[data-i18n]`. |
+| `NPCGenerator/index.html` | Zmieniono domyślną treść HTML bramki na angielską, ujednolicono angielskie wpisy istniejącego słownika oraz poprawiono osadzony markup generowanego HTML karty. |
+| `shared/firebase-data-loader.js` | Dodano wykrywanie publicznych placeholderów `INSERT_YOUR_*` i czytelny komunikat PL/EN, że Firebase nie jest skonfigurowane. Nie zmieniano logiki logowania hasłem. |
+| `Analizy/Release.md` | Dopisano niniejszą append-only sekcję. |
+
+### Szczegóły zmian w kodzie
+
+- `DataVault/index.html`: statyczny overlay używa teraz tekstów `Access to K.O.Z.A. classified data`, `The data is sealed by Machine Spirit protocols. Enter the Access Litany to begin the Rite of Authentication.`, `Access Litany` i `Begin Rite`.
+- `DataVault/app.js`: słowniki `pl.labels` i `en.labels` zawierają cztery klucze bramki. Istniejąca funkcja `applyLanguage` aktualizuje wszystkie elementy `[data-i18n]`, więc przełączanie EN → PL → EN działa również wtedy, gdy overlay jest otwarty.
+- `NPCGenerator/index.html`: statyczny overlay oraz odpowiadające mu angielskie tłumaczenia używają tych samych tekstów co DataVault. Istniejąca funkcja `applyLanguage` nadal aktualizuje wszystkie elementy `[data-i18n]`, a obsługa błędów nadal wywołuje `getReadableAccessError(error, currentLanguage)`.
+- `shared/firebase-data-loader.js`: walidacja runtime wykrywa pozostawione wartości `INSERT_YOUR_*` i zwraca błąd `FIREBASE_CONFIG_NOT_CONFIGURED`; `getReadableAccessError` mapuje go na czytelny komunikat w aktualnym języku.
+
+### Testy
+
+- `git status --short` — wykonano po zmianach; pokazał wyłącznie oczekiwane modyfikacje plików związanych z bramką i loaderem przed dopisaniem niniejszego dziennika.
+- `rg -n -F 'Dostęp do danych z klauzulą tajności K.O.Z.A.' DataVault NPCGenerator shared || true` — wykonano; polski tekst pozostał wyłącznie w słownikach PL i dokumentacji modułów, co jest oczekiwane.
+- `rg -n -F 'Litania Dostępu' DataVault NPCGenerator shared || true` — wykonano; polski tekst pozostał w słownikach PL, polskich komunikatach błędów i dokumentacji modułów, co jest oczekiwane.
+- `rg -n -F 'Rozpocznij Rytuał' DataVault NPCGenerator shared || true` — wykonano; polski tekst pozostał w słownikach PL i dokumentacji modułów, co jest oczekiwane.
+- `rg -n 'accessTitle|accessDescription|accessPasswordLabel|accessUnlockButton' DataVault NPCGenerator` — wykonano; potwierdzono komplet kluczy PL/EN oraz angielski markup domyślny.
+- `node --check DataVault/app.js` — zaliczony.
+- Ekstrakcja jedynego inline `<script>` z `NPCGenerator/index.html` do `/tmp/NPCGenerator-inline-script.js` oraz `node --check /tmp/NPCGenerator-inline-script.js` — zaliczone. Główna logika NPCGenerator jest skryptem inline, a nie osobnym plikiem JS.
+- Statyczny skrypt asercji Python — zaliczony: potwierdzono angielski markup domyślny, słowniki PL/EN, `currentLanguage = "en"`, przejście po `[data-i18n]`, przekazywanie aktualnego języka do `getReadableAccessError` i czytelny komunikat placeholderów Firebase.
+- `git diff --check` — zaliczony: brak błędów whitespace.
+- `python3 -m http.server 8765` oraz `curl` dla `DataVault/index.html` i `NPCGenerator/index.html` — zaliczone: obie strony zwróciły HTTP 200 i zawierały angielski domyślny tytuł bramki.
+- Nie wykonano zrzutu ekranu przeglądarki: środowisko nie zawiera binariów Chromium, Chrome ani Firefox oraz nie ma zainstalowanego Playwright/Puppeteer.
+
+### Ryzyka i następne kroki
+
+1. Pełny test integracyjny logowania wymaga własnego projektu Firebase nowej grupy, własnego technicznego e-maila oraz poprawnie skonfigurowanych reguł dostępu. Publiczne placeholdery celowo nie pozwalają zalogować się do prywatnej infrastruktury właściciela.
+2. Po podaniu własnej konfiguracji Firebase należy ręcznie sprawdzić oba moduły w przeglądarce: otwarcie overlayu, EN → PL → EN, pustą Litanię Dostępu, błędne hasło, poprawne hasło i ładowanie danych.
+3. Nie wykonano zmian w Web Push, backupach ani plikach testowych.

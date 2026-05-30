@@ -14,6 +14,7 @@ let currentAuthUser = null;
 
 function getFirebaseConfig(){ return window.WG_FIREBASE_CONFIG || {}; }
 function getDataAccessEmail(){ return window.WG_DATA_ACCESS_EMAIL || ""; }
+function isReleasePlaceholder(value){ return typeof value === "string" && value.startsWith("INSERT_YOUR_"); }
 // --- Pobranie lub utworzenie nazwanej aplikacji prywatnych danych / Get or create named Firebase app for private data ---
 function getPrivateDataApp(){
   const firebaseConfig = getFirebaseConfig();
@@ -25,6 +26,7 @@ function getPrivateDataApp(){
 function assertFirebaseRuntimeConfig(){
   const config = getFirebaseConfig();
   if (!config || typeof config !== "object") throw new Error("MISSING_WG_FIREBASE_CONFIG");
+  if (Object.values(config).some(isReleasePlaceholder) || isReleasePlaceholder(getDataAccessEmail())) throw new Error("FIREBASE_CONFIG_NOT_CONFIGURED");
   if (!config.apiKey) throw new Error("MISSING_FIREBASE_API_KEY");
   if (!config.authDomain) throw new Error("MISSING_FIREBASE_AUTH_DOMAIN");
   if (!config.databaseURL) throw new Error("MISSING_FIREBASE_DATABASE_URL");
@@ -129,6 +131,7 @@ function getReadableAccessError(error, lang='pl'){
   const code=String((error&&(error.code||error.message))||'');
   if(code.includes('EMPTY_PASSWORD')) return lang==='en'?'The angered Machine Spirit replies: the Litany of Access has not been recited.':'Rozgniewany Duch Maszyny odpowiada: Litania Dostępu nie została wypowiedziana.';
   if(code.includes('MISSING_WG_FIREBASE_CONFIG')) return lang==='en'?'The Machine Spirit detected a configuration fault: Firebase configuration is missing.':'Duch Maszyny wykrył usterkę konfiguracji: brakuje konfiguracji Firebase.';
+  if(code.includes('FIREBASE_CONFIG_NOT_CONFIGURED')) return lang==='en'?'Firebase is not configured. Replace the INSERT_YOUR_* placeholders with your group’s Firebase settings before using private data access.':'Firebase nie jest skonfigurowane. Zastąp placeholdery INSERT_YOUR_* ustawieniami Firebase swojej grupy przed użyciem dostępu do prywatnych danych.';
   if(code.includes('MISSING_FIREBASE_API_KEY')) return lang==='en'?'The Machine Spirit detected a configuration fault: Firebase apiKey is missing.':'Duch Maszyny wykrył usterkę konfiguracji: brakuje apiKey w konfiguracji Firebase.';
   if(code.includes('MISSING_FIREBASE_AUTH_DOMAIN')) return lang==='en'?'The Machine Spirit detected a configuration fault: Firebase authDomain is missing.':'Duch Maszyny wykrył usterkę konfiguracji: brakuje authDomain w konfiguracji Firebase.';
   if(code.includes('MISSING_FIREBASE_DATABASE_URL')) return lang==='en'?'The Machine Spirit detected a configuration fault: Firebase databaseURL is missing.':'Duch Maszyny wykrył usterkę konfiguracji: brakuje databaseURL w konfiguracji Firebase.';
