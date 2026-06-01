@@ -3758,3 +3758,33 @@ Zmodyfikuj kod modułu NameGenerator.\nW NameGenerator/docs/translations.md masz
 - Interfejs PL/EN modułu pozostaje bez zmian; zadanie dotyczyło wynikowych nazw generatora. Polskie etykiety interfejsu nadal są potrzebne po przełączeniu selektora na `Polski`.
 - Nazwa tablicy `WAR.nounsPL` stała się historyczna po przetłumaczeniu jej wartości. Nie zmieniano identyfikatora technicznego, ponieważ nie jest widoczny publicznie, a minimalny zakres zmiany ogranicza ryzyko regresji.
 - W przyszłości można rozważyć scalenie dwóch wpisów `Foreman` w `HUMAN.lower.titles` do jednego wpisu o wadze `3`, ale nie jest to wymagane funkcjonalnie i nie wykonano tego w tym zadaniu, aby nie rozszerzać zakresu poza tłumaczenie wartości.
+
+
+## Aktualizacja — 2026-05-31 — poprawka skrótu trackera Wounds w NPCGenerator
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+W repo `WnG_Tools` popraw moduł `NPCGenerator`: w `NPCGenerator/index.html` w angielskich tłumaczeniach karty zmień `trackerVitalityShort` z `"H"` na `"W"`. Polska wersja ma zostać bez zmian: `"Ż"` i `"T"`. Po zmianie wygenerowana karta w EN ma pokazywać trackery jako `W` i `S`. Zaktualizuj też `Analizy/Release.md` krótkim wpisem o tej poprawce.
+```
+
+### Zakres prac
+
+- Zmieniono angielski skrót trackera vitality na karcie NPC z `H` na `W`.
+- Potwierdzono, że polskie skróty `Ż` i `T` oraz angielski skrót mental resistance `S` pozostały bez zmian.
+
+### Zmienione pliki
+
+| Plik | Opis zmiany |
+| --- | --- |
+| `NPCGenerator/index.html` | Zmieniono angielskie `trackerVitalityShort` z `H` na `W`, aby angielska karta pokazywała trackery `W` i `S`. |
+| `Analizy/Release.md` | Dopisano krótki wpis o poprawce i wykonanych kontrolach. |
+
+### Testy
+
+- `python3 - <<'PY' ... PY` — PASS: potwierdzono pary skrótów trackerów: PL `Ż` / `T`, EN `W` / `S`.
+- `git diff --check` — PASS: brak błędów whitespace.
+
+### Ryzyka i następne kroki
+
+- Zmiana jest ograniczona do pojedynczej angielskiej etykiety karty NPC i nie zmienia logiki generowania trackerów.
