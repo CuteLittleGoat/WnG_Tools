@@ -4,7 +4,7 @@
 `DataSlate` publishes GM-prepared messages to a player-facing screen. The production launcher is `index.html`, the production GM panel is `GM.html`, and the production player screen is `DataSlate.html`. Firestore communication uses the `dataslate/current` document or the equivalent path documented in the configured deployment.
 
 ## 2. Supported helper files
-`GM_test.html` and `Infoczytnik_test.html` are helper views for users testing their own modifications. `GM_backup.html` and `Infoczytnik_backup.html` are reference backups for experiments. These four files are intentionally distributed, but they are not the normal production route.
+`GM_test.html` and `DataSlate_test.html` are helper views for users testing their own modifications. `GM_backup.html` and `DataSlate_backup.html` are reference backups for experiments. These four files are intentionally distributed, but they are not the normal production route.
 
 ## 3. Files, assets, and data
 - `index.html` links production and helper entry points.
@@ -33,15 +33,15 @@ Główną ścieżkę produkcyjnego uruchamiania DataSlate tworzą dwa ekrany:
 - `GM.html` — panel przygotowania i publikacji komunikatów.
 - `DataSlate.html` — ekran odczytu komunikatów dla graczy.
 
-Pliki testowe (`GM_test.html`, `Infoczytnik_test.html`) oraz backupowe (`GM_backup.html`, `Infoczytnik_backup.html`) celowo są dostępne. Służą użytkownikom jako narzędzia pomocnicze do testowania własnych modyfikacji i jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną modułu. Funkcjonalnie punktem rozwoju pozostają pliki `_test`.
+Pliki testowe (`GM_test.html`, `DataSlate_test.html`) oraz backupowe (`GM_backup.html`, `DataSlate_backup.html`) celowo są dostępne. Służą użytkownikom jako narzędzia pomocnicze do testowania własnych modyfikacji i jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką produkcyjną modułu. Funkcjonalnie punktem rozwoju pozostają pliki `_test`.
 
 ## 2. Struktura katalogów i odpowiedzialność plików
 - `index.html` — launcher modułu z linkami do widoków produkcyjnych i pomocniczych widoków testowych.
 - `GM.html` — produkcyjny panel GM.
 - `DataSlate.html` — produkcyjny ekran odczytu dla graczy.
 - `GM_test.html` — pomocnicza logika GM: edycja treści, import danych, podgląd tła, publikacja.
-- `Infoczytnik_test.html` — pomocniczy ekran odczytu publikowanych treści.
-- `GM_backup.html` i `Infoczytnik_backup.html` — zachowane pliki referencyjne dla użytkowników eksperymentujących z własnymi zmianami.
+- `DataSlate_test.html` — pomocniczy ekran odczytu publikowanych treści.
+- `GM_backup.html` i `DataSlate_backup.html` — zachowane pliki referencyjne dla użytkowników eksperymentujących z własnymi zmianami.
 - `assets/data/data.json` — lokalny snapshot treści (źródło dla importów/odczytu lokalnego).
 - `assets/data/DataSlate_manifest.xlsx` — arkusz źródłowy dla importu treści i układów.
 - `assets/backgrounds/*` — tła ekranów (DataSlate, Pergamin, WnG, Notatnik, Litannie itp.).
@@ -146,7 +146,7 @@ Kluczowe grupy funkcji:
 5. Publikacja payloadu do `dataslate/current`.
 6. Obsługa błędów (walidacja, brak danych, problemy sieciowe).
 
-## 8. Logika ekranu gracza (`Infoczytnik_test.html`)
+## 8. Logika ekranu gracza (`DataSlate_test.html`)
 Kluczowe grupy funkcji:
 1. Odbiór i render aktualnego snapshotu danych.
 2. Budowa warstwy wizualnej (tło + ramka + logo + tekst).
@@ -247,16 +247,16 @@ console.log('Bootstrap complete');
 
 ## 11. Testy kontrolne po wdrożeniu
 1. Otwórz `GM_test.html` i opublikuj testowy komunikat.
-2. Otwórz `Infoczytnik_test.html` i sprawdź natychmiastowy render.
+2. Otwórz `DataSlate_test.html` i sprawdź natychmiastowy render.
 3. Zmień font i tło — potwierdź poprawne odświeżenie.
 4. Wykonaj import XLSX i sprawdź poprawność mapowania.
 5. Zweryfikuj tryb podglądu oraz poprawność renderu po zmianach ustawień.
 
 ## 12. Ograniczenia i zasady utrzymania
-- Nie edytować automatycznie: `GM.html`, `DataSlate.html`, `GM_backup.html`, `Infoczytnik_backup.html`.
+- Nie edytować automatycznie: `GM.html`, `DataSlate.html`, `GM_backup.html`, `DataSlate_backup.html`.
 - Zmiany funkcjonalne wykonywać w plikach `_test`.
 - Po każdej zmianie kodu aktualizować `docs/README.md` i `docs/Documentation.md`.
-- Przy zmianach `GM_test.html`/`Infoczytnik_test.html` podnosić `INF_VERSION` w formacie czasu lokalnego PL.
+- Przy zmianach `GM_test.html`/`DataSlate_test.html` podnosić `INF_VERSION` w formacie czasu lokalnego PL.
 
 ## 13. Szczegółowa mapa funkcji (`GM_test.html`)
 Poniżej lista funkcji wymaganych do odtworzenia zachowania 1:1:
@@ -302,7 +302,7 @@ Poniżej lista funkcji wymaganych do odtworzenia zachowania 1:1:
 - `restoreDefaults()` — przywrócenie ustawień domyślnych panelu.
 - `rerollFillers()` i `pick()` — odświeżanie oraz wybór elementów dynamicznych (`fillers`).
 
-## 14. Szczegółowa mapa funkcji (`Infoczytnik_test.html`)
+## 14. Szczegółowa mapa funkcji (`DataSlate_test.html`)
 - `autoCacheBust()` — ten sam mechanizm wersjonowania URL co po stronie GM.
 - `preloadKnownFonts()` — preload typowych rodzin fontów dla szybszego first paint.
 - `clamp()` — pomocnicze ograniczenia numeryczne.
@@ -317,7 +317,7 @@ Poniżej lista funkcji wymaganych do odtworzenia zachowania 1:1:
 - `scheduleFitOverlay()` — debouncing/odroczenie dopasowania przy zmianie rozmiaru.
 
 ## 15. Specyfikacja wersjonowania testowego (`INF_VERSION`)
-- Pole `INF_VERSION` występuje równolegle w `GM_test.html` i `Infoczytnik_test.html`.
+- Pole `INF_VERSION` występuje równolegle w `GM_test.html` i `DataSlate_test.html`.
 - Format obowiązkowy: `rrrr-MM-dd_gg-hh-ss` (czas lokalny Polski).
 - Każda zmiana kodu w którymkolwiek z plików testowych wymaga podniesienia tej wartości w obu plikach.
 - Funkcja `autoCacheBust()` wymusza spójność `?v=INF_VERSION`, co gwarantuje odświeżenie zasobów na kliencie.
@@ -344,12 +344,12 @@ Procedura użytkowa powinna obejmować:
 ## 18. Wdrożenia dla wielu grup
 Każda grupa wymaga osobnego projektu Firebase, aby dokument `dataslate/current` nie był współdzielony między niezależnymi instancjami.
 
-W plikach `GM_test.html` i `Infoczytnik_test.html` komentarze `WAŻNE/IMPORTANT` oznaczają istotne miejsca wdrożeniowe:
+W plikach `GM_test.html` i `DataSlate_test.html` komentarze `WAŻNE/IMPORTANT` oznaczają istotne miejsca wdrożeniowe:
 - `INF_VERSION` jako cache-busting testowej wersji,
 - `config/firebase-config.js`,
 - walidację `window.firebaseConfig`.
 
-Po każdej zmianie testowych plików wartość `INF_VERSION` powinna być taka sama w `GM_test.html` i `Infoczytnik_test.html`.
+Po każdej zmianie testowych plików wartość `INF_VERSION` powinna być taka sama w `GM_test.html` i `DataSlate_test.html`.
 
 ## 19. Linki względne
 Moduł używa ścieżek względnych do nawigacji i ładowania zasobów. Dzięki temu kopia modułu może działać po przeniesieniu na inny serwer lub do innej instancji wdrożeniowej, o ile zachowana jest struktura katalogów.
@@ -367,7 +367,7 @@ Przy wdrożeniu dla osobnej grupy należy sprawdzić:
 - Gdy `showLogo=false`, funkcja `updateLogoColorPanelState()` wyszarza panel i blokuje interakcję (`opacity` + `pointer-events`).
 - Zdarzenia `.chip[data-target]` rozdzielają trzy cele (`msg`, `logo`, `ps`), aby presety koloru logo nie nadpisywały koloru prefix/suffix.
 - `updateLogoColorPanelState()` jest wywoływana wewnątrz `renderPreview()`, dzięki czemu stan aktywności panelu koloru logo jest zawsze zsynchronizowany z checkboxem `showLogo`.
-- W `Infoczytnik_test.html` logo odbiorcy również renderowane jest jako maska PNG z jednolitym kolorem (`--logoColor`), pobieranym z payloadu (`d.logoColor`).
+- W `DataSlate_test.html` logo odbiorcy również renderowane jest jako maska PNG z jednolitym kolorem (`--logoColor`), pobieranym z payloadu (`d.logoColor`).
 
 
 - Kolor logo w szybkich presetach obejmuje wariant **Czarny (#000000)**, a logo renderowane jest na elementach dekoracyjnych bez fallbacku tekstowego IMG, co eliminuje artefakty podczas zoomu.
@@ -376,4 +376,4 @@ Przy wdrożeniu dla osobnej grupy należy sprawdzić:
 - `assets/data/data.json` odpowiada zestawowi assetów logo w `assets/logos/`.
 - Tablica `logos` zawiera 14 wpisów wskazujących pliki PNG z `assets/logos/`.
 - W `GM_test.html` wartość `DEFAULT_FORM_STATE.logoId` wynosi `3`, co wybiera logo `Aquila` (`assets/logos/Aquila.png`).
-- Wartość `INF_VERSION` powinna być zgodna w `GM_test.html` i `Infoczytnik_test.html`, aby cache-busting obu pomocniczych punktów wejścia działał spójnie.
+- Wartość `INF_VERSION` powinna być zgodna w `GM_test.html` i `DataSlate_test.html`, aby cache-busting obu pomocniczych punktów wejścia działał spójnie.
