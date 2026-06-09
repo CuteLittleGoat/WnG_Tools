@@ -14,6 +14,21 @@
 - `assets/backgrounds/`, `assets/ramki/`, `assets/logos/`, and `assets/audios/` contain local presentation assets.
 - `assets/data/data.json`, spreadsheets, and mapping notes support selectable content and maintenance.
 
+### Technical frame mapping and text area calculation
+DataSlate/assets/ramki/ contains technical background variants with a visible blue frame overlaid on top of the corresponding player background. These files are not the final backgrounds displayed to players. They are maintenance/reference assets used to calculate the content rectangle where message text should be rendered.
+
+DataSlate/assets/data/NiebieskaRamka.md documents the calculation method for the content rectangle (x, y, w, h). The rectangle is detected from the blue frame in the matching *_ramka.png file, normalized to 0..1 coordinates, and then entered into CONTENT_RECTS_BY_BACKGROUND_ID in DataSlate/DataSlate_test.html.
+
+DataSlate/assets/data/Mapowanie.xlsx defines which file from DataSlate/assets/ramki/ corresponds to which file from DataSlate/assets/backgrounds/. This mapping is required when adding or verifying backgrounds, because the renderer uses the normal background for display but the blue-frame variant for calculating the safe text area.
+
+When adding a new background:
+1. add the final background to DataSlate/assets/backgrounds/,
+2. add the matching technical blue-frame image to DataSlate/assets/ramki/,
+3. update DataSlate/assets/data/Mapowanie.xlsx,
+4. calculate the normalized content rectangle according to DataSlate/assets/data/NiebieskaRamka.md,
+5. update CONTENT_RECTS_BY_BACKGROUND_ID,
+6. verify that the backgroundId used by the GM payload matches the same background entry.
+
 ## 4. Runtime mechanics
 The GM panel assembles a payload from message type, content, background, frame, logo, filler, ping, and audio controls, then writes a full current-state snapshot to Firestore. The player screen listens for the current document and updates presentation immediately. Local assets provide visuals and typing/audio effects; Firestore provides synchronization.
 
@@ -48,6 +63,21 @@ Pliki testowe (`GM_test.html`, `DataSlate_test.html`) oraz backupowe (`GM_backup
 - `assets/ramki/*` — ramki odpowiadające tłom.
 - `assets/logos/*` — logotypy warstw UI.
 - `config/firebase-config.js` — konfiguracja klienta Firebase.
+
+### Ramki techniczne i obliczanie pola tekstu
+DataSlate/assets/ramki/ zawiera techniczne wersje teł z widoczną niebieską ramką nałożoną na odpowiadające im tła gracza. Te pliki nie są docelowymi tłami wyświetlanymi graczom. Służą jako zasoby robocze/referencyjne do obliczania prostokąta treści, czyli pola, w którym renderer powinien umieścić tekst wiadomości.
+
+DataSlate/assets/data/NiebieskaRamka.md opisuje metodę wyliczania prostokąta treści (x, y, w, h). Prostokąt jest wykrywany na podstawie niebieskiej ramki w odpowiednim pliku *_ramka.png, normalizowany do współrzędnych 0..1, a następnie wpisywany do CONTENT_RECTS_BY_BACKGROUND_ID w DataSlate/DataSlate_test.html.
+
+DataSlate/assets/data/Mapowanie.xlsx określa, który plik z DataSlate/assets/ramki/ odpowiada któremu plikowi z DataSlate/assets/backgrounds/. To mapowanie jest potrzebne przy dodawaniu i weryfikowaniu teł, ponieważ renderer wyświetla normalne tło, ale do obliczenia bezpiecznego pola tekstowego używana jest techniczna wersja z niebieską ramką.
+
+Przy dodawaniu nowego tła należy:
+1. dodać docelowe tło do DataSlate/assets/backgrounds/,
+2. dodać odpowiadającą mu techniczną grafikę z niebieską ramką do DataSlate/assets/ramki/,
+3. zaktualizować DataSlate/assets/data/Mapowanie.xlsx,
+4. wyliczyć znormalizowany prostokąt treści według DataSlate/assets/data/NiebieskaRamka.md,
+5. zaktualizować CONTENT_RECTS_BY_BACKGROUND_ID,
+6. sprawdzić, czy backgroundId używany w payloadzie GM odpowiada temu samemu wpisowi tła.
 
 ## 3. Renderowanie UI i warstwa stylów
 ### 3.1. Fonty i typografia
