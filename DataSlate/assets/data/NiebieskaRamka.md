@@ -5,7 +5,7 @@ Ten plik opisuje dokładnie, jak liczę prostokąt treści (`x, y, w, h`) dla ka
 ## 1) Pliki źródłowe
 - Mapa przypisań tło -> ramka: `DataSlate/assets/data/Mapowanie.xlsx`.
 - Grafiki ramek: `DataSlate/assets/ramki/*_ramka.png`.
-- Miejsce użycia wyników: `DataSlate/Infoczytnik_test.html` -> `CONTENT_RECTS_BY_BACKGROUND_ID`.
+- Miejsce użycia wyników: `DataSlate/DataSlate_test.html` -> `CONTENT_RECTS_BY_BACKGROUND_ID`.
 
 ## 2) Definicja współczynników
 Dla każdej ramki liczę pikselowy bounding box niebieskiego obszaru:

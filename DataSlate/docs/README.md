@@ -12,7 +12,7 @@ GM → player screen messages, standard ping, and DataSlate audio use Firestore 
 > Best setup: both pages open at the same time (separate devices or dual monitor).
 
 ### Supporting test and backup files
-The `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, and `Infoczytnik_backup.html` files are intentionally available. They are helper tools for users testing their own modifications and reference points for experiments. They are not the main DataSlate entry points for regular sessions.
+The `GM_test.html`, `DataSlate_test.html`, `GM_backup.html`, and `DataSlate_backup.html` files are intentionally available. They are helper tools for users testing their own modifications and reference points for experiments. They are not the main DataSlate entry points for regular sessions.
 
 ### Quick start (first message)
 1. In GM panel choose **Background** and **Logo**.
@@ -67,11 +67,11 @@ The `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html`, and `Infoczytnik_
 11. Select region and click **Enable**.
 12. In **Rules** tab set access for your group.
 13. Save rules.
-14. Launch `DataSlate/GM_test.html` and `DataSlate/Infoczytnik_test.html` and confirm sent message appears immediately on player screen.
+14. Launch `DataSlate/GM_test.html` and `DataSlate/DataSlate_test.html` and confirm sent message appears immediately on player screen.
 ## Copying module for a new group
 - In each new module copy, set a dedicated `DataSlate/config/firebase-config.js`.
 - This ensures GM panel and reader screen use separate Firestore data and do not mix messages between groups.
-- After setup, run `GM_test.html` and `Infoczytnik_test.html`, send a test message, and verify reader output.
+- After setup, run `GM_test.html` and `DataSlate_test.html`, send a test message, and verify reader output.
 
 
 ## Adding a new language version (EN)
@@ -112,7 +112,7 @@ Komunikaty GM → ekran gracza, zwykły ping oraz audio DataSlate korzystają z 
 > Najwygodniej uruchomić oba okna równocześnie (osobne urządzenia albo dwa monitory).
 
 ### Pomocnicze pliki testowe i backupowe
-Pliki `GM_test.html`, `Infoczytnik_test.html`, `GM_backup.html` i `Infoczytnik_backup.html` są celowo dostępne. Służą jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje oraz jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką uruchamiania DataSlate podczas sesji.
+Pliki `GM_test.html`, `DataSlate_test.html`, `GM_backup.html` i `DataSlate_backup.html` są celowo dostępne. Służą jako narzędzia pomocnicze dla użytkowników testujących własne modyfikacje oraz jako punkt odniesienia podczas eksperymentów. Nie są główną ścieżką uruchamiania DataSlate podczas sesji.
 
 ### Szybki start (pierwsza wiadomość)
 1. W panelu GM wybierz **Tło** i **Logo**.
@@ -168,14 +168,14 @@ Moduł **DataSlate** wymaga Firebase (Firestore), ponieważ ekran GM i ekran gra
 11. Wybierz region i kliknij **Włącz**.
 12. W zakładce **Reguły** ustaw dostęp zgodnie z potrzebą (np. tylko dla Twojej grupy).
 13. Zapisz reguły.
-14. Uruchom `DataSlate/GM_test.html` oraz `DataSlate/Infoczytnik_test.html` i sprawdź, czy wysłana wiadomość od razu pojawia się na ekranie gracza.
+14. Uruchom `DataSlate/GM_test.html` oraz `DataSlate/DataSlate_test.html` i sprawdź, czy wysłana wiadomość od razu pojawia się na ekranie gracza.
 
 ---
 
 ## Kopia modułu dla nowej grupy
 - W nowej kopii modułu ustaw własny `DataSlate/config/firebase-config.js`.
 - Dzięki temu panel GM i ekran odczytu korzystają z oddzielnego Firestore i nie mieszają treści między grupami.
-- Po konfiguracji uruchom `GM_test.html` i `Infoczytnik_test.html`, wpisz wiadomość testową i sprawdź odczyt.
+- Po konfiguracji uruchom `GM_test.html` i `DataSlate_test.html`, wpisz wiadomość testową i sprawdź odczyt.
 
 ---
 

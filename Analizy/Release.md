@@ -3936,3 +3936,69 @@ Dokładny log prac zapisz jako Analizy/Update.md
 - Wymagany pozostaje manualny test w przeglądarce z rzeczywistymi lub neutralnymi URL-ami audio, aby potwierdzić zachowanie Web Audio, głośności i zapętlenia w środowisku użytkownika.
 - Nie testowano live Firestore; konfiguracje Firebase były celowo poza zakresem.
 - Nie wykonano pełnej przebudowy dokumentacji technicznej, która nadal zawiera historyczne polskie sekcje poza zakresem bieżącej zmiany.
+
+## Aktualizacja — 2026-06-09 — zmiana nazw pomocniczych plików DataSlate
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Zmień nazwy plików:
+DataSlate/Infoczytnik_backup.html na DataSlate/DataSlate_backup.html
+DataSlate/Infoczytnik_test.html na DataSlate/DataSlate_test.html
+
+Zmień odnośniki w DataSlate/index.html oraz informacje w dokumentacji DataSlate/docs
+```
+
+### Zakres prac
+
+- Przemianowano pomocniczy backup ekranu gracza DataSlate z historycznej nazwy `Infoczytnik_backup.html` na `DataSlate_backup.html`.
+- Przemianowano pomocniczy ekran testowy gracza DataSlate z historycznej nazwy `Infoczytnik_test.html` na `DataSlate_test.html`.
+- Zaktualizowano link pomocniczego widoku testowego w `DataSlate/index.html`.
+- Zaktualizowano informacje o nazwach plików testowych i backupowych w dokumentacji `DataSlate/docs`.
+- Zaktualizowano dodatkową notatkę techniczną w danych pomocniczych DataSlate, aby nie wskazywała nieistniejącej już nazwy pliku.
+
+### Ustalenia i wnioski
+
+- Produkcyjne punkty wejścia DataSlate pozostają bez zmian: `DataSlate/GM.html` i `DataSlate/DataSlate.html`.
+- Pomocnicze pliki `GM_test.html` i `GM_backup.html` pozostają pod dotychczasowymi nazwami.
+- Zmiana dotyczy tylko nazw pomocniczych plików ekranu gracza oraz odwołań tekstowych/linków do tych nazw.
+- W głównym `AGENTS.md` nadal występują historyczne nazwy `DataSlate/Infoczytnik_test.html` i `DataSlate/Infoczytnik_backup.html`, ale plik `AGENTS.md` nie został zmodyfikowany, ponieważ instrukcje repozytorium zabraniają edycji plików `AGENTS.md` bez wyraźnego polecenia użytkownika.
+- Starsze wpisy w `Analizy/Release.md` zachowują historyczne nazwy jako zapis wcześniejszych decyzji; zgodnie z zasadami dziennika Release nie usuwano ani nie przepisywano starszych sekcji.
+
+### Decyzje i wymagania
+
+- Aktualnym wymaganiem właściciela jest używanie nazw `DataSlate/DataSlate_backup.html` i `DataSlate/DataSlate_test.html` dla pomocniczych plików ekranu gracza DataSlate.
+- Dokumentacja DataSlate ma opisywać nowe nazwy plików.
+- Launcher DataSlate ma prowadzić do `DataSlate_test.html`, a nie do historycznego `Infoczytnik_test.html`.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `DataSlate/DataSlate_backup.html` | Nowa nazwa dawnego pliku `DataSlate/Infoczytnik_backup.html`. |
+| `DataSlate/DataSlate_test.html` | Nowa nazwa dawnego pliku `DataSlate/Infoczytnik_test.html`. |
+| `DataSlate/index.html` | Zmieniono link pomocniczego ekranu gracza z `./Infoczytnik_test.html` na `./DataSlate_test.html`. |
+| `DataSlate/docs/README.md` | Zaktualizowano sekcje EN i PL opisujące pliki testowe, backupowe oraz procedury testowe. |
+| `DataSlate/docs/Documentation.md` | Zaktualizowano techniczne opisy, mapy funkcji, procedury testowe i zasady wersjonowania dla nowej nazwy `DataSlate_test.html` oraz backupu `DataSlate_backup.html`. |
+| `DataSlate/assets/data/NiebieskaRamka.md` | Zaktualizowano pomocniczą notatkę z miejscem użycia wyników na `DataSlate/DataSlate_test.html`. |
+| `Analizy/Release.md` | Dopisano niniejszy wpis dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+- `DataSlate/index.html`: odnośnik w sekcji „Supporting test views” wskazuje teraz `./DataSlate_test.html`; etykieta widoczna dla użytkownika pozostała `DataSlate (test)`.
+- `DataSlate/docs/README.md`: wszystkie bieżące odwołania dokumentacyjne do pomocniczego ekranu gracza i backupu zmieniono na `DataSlate_test.html` oraz `DataSlate_backup.html`; procedury testowe EN i PL wskazują teraz ścieżkę `DataSlate/DataSlate_test.html`.
+- `DataSlate/docs/Documentation.md`: zaktualizowano nazwy w opisie architektury, listach plików, nagłówkach sekcji, procedurze testu dwuekranowego, ostrzeżeniach edycyjnych, specyfikacji `INF_VERSION` oraz notatkach o logo i cache-bustingu.
+- `DataSlate/assets/data/NiebieskaRamka.md`: zmieniono opis miejsca użycia wyników z historycznej ścieżki `DataSlate/Infoczytnik_test.html` na `DataSlate/DataSlate_test.html`.
+
+### Testy
+
+- PASS — `test -f DataSlate/DataSlate_backup.html && test -f DataSlate/DataSlate_test.html && test ! -e DataSlate/Infoczytnik_backup.html && test ! -e DataSlate/Infoczytnik_test.html` potwierdził istnienie nowych plików i brak starych nazw.
+- PASS — `rg -n "Infoczytnik_(backup|test)\.html" . -g '!node_modules' -g '!vendor' -g '!Analizy/Release.md' -g '!AGENTS.md'` nie znalazł aktywnych odwołań do starych nazw poza historycznym dziennikiem Release i nieedytowanym `AGENTS.md`.
+- PASS — `python3 -m http.server 8772 --bind 127.0.0.1` oraz `curl` dla `DataSlate/index.html`, `DataSlate/DataSlate_test.html` i `DataSlate/DataSlate_backup.html` potwierdziły odpowiedzi HTTP 200 dla launchera i nowych nazw plików.
+- PASS — `git diff --check` nie wykazał błędów whitespace.
+
+### Ryzyka i następne kroki
+
+- `AGENTS.md` nadal zawiera historyczne nazwy pomocniczych plików DataSlate. Nie zmieniano go bez bezpośredniego polecenia, ponieważ obowiązujące instrukcje zabraniają edycji plików `AGENTS.md`.
+- Starsze wpisy w `Analizy/Release.md` nadal zawierają historyczne nazwy jako archiwum wcześniejszych ustaleń; aktualny wpis dokumentuje zmianę decyzji.
+- Nie wykonywano testu live Firestore, ponieważ zmiana dotyczy nazw plików, linków i dokumentacji, a nie logiki komunikacji GM ↔ ekran gracza.
