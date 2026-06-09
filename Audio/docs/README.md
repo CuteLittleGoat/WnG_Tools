@@ -21,13 +21,16 @@ The PL/EN language switcher is visible; English is selected by default and Polis
 1. In navigation, click **Main view** or a selected favorites list.
 2. Click a sound name to start it.
 3. Click again to stop it.
-4. Multiple sounds can play at the same time.
-5. Use the tile slider to adjust volume for that sound.
+4. Click **Loop** to start that sound immediately in loop mode. When the file ends, the next playback starts automatically. If the sound has multiple grouped variants, each new iteration picks a random variant and avoids immediately repeating the same URL when another option exists.
+5. Click the red **Loop** button again to stop the current sound and turn loop mode off.
+6. Multiple sounds can play at the same time.
+7. Use the tile slider to adjust volume for that sound; active loops read the current slider value on later iterations too.
 
 ### What each sound tile element means
 - **Sound name** – main play/stop button.
 - **Tag below name** – source group/folder hint.
 - **Alias in parentheses** (if set) – extra custom label.
+- **Loop** – loop switch; normal green means off, red means the loop is active.
 - **Volume slider** – per-sound volume control.
 
 ### Production manifest
@@ -46,14 +49,16 @@ The tracked `Audio/AudioManifest.xlsx` file is the production-ready neutral mani
    - reorder items inside a list.
 
 ### Special buttons
-- **Wyczyść wszystkie aliasy** – removes all aliases at once (with confirmation).
-- **Odtwórz / Zatrzymaj** – quick preview from admin panel.
-- **Wyczyść** (next to alias field) – clears alias for one sound.
+- **Clear all aliases** – removes all aliases at once (with confirmation).
+- **Play / Stop** – quick preview from the admin panel.
+- **Loop** – not displayed in admin mode; available only in the normal user view without `?admin=1`.
+- **Clear** (next to alias field) – clears alias for one sound.
 
 ### Session best practices
 - Prepare 1 main list and 2–3 scene-based lists before play.
 - Use aliases for sounds with unclear names.
 - Pre-check key sound volumes before the session starts.
+- Use **Loop** for ambient backgrounds in the normal user view, and use the sound name or the admin **Play** button for short one-shot effects.
 
 ### Firebase integration — required for shared lists
 To share favorites and settings across multiple devices/users, **Audio** requires Firebase (Firestore). Without it, settings work only locally on one device.
@@ -136,6 +141,7 @@ Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski poz
 ### Przyciski specjalne
 - **Wyczyść wszystkie aliasy** – usuwa wszystkie aliasy dźwięków jednocześnie (po potwierdzeniu).
 - **Odtwórz / Zatrzymaj** – szybki odsłuch pojedynczego dźwięku z panelu admina.
+- **Loop** – nie jest wyświetlany w trybie admina; działa tylko w zwykłym widoku użytkownika bez `?admin=1`.
 - **Wyczyść** (przy polu aliasu) – usuwa alias tylko dla jednego dźwięku.
 
 ### Dobre praktyki podczas sesji
