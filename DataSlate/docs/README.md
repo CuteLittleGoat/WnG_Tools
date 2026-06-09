@@ -98,6 +98,11 @@ Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 - `assets/data/data.json` contains the full list of 14 logos from `assets/logos/`.
 - The default GM-panel logo is **Aquila** (`id: 3`, `assets/logos/Aquila.png`).
 
+### Background maintenance files
+The files in assets/ramki/, together with assets/data/NiebieskaRamka.md and assets/data/Mapowanie.xlsx, are maintenance files for people adding or correcting backgrounds. They are not required during normal play.
+
+assets/ramki/ contains blue-frame versions of backgrounds used to determine the safe text area. Mapowanie.xlsx tells which blue-frame file matches which background from assets/backgrounds/. NiebieskaRamka.md explains how the text rectangle is calculated from the blue frame.
+
 # 🇵🇱 Instrukcja dla użytkownika (PL)
 
 ### Do czego służy moduł
@@ -203,3 +208,8 @@ Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 ### Dane DataSlate
 - `assets/data/data.json` zawiera pełną listę 14 logo z folderu `assets/logos/`.
 - Domyślne logo panelu GM to **Aquila** (`id: 3`, `assets/logos/Aquila.png`).
+
+### Pliki techniczne do utrzymania teł
+Pliki w assets/ramki/, razem z assets/data/NiebieskaRamka.md i assets/data/Mapowanie.xlsx, są plikami technicznymi dla osób dodających albo poprawiających tła. Nie są potrzebne podczas normalnego prowadzenia sesji.
+
+assets/ramki/ zawiera wersje teł z niebieską ramką, używane do wyznaczania bezpiecznego pola tekstowego. Mapowanie.xlsx wskazuje, który plik ramki odpowiada któremu tłu z assets/backgrounds/. NiebieskaRamka.md wyjaśnia, jak z niebieskiej ramki wyliczany jest prostokąt tekstu.
