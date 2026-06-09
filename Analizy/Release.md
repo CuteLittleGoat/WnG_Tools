@@ -3788,3 +3788,151 @@ W repo `WnG_Tools` popraw moduł `NPCGenerator`: w `NPCGenerator/index.html` w a
 ### Ryzyka i następne kroki
 
 - Zmiana jest ograniczona do pojedynczej angielskiej etykiety karty NPC i nie zmienia logiki generowania trackerów.
+
+## Aktualizacja — 2026-06-09 — Audio Loop i edycja Keywords w NPCGenerator
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Pracujesz w repozytorium:
+
+CuteLittleGoat/WnG_Tools
+
+Cel:
+Wdrożyć w WnG_Tools analogiczne zmiany z materiałów eksportowych znajdujących się w folderze Analizy/, ale NIE aplikować patcha 1:1.
+
+Materiały wejściowe:
+- Analizy/analiza-audio-opcja-loop.md
+- Analizy/analiza-generatornpc-edycja-slow-kluczowych-i-jasniejsze-przyciski-edytuj.md
+- Analizy/patch-audio-loop-generatornpc.patch
+- Analizy/lista-plikow-audio-loop-generatornpc.md
+- Analizy/notatka-transfer-do-WnG_Tools.md
+
+Najważniejsze ustalenia:
+1. Patch NIE nadaje się do bezpośredniego zastosowania.
+2. W WnG_Tools nie ma pliku DetaleLayout.md.
+3. Nie wolno tworzyć ani modyfikować DetaleLayout.md.
+4. W patchu ścieżki modułu NPC mają postać GeneratorNPC/..., ale w WnG_Tools właściwy katalog to NPCGenerator/...
+5. WnG_Tools ma domyślny język UI ustawiony na angielski. UI ma pozostać English-first.
+6. Nie wolno przenosić prywatnych danych, sekretów, tokenów, haseł, produkcyjnych konfiguracji Firebase, plików importu danych, XLSX ani JSON.
+7. Nie modyfikuj DataVault/style.css; jest tylko źródłem referencyjnego koloru var(--code).
+
+Pliki, które wolno modyfikować:
+- Audio/index.html
+- Audio/docs/README.md
+- Audio/docs/Documentation.md
+- NPCGenerator/index.html
+- NPCGenerator/style.css
+- NPCGenerator/docs/README.md
+- NPCGenerator/docs/Documentation.md
+
+Pliki/ścieżki, które trzeba pominąć:
+- DetaleLayout.md
+- GeneratorNPC/index.html
+- GeneratorNPC/style.css
+- GeneratorNPC/docs/README.md
+- GeneratorNPC/docs/Documentation.md
+- DataVault/style.css
+- wszystkie pliki konfiguracji Firebase, chyba że zadanie zostanie później wyraźnie rozszerzone
+- wszystkie pliki danych/importu: XLSX, JSON, firebase-import.json, data.json itp.
+
+Zakres Audio:
+1. Dodaj przycisk Loop tylko w prawdziwym widoku użytkownika bez ?admin=1.
+2. Nie renderuj Loop w panelu admina ani w adminowym podglądzie.
+3. Loop ma:
+   - uruchamiać dźwięk od razu,
+   - po zakończeniu pliku startować kolejne odtworzenie,
+   - przy wielu wariantach losować kolejny wariant i unikać natychmiastowej powtórki, jeśli istnieje inny wariant,
+   - po ponownym kliknięciu zatrzymywać aktualny dźwięk i wyłączać czerwony stan.
+4. Nie używaj audio.loop = true, bo to powtarzałoby ten sam plik.
+5. Użyj aria-pressed i klasy is-looping dla stanu aktywnego.
+6. Dodaj label buttonLoop do obu słowników tłumaczeń, ale domyślny język ma pozostać en.
+7. Nie wprowadzaj twardych polskich alertów. Zachowaj aktualny mechanizm:
+   translations[currentLanguage].labels.playbackError
+8. Upewnij się, że kolejne iteracje Loop respektują aktualną wartość suwaka głośności.
+
+Zakres NPCGenerator:
+1. Przenieś logikę z patcha GeneratorNPC/... do istniejących plików NPCGenerator/...
+2. Rozszerz state.bestiaryOverrides o:
+   - keywords
+   - keywordsEditing
+3. Dodaj obsługę edytowalnego pola Słowa Kluczowe/Keywords analogicznie do Umiejętności/Skills.
+4. Obecny kod WnG_Tools nadal używa polskich kluczy danych, np. Umiejętności i Słowa Kluczowe. Nie tłumacz wewnętrznych kluczy danych na angielski bez sprawdzenia aktualnego schematu.
+5. UI ma korzystać z istniejących tłumaczeń:
+   - EN: Edit / Save / Skills / Keywords
+   - PL: Edytuj / Zapisz / Umiejętności / Słowa Kluczowe
+6. Po zapisie edytowanych słów kluczowych podgląd bazowy ma nadal przechodzić przez istniejący formatter, żeby słowa pozostały czerwone, a przecinki neutralne.
+7. Wygenerowana karta do druku ma pozostać czarno-biała.
+8. W NPCGenerator/style.css dodaj klasę:
+   .editable-text-button
+   z jasnym kolorem i obramowaniem var(--code), zgodnie z patchem. Nie zmieniaj globalnie wszystkich .btn.secondary.
+
+Dokumentacja:
+1. Aktualizuj dokumentację ręcznie.
+2. Zachowaj strukturę English-first w WnG_Tools.
+3. W angielskich sekcjach nie zostawiaj polskich etykiet typu Odtwórz, Zatrzymaj, Edytuj, Zapisz, Słowa Kluczowe, Umiejętności, chyba że tekst wyraźnie opisuje polską wersję językową.
+4. Jeżeli dokument ma sekcję PL, zaktualizuj także ją.
+5. Nie przenoś fragmentów dotyczących DetaleLayout.md.
+
+Dokładny log prac zapisz jako Analizy/Update.md
+```
+
+### Zakres prac
+
+- Przeczytano aktualne instrukcje Release oraz materiały wejściowe z `Analizy/`.
+- Ręcznie przeniesiono zachowanie Audio Loop do bieżącego `Audio/index.html`, bez aplikowania patcha 1:1.
+- Ręcznie przeniesiono obsługę edycji słów kluczowych do bieżących plików `NPCGenerator/`, z pominięciem starych ścieżek `GeneratorNPC/`.
+- Zaktualizowano dokumentację użytkową i techniczną Audio oraz NPCGenerator w strukturze English-first.
+- Zapisano szczegółowy log prac w `Analizy/Update.md`.
+
+### Ustalenia i wnioski
+
+- Patch był materiałem referencyjnym, ale wymagał ręcznego dopasowania do nazw i struktury `WnG_Tools`.
+- `Audio` pozostaje English-first i nadal używa `translations[currentLanguage].labels.playbackError` dla błędów odtwarzania.
+- `NPCGenerator` nadal korzysta z polskich kluczy danych `Umiejętności` i `Słowa Kluczowe`; nie zmieniano wewnętrznego schematu danych.
+- Podgląd edytowanych słów kluczowych przechodzi przez istniejący renderer komórek, więc zachowuje czerwone słowa i neutralne przecinki.
+- Karta do druku pozostaje czarno-biała.
+
+### Decyzje i wymagania
+
+- Nie utworzono i nie zmodyfikowano `DetaleLayout.md`.
+- Nie zmodyfikowano `DataVault/style.css`.
+- Nie zmodyfikowano konfiguracji Firebase, plików XLSX, JSON, `firebase-import.json`, `data.json` ani innych plików danych/importu.
+- Nie zastosowano `audio.loop = true`; pętla Audio tworzy kolejne odtworzenie po zdarzeniu `ended`.
+- Aktywny stan Loop używa klasy `.is-looping` i atrybutu `aria-pressed="true"`.
+- `.editable-text-button` jest osobną klasą i nie zmienia globalnego `.btn.secondary`.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `Audio/index.html` | Dodano obsługę Loop w prawdziwym widoku użytkownika, stan `aria-pressed`, losowanie wariantów bez natychmiastowej powtórki oraz czerwony stan aktywny. |
+| `Audio/docs/README.md` | Zaktualizowano instrukcje EN i PL dla Loop oraz braku Loop w adminie. |
+| `Audio/docs/Documentation.md` | Zaktualizowano opis techniczny odtwarzania, renderowania, stylów i funkcji Loop. |
+| `NPCGenerator/index.html` | Dodano `keywords`/`keywordsEditing`, wspólny renderer edytowalnych pól tekstowych, serializację/reset oraz użycie nadpisanych słów kluczowych na karcie. |
+| `NPCGenerator/style.css` | Dodano `.editable-text-button` z jasnym kolorem i obramowaniem `var(--code)`. |
+| `NPCGenerator/docs/README.md` | Zaktualizowano instrukcje EN i PL dla edycji Skills/Keywords. |
+| `NPCGenerator/docs/Documentation.md` | Zaktualizowano dokumentację techniczną edytowalnych pól tekstowych, override'ów i karty do druku. |
+| `Analizy/Update.md` | Dodano dokładny log bieżących prac. |
+| `Analizy/Release.md` | Dodano niniejszą sekcję dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+- `Audio/index.html`: `pickRandomVariant(item, previousUrl)` unika natychmiastowej powtórki URL-a przy wielu wariantach; `startPlayback(...)` przechowuje `item`, `loop` i `lastUrl`, czyta bieżącą wartość suwaka przy każdej iteracji i restartuje odtwarzanie po `ended` tylko dla aktywnej pętli; `toggleLoop(...)` uruchamia, aktywuje lub zatrzymuje pętlę; przyciski Loop renderują się wyłącznie poza `?admin=1`.
+- `NPCGenerator/index.html`: `bestiaryOverrides` obsługuje `keywords` i `keywordsEditing`; `EDITABLE_TEXT_FIELDS` kieruje `Umiejętności` i `Słowa Kluczowe` do wspólnego `createEditableTextRow(...)`; zapisany podgląd używa `createClampCell(...)`; karta do druku bierze `bestiaryOverrides.keywords`, jeżeli istnieje.
+- `NPCGenerator/style.css`: `.editable-text-button` ustawia jasny kolor i obramowanie na `var(--code)` bez globalnych skutków dla innych przycisków.
+
+### Testy
+
+- PASS — `node --check /tmp/Audio.mjs` po wyodrębnieniu skryptu modułowego z `Audio/index.html`.
+- PASS — `node --check /tmp/NPCGenerator.mjs` po wyodrębnieniu skryptu modułowego z `NPCGenerator/index.html`.
+- PASS — `git status --short` potwierdził zmiany tylko w dozwolonych plikach funkcjonalnych/dokumentacyjnych oraz wymaganych logach analitycznych.
+- PASS — `rg -n "audio\.loop\s*=" Audio/index.html || true` nie znalazł natywnego `audio.loop = true`.
+- PASS — `rg -n "DetaleLayout|GeneratorNPC/|DataVault/style.css" ... || true` nie znalazł zabronionych referencji przeniesionych do zmienianych plików docelowych.
+- PASS — skrypt Python potwierdził, że sprawdzane angielskie sekcje README nie zawierają wskazanych polskich etykiet UI.
+
+### Ryzyka i następne kroki
+
+- Wymagany pozostaje manualny test w przeglądarce z rzeczywistymi lub neutralnymi URL-ami audio, aby potwierdzić zachowanie Web Audio, głośności i zapętlenia w środowisku użytkownika.
+- Nie testowano live Firestore; konfiguracje Firebase były celowo poza zakresem.
+- Nie wykonano pełnej przebudowy dokumentacji technicznej, która nadal zawiera historyczne polskie sekcje poza zakresem bieżącej zmiany.

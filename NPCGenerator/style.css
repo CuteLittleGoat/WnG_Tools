@@ -160,6 +160,12 @@ a.link:hover {
   letter-spacing: 0.12em;
 }
 
+.editable-text-button {
+  border-color: var(--code);
+  color: var(--code);
+  opacity: 1;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 360px 1fr;
