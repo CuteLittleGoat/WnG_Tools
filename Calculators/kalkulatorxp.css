@@ -246,3 +246,9 @@ body{
 @media (max-width: 980px){
   .main{grid-template-columns:1fr}
 }
+
+.species-max-footnotes{
+  margin-top:8px;
+  color:var(--text2);
+  font-size:12px;
+}

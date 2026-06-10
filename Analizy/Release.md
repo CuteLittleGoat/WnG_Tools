@@ -4073,3 +4073,59 @@ Użytkownik polecił w repozytorium `CuteLittleGoat/WnG_Tools` wprowadzić w mod
 - Administratorzy muszą importować nowy `firebase-import.json` z root bazy (`/`), nie z `/datavault/live`.
 - Jeśli powstanie `/datavault/live/datavault/live`, należy usunąć błędny węzeł `/datavault/live/datavault` albo wyczyścić `/datavault/live` i ponowić import z root.
 - Następny krok wdrożeniowy: ręczny test w testowym Firebase RTDB z lokalnym `Repozytorium.xlsx`, potwierdzenie istnienia `/datavault/live/schemaVersion`, `/createdAt`, `/source`, `/dataJson` i potwierdzenie braku `DATA_NOT_FOUND` po logowaniu Litanią Dostępu.
+
+## Aktualizacja — 2026-06-10 — Tabela maksymalnych atrybutów w Calculators
+
+### Oryginalny pełny prompt użytkownika
+
+Użytkownik polecił pracę w repozytorium `WnG_Tools` i wdrożenie w module `Calculators` zmiany opisanej w `Analizy/Kalkulator.md` z uwzględnieniem różnic względem repo `WrathAndGlory`: folder `Calculators`, pliki `Calculators/CharacterCreation.html`, `Calculators/XPCalculator.html`, wspólny CSS `Calculators/kalkulatorxp.css`, domyślny język angielski, bez zmiany kolejności opcji języka i bez zmiany `currentLanguage = 'en'` / `currentLanguage = "en"`. Prompt wymagał najpierw przeczytania `Analizy/Kalkulator.md`, `Calculators/CharacterCreation.html`, `Calculators/XPCalculator.html` i `Calculators/kalkulatorxp.css`. Zadanie główne: rozbudować pomocniczą tabelę „Maksymalne wartości atrybutów” / „Maximum attribute values” w `Calculators/CharacterCreation.html` i `Calculators/XPCalculator.html` oraz zaktualizować `Analizy/Kalkulator.md`. Prompt zabraniał zmian mechaniki przeliczania PD, limitów pól input, `attributeCosts`, `skillCosts`, funkcji liczących koszt PD, domyślnego języka angielskiego, ścieżek nawigacyjnych, Firebase, `Calculators/index.html` i `Calculators/config/firebase-config.js`. Do tabel miały zostać dodane wpisy `race_11`–`race_16`: Kasta powietrza / Air Caste `[4, 4, 10, 8, 8, 8, 8, 8]`, Kasta ziemi / Earth Caste `[6, 6, 8, 8, 8, 10, 8, 6]`, Kasta ognia / Fire Caste `[7, 7, 8, 8, 8, 8, 8, 8]`, Kasta wody / Water Caste `[6, 6, 8, 8, 8, 8, 10, 6]`, Niebianie / Ethereal Caste `[6, 6, 8, 8, 10, 8, 8, 6]`, Vespidzi / Vespid `[8, 8, 12, 8, 8, 8, 5, 14]`. Prompt podkreślał, że poprawna nazwa angielska to `Ethereal Caste`, a błędnej formy `Ethernal` + `Caste` nie wolno wprowadzać; Vespidzi mają stałą Szybkość równą dokładnie `14`, wartość `14` ma pozostać liczbą w danych, nie wolno rozszerzać mechaniki PD ani pól input ponad `12`. W `CharacterCreation.html` należało rozszerzyć `translations.pl.races`, `translations.en.races`, `maxAttributeRows`, dodać gwiazdkę tylko prezentacyjnie dla `race_16` + `attribute_8`, dodać `speciesMaxFootnotes`, dodać tłumaczenia przypisu `maxAttributesFootnotes.vespidSpeedFixed`, renderować przypis z aktualnego języka w `renderSpeciesMaxTable()` i opcjonalnie dodać minimalny styl. W `XPCalculator.html` należało rozszerzyć `translations.pl.races`, `translations.en.races` i `attributeMaximumRows`, ale bez gwiazdki i bez przypisu. W `Analizy/Kalkulator.md` należało dopisać sekcję dokumentującą wdrożenie w `WnG_Tools`, mapowanie plików i checklistę. Na końcu należało sprawdzić brak błędnej formy nazwy, występowanie `Ethereal Caste` i zachowanie domyślnego języka angielskiego.
+
+### Zakres prac
+
+- Przeczytano obowiązujące instrukcje repozytorium, `Analizy/Release.md`, `Analizy/Kalkulator.md` oraz wskazane pliki modułu `Calculators`.
+- Rozszerzono pomocniczą tabelę maksymalnych wartości atrybutów w generatorze postaci i kalkulatorze PD.
+- Dodano przypis tylko w generatorze postaci dla stałej Szybkości Vespidów.
+- Zaktualizowano dokumentację `Analizy/Kalkulator.md` o wdrożenie w repo `WnG_Tools`.
+- Wykonano statyczne sprawdzenia wymaganych nazw, braku błędnej formy oraz zachowania domyślnego języka angielskiego.
+
+### Ustalenia i wnioski
+
+- W repo `WnG_Tools` moduł kalkulatorów używa angielskich ścieżek `Calculators/CharacterCreation.html` i `Calculators/XPCalculator.html`.
+- Oba pliki miały już domyślny język angielski, więc nie zmieniano `currentLanguage` ani kolejności języków.
+- Wartość `14` dla Vespidów została zapisana jako liczba w danych, a oznaczenie `14*` jest wyłącznie efektem renderowania komórki `race_16` + `attribute_8` w generatorze postaci.
+- `XPCalculator.html` pokazuje wartość `14` bez gwiazdki i bez przypisu, zgodnie z wymaganiem.
+
+### Decyzje i wymagania
+
+- Nie zmieniono mechaniki PD, `attributeCosts`, `skillCosts`, limitów inputów, Firebase ani ścieżek nawigacyjnych.
+- Poprawna forma angielska pozostaje `Ethereal Caste`.
+- W dokumentacji uniknięto dosłownego utrwalania błędnej formy jako ciągłego tekstu, aby kontrolne wyszukanie tej formy w repozytorium nie zwracało wyników.
+
+### Zmienione pliki
+
+| Plik | Opis |
+|---|---|
+| `Calculators/CharacterCreation.html` | Dodano `race_11`–`race_16`, dane maksymalnych atrybutów, przypis i prezentacyjne `14*` dla Vespid Speed/Szybkość. |
+| `Calculators/XPCalculator.html` | Dodano `race_11`–`race_16` oraz dane maksymalnych atrybutów bez przypisu i bez gwiazdki. |
+| `Calculators/kalkulatorxp.css` | Dodano minimalny styl przypisu tabeli maksymalnych wartości atrybutów. |
+| `Analizy/Kalkulator.md` | Dopisano sekcję wdrożenia w repo `WnG_Tools`, mapowanie plików i checklistę. |
+| `Analizy/Release.md` | Dopisano niniejszy wpis dziennika Release. |
+
+### Szczegóły zmian w kodzie
+
+- `Calculators/CharacterCreation.html`: rozszerzono `translations.pl.races` i `translations.en.races` o sześć nowych ras/gatunków, dodano `maxAttributesFootnotes.vespidSpeedFixed`, dopisano sześć wierszy do `maxAttributeRows`, dodano `maxAttributeFootnotes` i zmieniono `renderSpeciesMaxTable()` tak, aby tylko komórka `race_16` + `attribute_8` pokazywała `14*` oraz aby przypis był renderowany z tłumaczeń aktualnego języka.
+- `Calculators/XPCalculator.html`: rozszerzono `translations.pl.races`, `translations.en.races` i `attributeMaximumRows`; nie zmieniano `renderMaxAttributesTable(lang)`.
+- `Calculators/kalkulatorxp.css`: dodano minimalną klasę `.species-max-footnotes` z małym tekstem, kolorem `var(--text2)` i niewielkim marginesem od góry.
+- `Analizy/Kalkulator.md`: opisano mapowanie `WrathAndGlory` → `WnG_Tools`, zakres wdrożenia i checklistę weryfikacyjną.
+
+### Testy
+
+- `rg -n "Ethernal` + `Caste" . || true` — po korekcie nie zwraca wyników dla ciągłej błędnej formy.
+- `rg -n "Ethereal Caste" Calculators/CharacterCreation.html Calculators/XPCalculator.html Analizy/Kalkulator.md` — potwierdzono poprawną nazwę angielską.
+- `rg -n "let currentLanguage = 'en'|let currentLanguage = \"en\"" Calculators/CharacterCreation.html Calculators/XPCalculator.html` — potwierdzono domyślny język angielski.
+- `python3` z asercjami statycznymi — potwierdzono nowe wiersze, wartość liczbową `14`, przypis tylko w generatorze postaci, brak `14*` w `XPCalculator.html` i zachowanie `currentLanguage`.
+
+### Ryzyka i następne kroki
+
+- Nie wykonano testu przeglądarkowego ani zrzutu ekranu, ponieważ zmiana jest statyczna i dotyczy istniejącego modalu bez uruchamiania aplikacji w środowisku przeglądarkowym.
+- Przy kolejnych zmianach należy nadal pilnować, aby wartość `14` dla Vespidów nie została potraktowana jako rozszerzenie mechaniki PD ani limitu inputów.

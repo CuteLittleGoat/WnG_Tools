@@ -469,6 +469,7 @@
       <div class="species-max-modal__table-wrap">
         <table class="table species-max-table" id="speciesMaxTable"></table>
       </div>
+      <div id="speciesMaxFootnotes" class="species-max-footnotes"></div>
     </div>
   </div>
 
@@ -529,11 +530,15 @@ const translations = {
           attributes: ['S', 'Wt', 'Zr', 'I', 'SW', 'Int', 'Ogd', 'Szybkość'],
           races: {
             race_1: 'Człowiek', race_2: 'Ork', race_3: 'Aeldari', race_4: 'Adeptus Astartes', race_5: 'Primaris Astartes',
-            race_6: 'Ogryn', race_7: 'Szczurak', race_8: 'Kroot', race_9: 'Drukhari', race_10: 'Konstrukt Upiorytowy'
+            race_6: 'Ogryn', race_7: 'Szczurak', race_8: 'Kroot', race_9: 'Drukhari', race_10: 'Konstrukt Upiorytowy',
+            race_11: 'Kasta powietrza', race_12: 'Kasta ziemi', race_13: 'Kasta ognia', race_14: 'Kasta wody', race_15: 'Niebianie', race_16: 'Vespidzi'
           },
           maxAttributes: {
             attribute_1: 'Siła', attribute_2: 'Wytrzymałość', attribute_3: 'Zręczność', attribute_4: 'Inicjatywa',
             attribute_5: 'Siła Woli', attribute_6: 'Inteligencja', attribute_7: 'Ogłada', attribute_8: 'Szybkość'
+          },
+          maxAttributesFootnotes: {
+            vespidSpeedFixed: '* Vespidzi mają stałą Szybkość równą 14. Na potrzeby obliczeń PD zignoruj pole Szybkość.'
           },
           skillsColumn1: [
             'Analiza (Int)', 'Atletyka (S)', 'Czujność (Int)', 'Dowodzenie (SW)', 'Intuicja (Ogd)',
@@ -582,11 +587,15 @@ const translations = {
           attributes: ['S', 'T', 'A', 'I', 'Will', 'Int', 'Fell', 'Speed'],
           races: {
             race_1: 'Human', race_2: 'Ork', race_3: 'Aeldari', race_4: 'Adeptus Astartes', race_5: 'Primaris Astartes',
-            race_6: 'Ogryn', race_7: 'Ratling', race_8: 'Kroot', race_9: 'Drukhari', race_10: 'Wraith Construct'
+            race_6: 'Ogryn', race_7: 'Ratling', race_8: 'Kroot', race_9: 'Drukhari', race_10: 'Wraith Construct',
+            race_11: 'Air Caste', race_12: 'Earth Caste', race_13: 'Fire Caste', race_14: 'Water Caste', race_15: 'Ethereal Caste', race_16: 'Vespid'
           },
           maxAttributes: {
             attribute_1: 'Strength', attribute_2: 'Toughness', attribute_3: 'Agility', attribute_4: 'Initiative',
             attribute_5: 'Willpower', attribute_6: 'Intellect', attribute_7: 'Fellowship', attribute_8: 'Speed'
+          },
+          maxAttributesFootnotes: {
+            vespidSpeedFixed: '* Vespids have a fixed Speed value of 14. For XP calculation purposes, ignore the Speed field.'
           },
           skillsColumn1: [
             'Athletics (S)', 'Awareness (Int)', 'Ballistic Skill (A)', 'Cunning (Fel)', 'Deception (Fel)',
@@ -621,10 +630,19 @@ const translations = {
         { race: 'race_7', values: [6, 6, 10, 10, 8, 8, 10, 7] },
         { race: 'race_8', values: [12, 12, 12, 12, 10, 6, 6, 10] },
         { race: 'race_9', values: [8, 8, 12, 12, 10, 10, 6, 10] },
-        { race: 'race_10', values: [12, 12, 8, 8, 12, 10, 4, 8] }
+        { race: 'race_10', values: [12, 12, 8, 8, 12, 10, 4, 8] },
+        { race: 'race_11', values: [4, 4, 10, 8, 8, 8, 8, 8] },
+        { race: 'race_12', values: [6, 6, 8, 8, 8, 10, 8, 6] },
+        { race: 'race_13', values: [7, 7, 8, 8, 8, 8, 8, 8] },
+        { race: 'race_14', values: [6, 6, 8, 8, 8, 8, 10, 6] },
+        { race: 'race_15', values: [6, 6, 8, 8, 10, 8, 8, 6] },
+        { race: 'race_16', values: [8, 8, 12, 8, 8, 8, 5, 14] }
       ];
 
       const maxAttributeKeys = ['attribute_1','attribute_2','attribute_3','attribute_4','attribute_5','attribute_6','attribute_7','attribute_8'];
+      const maxAttributeFootnotes = [
+        { race: 'race_16', attribute: 'attribute_8', marker: '*', noteKey: 'vespidSpeedFixed' }
+      ];
       const modalImageUrl = './Modal_Icon.png';
       const firebaseContext = initializeFirebaseContext();
 
@@ -691,6 +709,8 @@ const translations = {
       function renderSpeciesMaxTable() {
         const t = translations[currentLanguage];
         const table = document.getElementById('speciesMaxTable');
+        const footnotes = document.getElementById('speciesMaxFootnotes');
+        const activeFootnotes = new Set();
 
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
@@ -712,15 +732,29 @@ const translations = {
           raceCell.innerText = t.races[row.race];
           tr.appendChild(raceCell);
 
-          row.values.forEach((value) => {
+          row.values.forEach((value, index) => {
             const td = document.createElement('td');
-            td.innerText = String(value);
+            const attributeKey = maxAttributeKeys[index];
+            const footnote = maxAttributeFootnotes.find((item) => item.race === row.race && item.attribute === attributeKey);
+            td.innerText = footnote ? `${value}${footnote.marker}` : String(value);
+            if (footnote) {
+              activeFootnotes.add(footnote.noteKey);
+            }
             tr.appendChild(td);
           });
           tbody.appendChild(tr);
         });
 
         table.replaceChildren(thead, tbody);
+        footnotes.replaceChildren();
+
+        activeFootnotes.forEach((noteKey) => {
+          const note = t.maxAttributesFootnotes && t.maxAttributesFootnotes[noteKey];
+          if (!note) return;
+          const noteElement = document.createElement('div');
+          noteElement.innerText = note;
+          footnotes.appendChild(noteElement);
+        });
       }
 
       // --- Funkcja resetująca wszystkie pola do wartości domyślnych / Function to reset all fields to default values ---
