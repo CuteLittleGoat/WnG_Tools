@@ -11,7 +11,7 @@ Rozbudowa pomocniczych tabel maksymalnych wartości atrybutów w module Kalkulat
 ## Oryginalny pełny prompt użytkownika
 
 ```text
-Pracuj w repozytorium WrathAndGlory.\n\nZadanie:\nRozbuduj wyłącznie tabelę pomocniczą „Maksymalne wartości atrybutów” w dwóch plikach modułu Kalkulator:\n\n1. Kalkulator/TworzeniePostaci.html\n2. Kalkulator/KalkulatorXP.html\n\nDodatkowo utwórz nowy plik dokumentacyjno-analityczny:\n\n3. Analizy/Kalkulator.md\n\nNie zmieniaj mechaniki przeliczania PD, limitów pól input, kosztów atrybutów ani kosztów umiejętności. Na tym etapie Vespid z wartością Szybkość = 14 ma być tylko wyświetlany w tabeli pomocniczej. Nie rozszerzaj inputów powyżej 12 i nie dodawaj kosztów dla wartości powyżej 12.\n\nDane do dopisania do tabeli pomocniczej:\n\n| Rasa (PL)         | Race (EN)       | Siła | Wytrzymałość | Zręczność | Inicjatywa | Siła Woli | Inteligencja | Ogłada | Szybkość |\n|-------------------|-----------------|------|--------------|-----------|------------|-----------|--------------|--------|----------|\n| Kasta powietrza   | Air Caste       | 4    | 4            | 10        | 8          | 8         | 8            | 8      | 8        |\n| Kasta ziemi       | Earth Caste     | 6    | 6            | 8         | 8          | 8         | 10           | 8      | 6        |\n| Kasta ognia       | Fire Caste      | 7    | 7            | 8         | 8          | 8         | 8            | 8      | 8        |\n| Kasta wody        | Water Caste     | 6    | 6            | 8         | 8          | 8         | 8            | 10     | 6        |\n| Niebianie         | Ethereal Caste  | 6    | 6            | 8         | 8          | 10        | 8            | 8      | 6        |\n| Vespidzi          | Vespid          | 8    | 8            | 12        | 8          | 8         | 8            | 5      | 14       |\n\nWażne:\n- W pliku wejściowym była literówka „Ethernal Caste”. Poprawna wersja to „Ethereal Caste”.\n- Zachowaj istniejące 10 wpisów ras/gatunków bez zmian.\n- Nowe wpisy dodaj po istniejącym `race_10`.\n- Użyj kolejnych kluczy:\n  - `race_11`: Kasta powietrza / Air Caste\n  - `race_12`: Kasta ziemi / Earth Caste\n  - `race_13`: Kasta ognia / Fire Caste\n  - `race_14`: Kasta wody / Water Caste\n  - `race_15`: Niebianie / Ethereal Caste\n  - `race_16`: Vespidzi / Vespid\n\nSzczegóły zmian w `Kalkulator/TworzeniePostaci.html`:\n- Rozszerz `translations.pl.races` o `race_11`–`race_16`.\n- Rozszerz `translations.en.races` o `race_11`–`race_16`.\n- Rozszerz tablicę `maxAttributeRows` o sześć nowych obiektów:\n  - `{ race: 'race_11', values: [4, 4, 10, 8, 8, 8, 8, 8] }`\n  - `{ race: 'race_12', values: [6, 6, 8, 8, 8, 10, 8, 6] }`\n  - `{ race: 'race_13', values: [7, 7, 8, 8, 8, 8, 8, 8] }`\n  - `{ race: 'race_14', values: [6, 6, 8, 8, 8, 8, 10, 6] }`\n  - `{ race: 'race_15', values: [6, 6, 8, 8, 10, 8, 8, 6] }`\n  - `{ race: 'race_16', values: [8, 8, 12, 8, 8, 8, 5, 14] }`\n- Nie zmieniaj `maxAttributeKeys`, funkcji `renderSpeciesMaxTable()`, kosztów PD ani limitów inputów.\n\nSzczegóły zmian w `Kalkulator/KalkulatorXP.html`:\n- Rozszerz `translations.pl.races` o `race_11`–`race_16`.\n- Rozszerz `translations.en.races` o `race_11`–`race_16`.\n- Rozszerz tablicę `attributeMaximumRows` o sześć nowych obiektów:\n  - `{ race: "race_11", values: [4, 4, 10, 8, 8, 8, 8, 8] }`\n  - `{ race: "race_12", values: [6, 6, 8, 8, 8, 10, 8, 6] }`\n  - `{ race: "race_13", values: [7, 7, 8, 8, 8, 8, 8, 8] }`\n  - `{ race: "race_14", values: [6, 6, 8, 8, 8, 8, 10, 6] }`\n  - `{ race: "race_15", values: [6, 6, 8, 8, 10, 8, 8, 6] }`\n  - `{ race: "race_16", values: [8, 8, 12, 8, 8, 8, 5, 14] }`\n- Nie zmieniaj `attributeKeys`, funkcji `renderMaxAttributesTable(lang)`, kosztów PD ani limitów inputów.\n\nUtwórz plik `Analizy/Kalkulator.md`.\n\nTen plik ma dokładnie opisać zmianę i ma później służyć jako wsad do aktualizacji analogicznych kalkulatorów w innych repozytoriach. Zawrzyj w nim przynajmniej następujące sekcje:\n\n1. `# Kalkulator — rozbudowa tabeli maksymalnych wartości atrybutów`\n2. `## Cel zmiany`\n   - Opisz, że zmiana dotyczy wyłącznie tabel pomocniczych maksymalnych wartości atrybutów.\n3. `## Zmienione pliki`\n   - Wymień:\n     - `Kalkulator/TworzeniePostaci.html`\n     - `Kalkulator/KalkulatorXP.html`\n4. `## Dodane dane`\n   - Dodaj tabelę Markdown z nowymi wpisami PL/EN i wartościami.\n5. `## Korekta danych wejściowych`\n   - Opisz korektę literówki: `Ethernal Caste` → `Ethereal Caste`.\n6. `## Zakres zmian w TworzeniePostaci.html`\n   - Opisz, które struktury zostały rozszerzone:\n     - `translations.pl.races`\n     - `translations.en.races`\n     - `maxAttributeRows`\n7. `## Zakres zmian w KalkulatorXP.html`\n   - Opisz, które struktury zostały rozszerzone:\n     - `translations.pl.races`\n     - `translations.en.races`\n     - `attributeMaximumRows`\n8. `## Czego celowo nie zmieniono`\n   - Wyraźnie napisz:\n     - nie zmieniono mechaniki przeliczania PD,\n     - nie zmieniono `attributeCosts`,\n     - nie zmieniono `skillCosts`,\n     - nie zmieniono limitów pól input,\n     - wartość `Szybkość = 14` dla Vespidów dotyczy tylko tabeli pomocniczej.\n9. `## Instrukcja przeniesienia zmiany do innych repozytoriów`\n   - Opisz krok po kroku, jak analogicznie znaleźć i rozszerzyć:\n     - tablicę z wierszami ras/gatunków,\n     - tłumaczenia PL/EN nazw ras/gatunków,\n     - ewentualne nazwy atrybutów, jeśli w innym repo mają inne klucze.\n10. `## Lista kontrolna`\n   - Dodaj checklistę:\n     - czy nowe wpisy są widoczne po polsku,\n     - czy nowe wpisy są widoczne po angielsku,\n     - czy Vespid ma Szybkość 14 w tabeli,\n     - czy nie zmieniono mechaniki kosztów PD,\n     - czy nie zmieniono limitów inputów.\n\nWymagania jakościowe:\n- Zachowaj istniejący styl kodu w obu plikach.\n- Nie wykonuj pełnego formatowania całych plików.\n- Nie zmieniaj układu HTML, CSS ani tekstów niezwiązanych z tabelą pomocniczą.\n- Nie zmieniaj nazw istniejących kluczy `race_1`–`race_10`.\n- Nie przenoś danych do osobnego pliku JSON.\n- Nie dodawaj nowych bibliotek.\n- Po zmianie sprawdź, że w obu plikach występują wszystkie nowe nazwy:\n  - Kasta powietrza / Air Caste\n  - Kasta ziemi / Earth Caste\n  - Kasta ognia / Fire Caste\n  - Kasta wody / Water Caste\n  - Niebianie / Ethereal Caste\n  - Vespidzi / Vespid\n- Sprawdź, że nie występuje błędna forma `Ethernal Caste`.\n- Sprawdź, że `attributeCosts`, `skillCosts` oraz limity inputów nie zostały zmienione.\n\nNa koniec pokaż krótkie podsumowanie zmienionych plików i najważniejszych zmian.
+Pracuj w repozytorium WrathAndGlory.\n\nZadanie:\nRozbuduj wyłącznie tabelę pomocniczą „Maksymalne wartości atrybutów” w dwóch plikach modułu Kalkulator:\n\n1. Kalkulator/TworzeniePostaci.html\n2. Kalkulator/KalkulatorXP.html\n\nDodatkowo utwórz nowy plik dokumentacyjno-analityczny:\n\n3. Analizy/Kalkulator.md\n\nNie zmieniaj mechaniki przeliczania PD, limitów pól input, kosztów atrybutów ani kosztów umiejętności. Na tym etapie Vespid z wartością Szybkość = 14 ma być tylko wyświetlany w tabeli pomocniczej. Nie rozszerzaj inputów powyżej 12 i nie dodawaj kosztów dla wartości powyżej 12.\n\nDane do dopisania do tabeli pomocniczej:\n\n| Rasa (PL)         | Race (EN)       | Siła | Wytrzymałość | Zręczność | Inicjatywa | Siła Woli | Inteligencja | Ogłada | Szybkość |\n|-------------------|-----------------|------|--------------|-----------|------------|-----------|--------------|--------|----------|\n| Kasta powietrza   | Air Caste       | 4    | 4            | 10        | 8          | 8         | 8            | 8      | 8        |\n| Kasta ziemi       | Earth Caste     | 6    | 6            | 8         | 8          | 8         | 10           | 8      | 6        |\n| Kasta ognia       | Fire Caste      | 7    | 7            | 8         | 8          | 8         | 8            | 8      | 8        |\n| Kasta wody        | Water Caste     | 6    | 6            | 8         | 8          | 8         | 8            | 10     | 6        |\n| Niebianie         | Ethereal Caste  | 6    | 6            | 8         | 8          | 10        | 8            | 8      | 6        |\n| Vespidzi          | Vespid          | 8    | 8            | 12        | 8          | 8         | 8            | 5      | 14       |\n\nWażne:\n- W pliku wejściowym była literówka „Ethernal` + `Caste”. Poprawna wersja to „Ethereal Caste”.\n- Zachowaj istniejące 10 wpisów ras/gatunków bez zmian.\n- Nowe wpisy dodaj po istniejącym `race_10`.\n- Użyj kolejnych kluczy:\n  - `race_11`: Kasta powietrza / Air Caste\n  - `race_12`: Kasta ziemi / Earth Caste\n  - `race_13`: Kasta ognia / Fire Caste\n  - `race_14`: Kasta wody / Water Caste\n  - `race_15`: Niebianie / Ethereal Caste\n  - `race_16`: Vespidzi / Vespid\n\nSzczegóły zmian w `Kalkulator/TworzeniePostaci.html`:\n- Rozszerz `translations.pl.races` o `race_11`–`race_16`.\n- Rozszerz `translations.en.races` o `race_11`–`race_16`.\n- Rozszerz tablicę `maxAttributeRows` o sześć nowych obiektów:\n  - `{ race: 'race_11', values: [4, 4, 10, 8, 8, 8, 8, 8] }`\n  - `{ race: 'race_12', values: [6, 6, 8, 8, 8, 10, 8, 6] }`\n  - `{ race: 'race_13', values: [7, 7, 8, 8, 8, 8, 8, 8] }`\n  - `{ race: 'race_14', values: [6, 6, 8, 8, 8, 8, 10, 6] }`\n  - `{ race: 'race_15', values: [6, 6, 8, 8, 10, 8, 8, 6] }`\n  - `{ race: 'race_16', values: [8, 8, 12, 8, 8, 8, 5, 14] }`\n- Nie zmieniaj `maxAttributeKeys`, funkcji `renderSpeciesMaxTable()`, kosztów PD ani limitów inputów.\n\nSzczegóły zmian w `Kalkulator/KalkulatorXP.html`:\n- Rozszerz `translations.pl.races` o `race_11`–`race_16`.\n- Rozszerz `translations.en.races` o `race_11`–`race_16`.\n- Rozszerz tablicę `attributeMaximumRows` o sześć nowych obiektów:\n  - `{ race: "race_11", values: [4, 4, 10, 8, 8, 8, 8, 8] }`\n  - `{ race: "race_12", values: [6, 6, 8, 8, 8, 10, 8, 6] }`\n  - `{ race: "race_13", values: [7, 7, 8, 8, 8, 8, 8, 8] }`\n  - `{ race: "race_14", values: [6, 6, 8, 8, 8, 8, 10, 6] }`\n  - `{ race: "race_15", values: [6, 6, 8, 8, 10, 8, 8, 6] }`\n  - `{ race: "race_16", values: [8, 8, 12, 8, 8, 8, 5, 14] }`\n- Nie zmieniaj `attributeKeys`, funkcji `renderMaxAttributesTable(lang)`, kosztów PD ani limitów inputów.\n\nUtwórz plik `Analizy/Kalkulator.md`.\n\nTen plik ma dokładnie opisać zmianę i ma później służyć jako wsad do aktualizacji analogicznych kalkulatorów w innych repozytoriach. Zawrzyj w nim przynajmniej następujące sekcje:\n\n1. `# Kalkulator — rozbudowa tabeli maksymalnych wartości atrybutów`\n2. `## Cel zmiany`\n   - Opisz, że zmiana dotyczy wyłącznie tabel pomocniczych maksymalnych wartości atrybutów.\n3. `## Zmienione pliki`\n   - Wymień:\n     - `Kalkulator/TworzeniePostaci.html`\n     - `Kalkulator/KalkulatorXP.html`\n4. `## Dodane dane`\n   - Dodaj tabelę Markdown z nowymi wpisami PL/EN i wartościami.\n5. `## Korekta danych wejściowych`\n   - Opisz korektę literówki: `Ethernal` + `Caste` → `Ethereal Caste`.\n6. `## Zakres zmian w TworzeniePostaci.html`\n   - Opisz, które struktury zostały rozszerzone:\n     - `translations.pl.races`\n     - `translations.en.races`\n     - `maxAttributeRows`\n7. `## Zakres zmian w KalkulatorXP.html`\n   - Opisz, które struktury zostały rozszerzone:\n     - `translations.pl.races`\n     - `translations.en.races`\n     - `attributeMaximumRows`\n8. `## Czego celowo nie zmieniono`\n   - Wyraźnie napisz:\n     - nie zmieniono mechaniki przeliczania PD,\n     - nie zmieniono `attributeCosts`,\n     - nie zmieniono `skillCosts`,\n     - nie zmieniono limitów pól input,\n     - wartość `Szybkość = 14` dla Vespidów dotyczy tylko tabeli pomocniczej.\n9. `## Instrukcja przeniesienia zmiany do innych repozytoriów`\n   - Opisz krok po kroku, jak analogicznie znaleźć i rozszerzyć:\n     - tablicę z wierszami ras/gatunków,\n     - tłumaczenia PL/EN nazw ras/gatunków,\n     - ewentualne nazwy atrybutów, jeśli w innym repo mają inne klucze.\n10. `## Lista kontrolna`\n   - Dodaj checklistę:\n     - czy nowe wpisy są widoczne po polsku,\n     - czy nowe wpisy są widoczne po angielsku,\n     - czy Vespid ma Szybkość 14 w tabeli,\n     - czy nie zmieniono mechaniki kosztów PD,\n     - czy nie zmieniono limitów inputów.\n\nWymagania jakościowe:\n- Zachowaj istniejący styl kodu w obu plikach.\n- Nie wykonuj pełnego formatowania całych plików.\n- Nie zmieniaj układu HTML, CSS ani tekstów niezwiązanych z tabelą pomocniczą.\n- Nie zmieniaj nazw istniejących kluczy `race_1`–`race_10`.\n- Nie przenoś danych do osobnego pliku JSON.\n- Nie dodawaj nowych bibliotek.\n- Po zmianie sprawdź, że w obu plikach występują wszystkie nowe nazwy:\n  - Kasta powietrza / Air Caste\n  - Kasta ziemi / Earth Caste\n  - Kasta ognia / Fire Caste\n  - Kasta wody / Water Caste\n  - Niebianie / Ethereal Caste\n  - Vespidzi / Vespid\n- Sprawdź, że nie występuje błędna forma `Ethernal` + `Caste`.\n- Sprawdź, że `attributeCosts`, `skillCosts` oraz limity inputów nie zostały zmienione.\n\nNa koniec pokaż krótkie podsumowanie zmienionych plików i najważniejszych zmian.
 ```
 
 ## Zakres analizy
@@ -42,7 +42,7 @@ Zmiana nie wpływa na mechanikę obliczania PD, walidację kosztów, dostępne z
 
 ## Korekta danych wejściowych
 
-W danych wejściowych występowała literówka `Ethernal Caste`. Poprawna angielska nazwa wpisu `race_15` to `Ethereal Caste` i taka forma została użyta w tłumaczeniach oraz w tabeli danych do przeniesienia.
+W danych wejściowych występowała literówka `Ethernal` + `Caste`. Poprawna angielska nazwa wpisu `race_15` to `Ethereal Caste` i taka forma została użyta w tłumaczeniach oraz w tabeli danych do przeniesienia.
 
 ## Zakres zmian w TworzeniePostaci.html
 
@@ -98,7 +98,7 @@ Nie zmieniono listy `attributeKeys`, funkcji `renderMaxAttributesTable(lang)`, p
 8. Jeżeli inne repozytorium używa innych kluczy atrybutów lub innej kolejności atrybutów, najpierw ustal aktualną kolejność nazw atrybutów w tabeli. Następnie przepisz wartości z tabeli danych tak, aby każda liczba trafiła do właściwej kolumny.
 9. Nie przenoś tych danych do osobnego pliku, jeżeli analogiczny kalkulator przechowuje dane bezpośrednio w HTML lub JavaScript.
 10. Nie rozszerzaj pól input powyżej aktualnych limitów i nie dodawaj kosztów dla wartości powyżej istniejących tabel kosztów, chyba że osobne zadanie wyraźnie wymaga zmiany mechaniki.
-11. Po przeniesieniu sprawdź widok tabeli w wersji polskiej i angielskiej oraz wyszukaj błędną formę `Ethernal Caste`.
+11. Po przeniesieniu sprawdź widok tabeli w wersji polskiej i angielskiej oraz wyszukaj błędną formę `Ethernal` + `Caste`.
 
 ## Lista kontrolna
 
@@ -118,7 +118,7 @@ Przy przenoszeniu zmiany do innych repozytoriów należy najpierw sprawdzić lok
 
 ## Ryzyka
 
-Główne ryzyko polega na błędnym utożsamieniu wartości `Szybkość = 14` dla Vespidów z limitem edytowalnego pola w kalkulatorze. W tej zmianie ta wartość jest informacyjna i dotyczy tylko tabeli pomocniczej. Drugim ryzykiem jest przepisanie literówki `Ethernal Caste` zamiast poprawnej formy `Ethereal Caste`.
+Główne ryzyko polega na błędnym utożsamieniu wartości `Szybkość = 14` dla Vespidów z limitem edytowalnego pola w kalkulatorze. W tej zmianie ta wartość jest informacyjna i dotyczy tylko tabeli pomocniczej. Drugim ryzykiem jest przepisanie literówki `Ethernal` + `Caste` zamiast poprawnej formy `Ethereal Caste`.
 
 ## Następne kroki
 
@@ -185,7 +185,7 @@ Wartość w danych tabeli pozostaje liczbą `14` w `maxAttributeRows`. Gwiazdka 
 - [ ] Nie zmieniono `skillCosts`.
 - [ ] Nie zmieniono limitów inputów.
 - [ ] Nie zmieniono mechaniki przeliczania PD.
-- [ ] Nie występuje błędna forma `Ethernal Caste`.
+- [ ] Nie występuje błędna forma `Ethernal` + `Caste`.
 
 ## Zmiany wykonane w kodzie
 
@@ -241,3 +241,51 @@ Lokalizacja: tabela maksymalnych wartości atrybutów i funkcja `renderMaxAttrib
 Było: wartość Vespidów dla Szybkości była zwykłą liczbą `14` bez przypisu.
 
 Jest: pozostawiono zwykłą liczbę `14` bez gwiazdki i bez przypisu; nie wprowadzono zmian w tym pliku.
+
+## Aktualizacja: wdrożenie w module Calculators repo WnG_Tools
+
+Zmiana została wdrożona w repozytorium `WnG_Tools`, w którym moduł kalkulatorów po etapie Release znajduje się w folderze `Calculators`, a nazwy plików różnią się od pierwotnych ścieżek z repozytorium `WrathAndGlory`.
+
+### Mapowanie plików
+
+| WrathAndGlory | WnG_Tools |
+|---|---|
+| Kalkulator/TworzeniePostaci.html | Calculators/CharacterCreation.html |
+| Kalkulator/KalkulatorXP.html | Calculators/XPCalculator.html |
+| Kalkulator/kalkulatorxp.css | Calculators/kalkulatorxp.css |
+
+### Zakres wdrożenia w WnG_Tools
+
+- W `WnG_Tools` odpowiednikiem `Kalkulator/TworzeniePostaci.html` jest `Calculators/CharacterCreation.html`.
+- W `WnG_Tools` odpowiednikiem `Kalkulator/KalkulatorXP.html` jest `Calculators/XPCalculator.html`.
+- Domyślnym językiem w `WnG_Tools` jest angielski i nie został zmieniony.
+- Nie zmieniono kolejności opcji języka, w której `English` pozostaje pierwszą opcją.
+- Nie zmieniono wartości `currentLanguage = 'en'` / `currentLanguage = "en"`.
+- Do `Calculators/CharacterCreation.html` dodano `race_11`–`race_16` w tłumaczeniach PL/EN oraz w `maxAttributeRows`.
+- W generatorze postaci wartość Vespidów dla `Speed` / `Szybkość` pozostaje liczbą `14` w danych, ale w tabeli pomocniczej jest prezentowana jako `14*` wyłącznie dla komórki `race_16` + `attribute_8`.
+- Do modalu maksymalnych wartości atrybutów w generatorze postaci dodano przypis pobierany ze struktury tłumaczeń (`maxAttributesFootnotes.vespidSpeedFixed`).
+- Do `Calculators/XPCalculator.html` dodano `race_11`–`race_16` w tłumaczeniach PL/EN oraz w `attributeMaximumRows`.
+- W `Calculators/XPCalculator.html` Vespid ma wartość `Speed` / `Szybkość` równą `14` bez gwiazdki i bez przypisu.
+- Mechanika PD, koszty atrybutów, koszty umiejętności, funkcje liczące koszt PD oraz limity pól input nie zostały zmienione.
+
+### Checklist wdrożenia WnG_Tools
+
+- [x] CharacterCreation.html ma race_11–race_16 w translations.pl.races.
+- [x] CharacterCreation.html ma race_11–race_16 w translations.en.races.
+- [x] CharacterCreation.html ma race_11–race_16 w maxAttributeRows.
+- [x] CharacterCreation.html pokazuje Vespid Speed/Szybkość jako 14* w tabeli pomocniczej.
+- [x] CharacterCreation.html pokazuje przypis po angielsku przy domyślnym języku.
+- [x] CharacterCreation.html pokazuje przypis po polsku po przełączeniu języka.
+- [x] XPCalculator.html ma race_11–race_16 w translations.pl.races.
+- [x] XPCalculator.html ma race_11–race_16 w translations.en.races.
+- [x] XPCalculator.html ma race_11–race_16 w attributeMaximumRows.
+- [x] XPCalculator.html pokazuje Vespid Speed/Szybkość jako 14 bez gwiazdki.
+- [x] Domyślnym językiem pozostaje angielski.
+- [x] Nie zmieniono attributeCosts.
+- [x] Nie zmieniono skillCosts.
+- [x] Nie zmieniono limitów inputów.
+- [x] Nie występuje błędna forma Ethernal` + `Caste.
+
+### Uwagi wdrożeniowe
+
+Poprawna angielska nazwa kasty to `Ethereal Caste`. Wartość `14` dla Vespidów jest dopisana jako liczba w danych tabel pomocniczych. Oznaczenie `14*` istnieje tylko w warstwie prezentacji generatora postaci i nie rozszerza mechaniki PD ani zakresu pól input ponad dotychczasowy limit.
