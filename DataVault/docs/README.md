@@ -50,15 +50,23 @@ Use it when module data needs refreshing after source updates. After clicking it
 The `DataVault/SampleFiles/` folder contains ready-to-use DataVault examples:
 - `Repozytorium.xlsx` provides a prepared worksheet and column structure. It also includes sample records that demonstrate formatting rules such as red text and strikethrough.
 - `data.json` is the generated backup example.
-- `firebase-import.json` is the generated Firebase RTDB import example. Import it under the DataVault path documented below: `/datavault/live`.
+- `firebase-import.json` is the generated Firebase RTDB root-ready import example. Import it from the root of Firebase Realtime Database (`/`); after import, the payload is placed under `/datavault/live`.
 
 You can copy the XLSX structure and replace the sample records with your own data before generating a new pair of JSON files.
 
 ## Current data source
-Click **Generate data files** to choose a local `Repozytorium.xlsx` file. The app generates `data.json` (backup) and `firebase-import.json` (import only this file into Firebase RTDB at `/datavault/live`).
+Click **Generate data files** to choose a local `Repozytorium.xlsx` file. The app generates `data.json` (backup/helper artifact) and root-ready `firebase-import.json`. Import `firebase-import.json` from the root of Firebase Realtime Database (`/`); after import, the payload is placed under `/datavault/live`. Do not import this new file while already inside `/datavault/live`, because that creates the wrong nested path `/datavault/live/datavault/live`.
 
 ## Data runtime
-Runtime is loaded from Firebase Realtime Database (`/datavault/live`) through Firebase Auth and shared loader `shared/firebase-data-loader.js`. Public `data.json` is not used as runtime.
+Runtime is loaded from Firebase Realtime Database (`/datavault/live`) through Firebase Auth and shared loader `shared/firebase-data-loader.js`; its `DATA_PATH` remains `"datavault/live"`. Public `data.json` is not used as runtime. The payload under `/datavault/live` keeps `schemaVersion: "datavault-firebase-import-v1"`, and `dataJson` remains a JSON string.
+
+
+### Correct Firebase import workflow
+1. Open Firebase Realtime Database.
+2. Go to the database root (`/`).
+3. Import `firebase-import.json`.
+4. Verify that `/datavault/live` exists and contains `schemaVersion`, `createdAt`, `source`, and `dataJson`.
+5. Do not import this file while already inside `/datavault/live`.
 
 ## Firebase private data sign-in
 - The login window shows `IkonaPowiadomien2.png` in a fixed 72×72 px slot, so the login card keeps a stable size while assets load.
@@ -154,15 +162,23 @@ Używaj go, gdy chcesz odświeżyć dane modułu po aktualizacji pliku źródło
 Folder `DataVault/SampleFiles/` zawiera gotowe przykładowe pliki DataVault:
 - `Repozytorium.xlsx` ma przygotowaną strukturę zakładek i kolumn. Zawiera też przykładowe rekordy pokazujące zasady formatowania, takie jak czerwony kolor tekstu i przekreślenie.
 - `data.json` jest wygenerowanym przykładem pliku backupowego.
-- `firebase-import.json` jest wygenerowanym przykładem pliku importu do Firebase RTDB. Importuj go pod opisaną niżej ścieżkę DataVault: `/datavault/live`.
+- `firebase-import.json` jest wygenerowanym przykładem pliku importu do Firebase RTDB w formacie root-ready. Importuj go z poziomu root Firebase Realtime Database (`/`); po imporcie payload trafi pod `/datavault/live`.
 
 Możesz skopiować strukturę XLSX i zastąpić przykładowe dane własnymi przed wygenerowaniem nowej pary plików JSON.
 
 ## Aktualne źródło danych
-Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup) oraz `firebase-import.json` (tylko ten plik importuj do Firebase RTDB `/datavault/live`).
+Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup / artefakt pomocniczy) oraz root-ready `firebase-import.json`. Importuj `firebase-import.json` z poziomu root Firebase Realtime Database (`/`); po imporcie payload trafi pod `/datavault/live`. Nie importuj nowego pliku bezpośrednio będąc już w `/datavault/live`, bo utworzy błędną ścieżkę `/datavault/live/datavault/live`.
 
 ## Runtime danych
-Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) przez Firebase Auth i wspólny loader `shared/firebase-data-loader.js`. Publiczny `data.json` nie jest używany jako runtime.
+Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) przez Firebase Auth i wspólny loader `shared/firebase-data-loader.js`; jego `DATA_PATH` pozostaje `"datavault/live"`. Publiczny `data.json` nie jest używany jako runtime. Payload pod `/datavault/live` zachowuje `schemaVersion: "datavault-firebase-import-v1"`, a `dataJson` pozostaje stringiem JSON.
+
+
+### Poprawny workflow importu Firebase
+1. Otwórz Firebase Realtime Database.
+2. Przejdź do root bazy (`/`).
+3. Zaimportuj `firebase-import.json`.
+4. Sprawdź, że istnieje `/datavault/live` i zawiera `schemaVersion`, `createdAt`, `source` oraz `dataJson`.
+5. Nie importuj tego pliku będąc już w `/datavault/live`.
 
 ## Logowanie do prywatnych danych Firebase
 - W oknie logowania wyświetla się ikona `IkonaPowiadomien2.png` w stałym polu (72×72 px), więc karta logowania nie zmienia rozmiaru podczas doczytywania zasobów.

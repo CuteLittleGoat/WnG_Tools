@@ -3,7 +3,7 @@
 ## Cel
 Ten dokument dotyczy wyłącznie wspólnego źródła prywatnych danych DataVault używanego przez moduły korzystające z `shared/firebase-data-loader.js`. Nie opisuje Firestore dla ulubionych NPCGenerator ani Firestore dla modułu Audio.
 
-Ten plik zawiera pełny skrypt Node.js tworzący strukturę **Realtime Database** wymaganą przez wspólny loader danych (`shared/firebase-data-loader.js`).
+Ten plik zawiera pełny skrypt Node.js tworzący strukturę **Realtime Database** wymaganą przez wspólny loader danych (`shared/firebase-data-loader.js`). Loader runtime nadal czyta `DATA_PATH = "datavault/live"`.
 
 ## 1) Konfiguracja `shared/firebase-config.js`
 Utwórz własny projekt Firebase dla grupy i zastąp angielskie placeholdery w tym pliku własnymi wartościami:
@@ -23,7 +23,19 @@ root
         └── dataJson (string, pełny JSON zapisany jako tekst)
 ```
 
-## 3) Pełny skrypt Node.js (do skopiowania)
+## 3) Root-ready import z DataVault
+`DataVault` generuje `firebase-import.json` jako plik root-ready, czyli przeznaczony do importu z poziomu root Firebase Realtime Database (`/`). Plik ma zewnętrzne drzewo `datavault.live`, a właściwy payload znajduje się pod `/datavault/live` i zawiera `schemaVersion`, `createdAt`, `source` oraz `dataJson`.
+
+Poprawny import:
+1. Otwórz Firebase Realtime Database.
+2. Przejdź do root bazy (`/`).
+3. Zaimportuj `firebase-import.json`.
+4. Sprawdź, że powstało `/datavault/live`.
+5. Nie importuj tego pliku będąc już w `/datavault/live`.
+
+`dataJson` pozostaje stringiem JSON, a `schemaVersion` payloadu pozostaje `datavault-firebase-import-v1`. `data.json` z DataVault jest backupem / artefaktem pomocniczym. Jeśli zaimportujesz nowy root-ready plik bezpośrednio do `/datavault/live`, powstanie błędne podwójne zagnieżdżenie `/datavault/live/datavault/live`.
+
+## 4) Pełny skrypt Node.js (do skopiowania)
 Zapisz jako `shared/init-rtdb-datavault-live.js`:
 
 ```js
@@ -68,7 +80,7 @@ main().catch((err) => {
 });
 ```
 
-## 4) Uruchomienie skryptu
+## 5) Uruchomienie skryptu
 ```bash
 npm i firebase-admin
 export GOOGLE_APPLICATION_CREDENTIALS="/pełna/ścieżka/do/service-account.json"
@@ -76,10 +88,10 @@ export FIREBASE_DATABASE_URL="https://twoj-projekt-default-rtdb.REGION.firebased
 node shared/init-rtdb-datavault-live.js
 ```
 
-## 5) Ważne uwagi zgodności
+## 6) Ważne uwagi zgodności
 - `dataJson` musi być **stringiem JSON**, nie surowym obiektem.
 - `schemaVersion` musi mieć wartość `datavault-firebase-import-v1`.
-- Jeśli używasz eksportu z DataVault, wklej dokładną zawartość jako `dataJson`.
+- Jeśli używasz eksportu z DataVault, standardowo importuj cały root-ready `firebase-import.json` z poziomu root bazy (`/`). Nie wklejaj całego root-ready eksportu jako wartość `dataJson`; `dataJson` to wewnętrzny string payloadu pod `/datavault/live`.
 
 ---
 
@@ -88,7 +100,7 @@ node shared/init-rtdb-datavault-live.js
 ## Purpose
 This document applies only to the shared private DataVault data source used by modules that rely on `shared/firebase-data-loader.js`. It does not describe NPCGenerator favorites Firestore or Audio module Firestore.
 
-This file includes a full Node.js script that creates the **Realtime Database** structure required by the shared data loader.
+This file includes a full Node.js script that creates the **Realtime Database** structure required by the shared data loader. The runtime loader still reads `DATA_PATH = "datavault/live"`.
 
 ## 1) `shared/firebase-config.js`
 Create your own Firebase project for the group and replace the English placeholders in this file with your own values:
@@ -108,7 +120,19 @@ root
         └── dataJson (string, full JSON serialized as text)
 ```
 
-## 3) Full Node.js script (copy-paste)
+## 3) Root-ready import from DataVault
+`DataVault` generates `firebase-import.json` as a root-ready file, meaning it is meant to be imported from the Firebase Realtime Database root (`/`). The file has the outer `datavault.live` tree, and the actual payload lands under `/datavault/live` with `schemaVersion`, `createdAt`, `source`, and `dataJson`.
+
+Correct import:
+1. Open Firebase Realtime Database.
+2. Go to the database root (`/`).
+3. Import `firebase-import.json`.
+4. Verify that `/datavault/live` exists.
+5. Do not import this file while already inside `/datavault/live`.
+
+`dataJson` remains a JSON string, and the payload `schemaVersion` remains `datavault-firebase-import-v1`. DataVault `data.json` is a backup / helper artifact. If you import the new root-ready file directly into `/datavault/live`, it creates the invalid nested path `/datavault/live/datavault/live`.
+
+## 4) Full Node.js script (copy-paste)
 Save as `shared/init-rtdb-datavault-live.js`:
 
 ```js
@@ -151,7 +175,7 @@ main().catch((err) => {
 });
 ```
 
-## 4) How to run
+## 5) How to run
 ```bash
 npm i firebase-admin
 export GOOGLE_APPLICATION_CREDENTIALS="/full/path/to/service-account.json"
@@ -159,7 +183,7 @@ export FIREBASE_DATABASE_URL="https://your-project-default-rtdb.REGION.firebased
 node shared/init-rtdb-datavault-live.js
 ```
 
-## 5) Compatibility notes
+## 6) Compatibility notes
 - `dataJson` must be a **JSON string**, not a raw object.
 - `schemaVersion` must be `datavault-firebase-import-v1`.
-- If you use DataVault export, paste it exactly into `dataJson`.
+- If you use DataVault export, normally import the whole root-ready `firebase-import.json` from the database root (`/`). Do not paste the whole root-ready export as the `dataJson` value; `dataJson` is the inner payload string under `/datavault/live`.
