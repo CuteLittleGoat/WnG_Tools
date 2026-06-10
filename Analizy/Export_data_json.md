@@ -622,3 +622,111 @@ Zmiana generatora jest właściwym miejscem naprawy, ponieważ błąd wynika z n
 2. Zaimportować wynikowy `firebase-import.json` w testowej bazie Firebase RTDB na poziomie root.
 3. Potwierdzić, że aplikacja ładuje dane i nie zgłasza `DATA_NOT_FOUND`.
 4. Rozważyć dodanie automatycznego testu jednostkowego dla `buildFirebaseImportJson` i `validateFirebaseImportObject`, jeśli repo otrzyma infrastrukturę testową JS.
+
+## Implementacja w WnG_Tools
+
+### Moduł i ścieżka runtime
+- Moduł w repozytorium `CuteLittleGoat/WnG_Tools` nazywa się `DataVault`.
+- Wspólny loader runtime znajduje się w `shared/firebase-data-loader.js`.
+- Ścieżka runtime pozostaje `/datavault/live`.
+- Stała `DATA_PATH` w `shared/firebase-data-loader.js` nie została zmieniona i nadal ma wartość `"datavault/live"`.
+
+### Stan przed zmianą
+Przed poprawką `DataVault/app.js` generował `firebase-import.json` jako sam payload docelowego węzła `/datavault/live`:
+
+```json
+{
+  "schemaVersion": "datavault-firebase-import-v1",
+  "createdAt": "...",
+  "source": "Repozytorium.xlsx",
+  "dataJson": "{...}"
+}
+```
+
+Taki plik był poprawny tylko wtedy, gdy administrator importował go ręcznie bezpośrednio do węzła `/datavault/live`. Przy typowym imporcie z poziomu root Firebase Realtime Database (`/`) Firebase tworzył jednak błędne drzewo z kluczami `schemaVersion`, `createdAt`, `source` i `dataJson` bezpośrednio pod root. W takim stanie nie powstawał węzeł `/datavault/live`, więc aplikacja, która czyta dane przez `shared/firebase-data-loader.js` ze ścieżki `DATA_PATH = "datavault/live"`, nie widziała danych i mogła zgłaszać `DATA_NOT_FOUND`.
+
+### Stan po zmianie
+Po poprawce `firebase-import.json` jest root-ready, czyli gotowy do importu z poziomu root Firebase Realtime Database. Generator zwraca zewnętrzne drzewo `datavault.live`, a dotychczasowy payload jest umieszczony bez zmian wewnątrz `live`:
+
+```json
+{
+  "datavault": {
+    "live": {
+      "schemaVersion": "datavault-firebase-import-v1",
+      "createdAt": "...",
+      "source": "Repozytorium.xlsx",
+      "dataJson": "{...}"
+    }
+  }
+}
+```
+
+Po imporcie pliku z poziomu root Firebase Realtime Database oczekiwane drzewo wygląda tak:
+
+```text
+/
+└── datavault
+    └── live
+        ├── schemaVersion
+        ├── createdAt
+        ├── source
+        └── dataJson
+```
+
+Runtime loader nie został przeniesiony i nadal czyta `/datavault/live`.
+
+### Zmienione pliki
+- `DataVault/app.js` — funkcja `buildFirebaseImportJson(dataJsonObject)` została zmieniona tak, aby opakowywać dotychczasowy payload w root-ready strukturę `datavault.live`; funkcja `validateFirebaseImportObject(firebaseImportObject, originalData)` waliduje teraz nowe drzewo root-ready i payload pod `datavault.live`; teksty PL/EN oraz statusy generowania plików informują o imporcie w root Firebase Realtime Database.
+- `DataVault/index.html` — fallback HTML dla `data-i18n="updateNoteFull"` opisuje `data.json` jako backup, `firebase-import.json` jako root-ready oraz wskazuje, że po imporcie dane trafią pod `/datavault/live`.
+- `DataVault/docs/README.md` — dokumentacja użytkowa PL/EN opisuje root-ready import z poziomu root, zachowanie `DATA_PATH = "datavault/live"`, string `dataJson`, `schemaVersion`, rolę `data.json` jako backupu oraz ostrzeżenie przed importem bezpośrednio do `/datavault/live`.
+- `DataVault/docs/Documentation.md` — dokumentacja techniczna opisuje nowy wrapper `datavault.live`, runtime `/datavault/live`, brak zmiany loadera oraz ryzyko podwójnego zagnieżdżenia `/datavault/live/datavault/live`.
+- `shared/FirebaseREADME.md` — wspólna instrukcja Firebase PL/EN opisuje poprawny import root-ready pliku `firebase-import.json` z root RTDB i zachowuje alternatywny skrypt Node.js ustawiający payload bezpośrednio pod `datavault/live`.
+- `DataVault/SampleFiles/firebase-import.json` — przykładowy publiczny import DataVault został opakowany w root-ready strukturę `datavault.live`, bez zmiany wewnętrznego `dataJson`.
+- `Analizy/Export_data_json.md` — dopisano niniejszą sekcję `Implementacja w WnG_Tools`.
+- `Analizy/Release.md` — dopisano wpis changelogowy Release dla tej poprawki.
+
+### Szczegóły patcha
+- `buildFirebaseImportJson` nie zwraca już samego payloadu. Zwraca obiekt `{ datavault: { live: payload } }`, dzięki czemu cały plik `firebase-import.json` można importować z poziomu root bazy.
+- `validateFirebaseImportObject` sprawdza teraz, czy root istnieje i jest obiektem, czy zawiera wyłącznie oczekiwany klucz `datavault`, czy `datavault` zawiera wyłącznie `live`, czy payload pod `datavault.live` ma oczekiwane klucze `schemaVersion`, `createdAt`, `source`, `dataJson`, czy `schemaVersion` wynosi `datavault-firebase-import-v1`, czy `dataJson` jest stringiem oraz czy `JSON.parse(dataJson)` odtwarza `originalData` w round-trip `JSON.stringify(restored) === JSON.stringify(originalData)`.
+- Dodano helpery walidacyjne `isPlainObject`, `assertFirebaseSafeKeys` i `assertExpectedOnlyKeys`.
+- Walidacja bezpiecznych kluczy Firebase dotyczy zewnętrznego drzewa importu (`root`, `datavault`, `live`, pola payloadu). Nie waliduje nazw arkuszy, kolumn ani pól wewnątrz `JSON.parse(dataJson)`, bo `dataJson` pozostaje stringiem JSON.
+- Teksty PL/EN przy generowaniu danych oraz statusy generowania mówią teraz o root-ready `firebase-import.json`.
+- Dokumentacja opisuje nowy workflow importu, runtime `/datavault/live`, `DATA_PATH = "datavault/live"`, string `dataJson`, stałą wartość `schemaVersion` oraz błąd podwójnego zagnieżdżenia.
+- Nie zmieniono sposobu budowy `data.json`; pozostaje backupem / artefaktem pomocniczym.
+- Nie zmieniono wewnętrznego schematu `dataJson`; nadal jest wynikiem `JSON.stringify(dataJsonObject)`.
+- Nie zmieniono `shared/firebase-data-loader.js` ani wartości `DATA_PATH`.
+- Nie zmieniono parsera XLSX, logiki Firebase Auth, konfiguracji Firebase, nazwy modułu DataVault ani nazw plików wyjściowych `data.json` i `firebase-import.json`.
+
+### Ręczny test Firebase
+1. Uruchom DataVault w trybie admina.
+2. Kliknij generowanie plików danych.
+3. Wybierz lokalny `Repozytorium.xlsx`.
+4. Zachowaj `data.json` jako backup.
+5. Zaimportuj `firebase-import.json` w root Firebase Realtime Database.
+6. Sprawdź, że istnieje `/datavault/live`.
+7. Sprawdź, że pod `/datavault/live` są `schemaVersion`, `createdAt`, `source`, `dataJson`.
+8. Zaloguj się w aplikacji.
+9. Potwierdź, że dane są widoczne i nie ma `DATA_NOT_FOUND`.
+
+### Ryzyka i rollback
+Jeżeli użytkownik zaimportuje nowy root-ready plik bezpośrednio do `/datavault/live`, Firebase utworzy błędne podwójne zagnieżdżenie:
+
+```text
+/datavault/live/datavault/live
+```
+
+Można to rozpoznać w konsoli Firebase Realtime Database po tym, że wewnątrz `/datavault/live` znajduje się kolejny klucz `datavault`, a właściwy payload jest dopiero pod drugim `live`. Aby usunąć błędny import, należy wykonać backup bazy, jeśli zawiera ważne dane, usunąć błędny węzeł `/datavault/live/datavault` albo wyczyścić cały `/datavault/live`, wrócić do root bazy (`/`) i ponownie zaimportować root-ready `firebase-import.json`.
+
+Rollback do starego sposobu byłby możliwy tylko przez wygenerowanie samego payloadu bez opakowania `datavault.live` i importowanie go ręcznie bezpośrednio do `/datavault/live`. To nie jest zalecany workflow, bo łatwo prowadzi do importu w złym miejscu i ponownego `DATA_NOT_FOUND`.
+
+### Kryteria akceptacji dla WnG_Tools
+- [ ] DataVault generuje root-ready firebase-import.json.
+- [ ] Import firebase-import.json do root tworzy /datavault/live.
+- [ ] Loader nadal czyta DATA_PATH = "datavault/live".
+- [ ] shared/firebase-data-loader.js nie został zmieniony w zakresie DATA_PATH.
+- [ ] dataJson nadal jest stringiem JSON.
+- [ ] data.json nadal jest backupem / artefaktem pomocniczym.
+- [ ] UI jasno mówi o imporcie w root Firebase Realtime Database.
+- [ ] Dokumentacja opisuje nowy workflow.
+- [ ] Nie utworzono pliku Export_data_jason.md.
+- [ ] Analizy/Export_data_json.md zawiera sekcję Implementacja w WnG_Tools.

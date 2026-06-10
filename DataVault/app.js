@@ -43,7 +43,7 @@ const translations = {
       accessPasswordLabel: "Litania Dostępu",
       accessUnlockButton: "Rozpocznij Rytuał",
       updateDataButton: "Generuj pliki danych",
-      updateNoteFull: "Kliknij, aby wybrać lokalny plik <code>Repozytorium.xlsx</code>. Aplikacja wygeneruje <code>data.json</code> jako backup oraz <code>firebase-import.json</code> — tylko ten drugi plik importuj do Firebase Realtime Database.",
+      updateNoteFull: "Kliknij, aby wybrać lokalny plik <code>Repozytorium.xlsx</code>. Aplikacja wygeneruje <code>data.json</code> jako backup oraz <code>firebase-import.json</code> — plik gotowy do importu w root Firebase Realtime Database. Po imporcie dane zostaną umieszczone pod <code>/datavault/live</code>.",
       mainPageButton: "Strona Główna",
       fullViewButton: "Pełen Widok",
       defaultViewButton: "Widok Domyślny",
@@ -90,7 +90,7 @@ const translations = {
       statusLoadError: "Błąd ładowania danych z prywatnej bazy",
       statusXlsxError: "Błąd ładowania XLSX",
       statusRepoDownload: "Wskaż lokalny plik Repozytorium.xlsx...",
-      statusRepoUpdated: "OK — wygenerowano data.json oraz firebase-import.json",
+      statusRepoUpdated: "OK — wygenerowano data.json oraz root-ready firebase-import.json",
       statusRepoError: "Błąd aktualizacji danych",
       statusCanonicalStart: "Generowanie data.json kanonicznym parserem XLSX (styles.xml/sharedStrings.xml)...",
       statusCanonicalUnavailable: "Brak biblioteki parsera kanonicznego (JSZip/xlsxCanonicalParser). Sprawdź połączenie z CDN.",
@@ -113,7 +113,7 @@ const translations = {
       accessPasswordLabel: "Access Litany",
       accessUnlockButton: "Begin Rite",
       updateDataButton: "Generate data files",
-      updateNoteFull: "Click to choose a local <code>Repozytorium.xlsx</code> file. The app will generate <code>data.json</code> as a backup and <code>firebase-import.json</code> — import only the second file into Firebase Realtime Database.",
+      updateNoteFull: "Click to choose a local <code>Repozytorium.xlsx</code> file. The app will generate <code>data.json</code> as a backup and <code>firebase-import.json</code> — a root-ready file for import into Firebase Realtime Database. After import, the data will be placed under <code>/datavault/live</code>.",
       mainPageButton: "Main Page",
       fullViewButton: "Full View",
       defaultViewButton: "Default View",
@@ -160,7 +160,7 @@ const translations = {
       statusLoadError: "Error loading data from private database",
       statusXlsxError: "Error loading XLSX",
       statusRepoDownload: "Select local Repozytorium.xlsx file...",
-      statusRepoUpdated: "OK — generated data.json and firebase-import.json",
+      statusRepoUpdated: "OK — generated data.json and root-ready firebase-import.json",
       statusRepoError: "Error updating data",
       statusCanonicalStart: "Generating data.json using canonical XLSX parser (styles.xml/sharedStrings.xml)...",
       statusCanonicalUnavailable: "Canonical parser library unavailable (JSZip/xlsxCanonicalParser). Check CDN connectivity.",
@@ -1002,28 +1002,76 @@ function downloadJsonFile(filename, objectToDownload){
   URL.revokeObjectURL(url);
 }
 
-// --- Budowanie wrappera Firebase z bezpiecznymi kluczami top-level / Build Firebase wrapper with top-level safe keys ---
+// --- Budowanie root-ready wrappera Firebase / Build root-ready Firebase wrapper ---
 function buildFirebaseImportJson(dataJsonObject){
   return {
-    schemaVersion: "datavault-firebase-import-v1",
-    createdAt: new Date().toISOString(),
-    source: "Repozytorium.xlsx",
-    dataJson: JSON.stringify(dataJsonObject),
+    datavault: {
+      live: {
+        schemaVersion: "datavault-firebase-import-v1",
+        createdAt: new Date().toISOString(),
+        source: "Repozytorium.xlsx",
+        dataJson: JSON.stringify(dataJsonObject),
+      },
+    },
   };
 }
 
-// --- Walidacja wrappera Firebase bez dotykania kluczy wewnątrz dataJson-string / Validate Firebase wrapper without touching keys inside dataJson string ---
-function validateFirebaseImportObject(firebaseImportObject, originalData){
+function isPlainObject(value){
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function assertFirebaseSafeKeys(node, label){
   const forbidden = /[.$#[\]\/]/;
-  for (const key of Object.keys(firebaseImportObject)){
+  for (const key of Object.keys(node)){
     if (!key || forbidden.test(key)){
-      throw new Error(`firebase-import.json contains an invalid Firebase key: ${key}`);
+      throw new Error(`${label} contains an invalid Firebase key: ${key}`);
     }
   }
-  if (typeof firebaseImportObject.dataJson !== "string"){
+}
+
+function assertExpectedOnlyKeys(node, expectedKeys, label){
+  const expected = new Set(expectedKeys);
+  for (const key of Object.keys(node)){
+    if (!expected.has(key)){
+      throw new Error(`${label} contains an unexpected key: ${key}`);
+    }
+  }
+  for (const key of expectedKeys){
+    if (!(key in node)){
+      throw new Error(`${label} is missing expected key: ${key}`);
+    }
+  }
+}
+
+// --- Walidacja root-ready wrappera Firebase bez dotykania kluczy wewnątrz dataJson-string / Validate root-ready Firebase wrapper without touching keys inside dataJson string ---
+function validateFirebaseImportObject(firebaseImportObject, originalData){
+  if (!isPlainObject(firebaseImportObject)){
+    throw new Error("firebase-import.json root must be an object");
+  }
+  assertFirebaseSafeKeys(firebaseImportObject, "firebase-import.json root");
+  assertExpectedOnlyKeys(firebaseImportObject, ["datavault"], "firebase-import.json root");
+
+  const datavaultNode = firebaseImportObject.datavault;
+  if (!isPlainObject(datavaultNode)){
+    throw new Error("firebase-import.json datavault node must be an object");
+  }
+  assertFirebaseSafeKeys(datavaultNode, "firebase-import.json datavault node");
+  assertExpectedOnlyKeys(datavaultNode, ["live"], "firebase-import.json datavault node");
+
+  const payload = datavaultNode.live;
+  if (!isPlainObject(payload)){
+    throw new Error("firebase-import.json datavault/live payload must be an object");
+  }
+  assertFirebaseSafeKeys(payload, "firebase-import.json datavault/live payload");
+  assertExpectedOnlyKeys(payload, ["schemaVersion", "createdAt", "source", "dataJson"], "firebase-import.json datavault/live payload");
+
+  if (payload.schemaVersion !== "datavault-firebase-import-v1"){
+    throw new Error("firebase-import.json schemaVersion is invalid");
+  }
+  if (typeof payload.dataJson !== "string"){
     throw new Error("firebase-import.json dataJson must be a string");
   }
-  const restored = JSON.parse(firebaseImportObject.dataJson);
+  const restored = JSON.parse(payload.dataJson);
   if (JSON.stringify(restored) !== JSON.stringify(originalData)){
     throw new Error("firebase-import.json round-trip validation failed");
   }

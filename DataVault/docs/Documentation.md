@@ -29,7 +29,7 @@ Dokument opisuje **mechanizmy aplikacji i wygląd 1:1**, tak aby ktoś mógł od
 
 ## 0. Aktualny stan danych i konfiguracji
 
-Moduł DataVault korzysta z prywatnego runtime Firebase RTDB `/datavault/live`. Lokalny `data.json` pełni rolę backupu i artefaktu pomocniczego, natomiast do Firebase importowany jest `firebase-import.json` wygenerowany z lokalnego pliku `Repozytorium.xlsx`.
+Moduł DataVault korzysta z prywatnego runtime Firebase RTDB `/datavault/live`. Lokalny `data.json` pełni rolę backupu i artefaktu pomocniczego, natomiast do Firebase importowany jest root-ready `firebase-import.json` wygenerowany z lokalnego pliku `Repozytorium.xlsx`. Plik `firebase-import.json` należy importować z poziomu root Firebase Realtime Database (`/`), co tworzy payload pod `/datavault/live`; nie należy importować go bezpośrednio do `/datavault/live`, bo powstanie podwójne zagnieżdżenie `/datavault/live/datavault/live`. Wspólny loader `shared/firebase-data-loader.js` nadal czyta `DATA_PATH = "datavault/live"`.
 
 ---
 Zakładka `Kary do ST` należy do zbioru zakładek zasad walki (`COMBAT_RULES_SHEETS`), dzięki czemu jest ukrywana/pokazywana przez checkbox `#toggleCombatTabs` i dziedziczy czerwony styl `.tab--combat` zarówno w trybie admina, jak i użytkownika.
@@ -76,7 +76,7 @@ Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
 - `style.css` — pełne style (kolory, fonty, layout, tabela, popover, modal, menu filtrów listowych).
 - `app.js` — główna logika UI: wczytywanie danych, normalizacja, filtrowanie, sortowanie, renderowanie, porównywanie i obsługa przycisku generacji.
 - `data.json` — plik pomocniczy/backup generowany lokalnie przez narzędzia DataVault; zawiera `_meta.traits`, `_meta.states`, `_meta.sheetOrder` i `_meta.columnOrder` i służy do walidacji, porównań oraz eksportu podczas utrzymania danych (nie jest runtime produkcyjnym).
-- `Repozytorium.xlsx` — źródło wsadowe do generowania plików importowych (`data.json` backup + `firebase-import.json`) w trybie admina; administrator wskazuje lokalny plik przez okno wyboru pliku.
+- `Repozytorium.xlsx` — źródło wsadowe do generowania plików importowych (`data.json` backup + root-ready `firebase-import.json`) w trybie admina; administrator wskazuje lokalny plik przez okno wyboru pliku.
 - `xlsxCanonicalParser.js` — kanoniczny parser XLSX po stronie przeglądarki: czyta bezpośrednio `xl/styles.xml`, `xl/sharedStrings.xml`, `xl/workbook.xml` i `xl/worksheets/sheet*.xml`, aby odwzorować logikę `build_json.py` (w tym detekcję `{{RED}}`).
 - `build_json.py` — kanoniczny generator referencyjny `data.json` z XLSX (AI/CLI/backend). Normalizuje białe znaki i zamienia polskie cudzysłowy „ ” na standardowy znak `"`.
 - Niniejszy dokument jest głównym, samowystarczalnym źródłem opisu fontów, kolorów, wyjątków formatowania, clamp i szerokości kolumn 1:1.
@@ -104,7 +104,7 @@ Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
   - `.language-switcher select#languageSelect` z opcjami `pl` i `en`.
   - Ciemne tło selecta (`#0b0b0b`) utrzymuje spójność z motywem konsolowym.
 
-**Ważne:** `#updateDataGroup` jest ukrywany w trybie gracza (JS ustawia `display:none`). W trybie admina grupa pokazuje komunikat, że użytkownik ma wskazać lokalny plik `Repozytorium.xlsx`; następnie aplikacja generuje `data.json` (backup) oraz `firebase-import.json` (jedyny plik do importu do Firebase Realtime Database).
+**Ważne:** `#updateDataGroup` jest ukrywany w trybie gracza (JS ustawia `display:none`). W trybie admina grupa pokazuje komunikat, że użytkownik ma wskazać lokalny plik `Repozytorium.xlsx`; następnie aplikacja generuje `data.json` (backup) oraz root-ready `firebase-import.json` do importu z poziomu root Firebase Realtime Database (`/`). Po imporcie dane trafiają pod `/datavault/live`.
 
 ### 2.2 Panel filtrów
 - `aside.panel` z nagłówkiem `.panelHeader`.
@@ -631,7 +631,9 @@ Mapowanie na `getElementById`:
 - Jeśli `window.XLSX` nie istnieje, doładowuje SheetJS z CDN (`0.18.5`).
 
 ### 7.4 `downloadDataJson(data)`
-- Generuje blob i wymusza pobranie `data.json` oraz `firebase-import.json`.
+- Generuje blob i wymusza pobranie `data.json` oraz root-ready `firebase-import.json`.
+- `data.json` pozostaje backupem / artefaktem pomocniczym.
+- `firebase-import.json` zawiera zewnętrzne drzewo `datavault.live`, więc jest przeznaczony do importu z poziomu root Firebase Realtime Database.
 
 ### 7.5 `loadXlsxFromRepo()`
 - Funkcja uruchamia kanoniczną generację w przeglądarce:
@@ -639,7 +641,7 @@ Mapowanie na `getElementById`:
   2. Pobiera `Repozytorium.xlsx` (`cache:"no-store"`).
   3. Wywołuje `XlsxCanonicalParser.loadXlsxMinimal(arrayBuffer)`.
   4. Buduje finalny JSON przez `buildDataJsonFromSheets(rawSheets, {sheetOrder, columnOrder})`.
-  5. Buduje wrapper `firebase-import.json`, waliduje round-trip `JSON.parse(dataJson)` i pobiera `data.json`; następnie po krótkim opóźnieniu pobiera `firebase-import.json`, normalizuje dane i odświeża UI.
+  5. Buduje root-ready wrapper `firebase-import.json` w strukturze `datavault.live`, waliduje round-trip `JSON.parse(dataJson)` dla payloadu pod `/datavault/live` i pobiera `data.json`; następnie po krótkim opóźnieniu pobiera `firebase-import.json`, normalizuje dane i odświeża UI.
 - Dzięki bezpośredniemu parsowaniu `styles.xml`/`sharedStrings.xml` wynik przycisku jest zgodny semantycznie z `build_json.py` (w tym markery `{{RED}}`).
 - Gdy parser kanoniczny nie jest dostępny (np. błąd CDN), funkcja ustawia status błędu i loguje komendę CLI (`python build_json.py Repozytorium.xlsx data.json`).
 
@@ -993,11 +995,14 @@ Bez tej aktualizacji część domyślnych filtrów, sortowania i formatowania ni
 ## Runtime data security update
 Generator danych nie pobiera już `Repozytorium.xlsx` przez `fetch`. Zamiast tego używa systemowego okna `input type=file` i czyta lokalny plik przez `arrayBuffer()`. Dzięki temu źródłowy XLSX nie musi istnieć jako publiczny zasób hostingu.
 
-Parser nadal generuje `data.json` oraz wrapper `firebase-import.json` (`schemaVersion`, `createdAt`, `source`, `dataJson`) z walidacją round-trip `JSON.parse(dataJson)`.
+Parser nadal generuje `data.json` oraz root-ready wrapper `firebase-import.json` w strukturze `{ datavault: { live: { schemaVersion, createdAt, source, dataJson } } }` z walidacją round-trip `JSON.parse(dataJson)`. Payload pod `datavault.live` zachowuje `schemaVersion: "datavault-firebase-import-v1"`, a `dataJson` pozostaje stringiem JSON.
 
 
 ## Firebase runtime
 - Data source runtime: RTDB `/datavault/live` + Firebase Auth.
+- `shared/firebase-data-loader.js` keeps `DATA_PATH = "datavault/live"`; runtime loading was not moved.
+- Generated `firebase-import.json` is root-ready and must be imported from the Realtime Database root (`/`). After import, Firebase contains `/datavault/live/schemaVersion`, `/datavault/live/createdAt`, `/datavault/live/source`, and `/datavault/live/dataJson`.
+- Do not import the root-ready file directly into `/datavault/live`; that creates the invalid nested path `/datavault/live/datavault/live`.
 - Wrapper `datavault-firebase-import-v1` is unwrapped by `shared/firebase-data-loader.js` via `JSON.parse(dataJson)`.
 - Service worker must not cache private payloads.
 
