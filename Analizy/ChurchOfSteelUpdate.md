@@ -964,4 +964,342 @@ Najbezpieczniejsza ścieżka dla `WnG_Tools`:
 5. **Zaktualizować dokumentację EN first.**
 6. **Dopiero potem przenosić funkcje nowszego DataVault i GeneratorNPC.**
 
+---
+
+## 12. Uzupełnienie analizy po komentarzach użytkownika
+
+### 12.1. Sekcja 3.1 — język domyślny i przełącznik języka
+
+Decyzja użytkownika potwierdza rekomendację z analizy.
+
+W repozytorium `WnG_Tools` przełącznik języka musi być zawsze widoczny.
+
+Oznacza to, że przy późniejszym wdrożeniu zmian z `WrathAndGlory` nie wolno przenieść zachowania produkcyjnego polegającego na ukryciu przełącznika języka klasą `language-switcher--hidden`.
+
+W `WnG_Tools` należy zachować release'owy model:
+
+- angielski jako domyślny język UI;
+- polski jako druga dostępna wersja UI;
+- przełącznik języka zawsze widoczny dla użytkownika.
+
+Do sprawdzenia przy wdrożeniu:
+
+- `DataVault/index.html`;
+- `DataVault/app.js`;
+- `NPCGenerator/index.html`;
+- ewentualne inne moduły z przełącznikiem języka.
+
+W kodzie i dokumentacji trzeba jasno zaznaczyć, że w `WnG_Tools` przełącznik języka jest elementem publicznego/release'owego interfejsu i nie powinien być ukrywany przy synchronizacji zmian z produkcyjnym `WrathAndGlory`.
+
+---
+
+### 12.2. Sekcja 3.3 — pojazdy i arkusze pojazdów
+
+Doprecyzowanie użytkownika:
+
+Istnieją dwie różne zakładki:
+
+1. stara zakładka `Equipment`;
+2. nowa zakładka `Vehicle Wargear`.
+
+Nie należy ich scalać ani traktować jako tej samej zakładki.
+
+#### `Equipment`
+
+`Equipment` to istniejąca, zwykła zakładka ekwipunku.
+
+Wymagane zachowanie:
+
+- nie jest powiązana z checkboxem pojazdów;
+- ma być widoczna zgodnie z ogólnymi zasadami DataVault;
+- dane z niej mają być zaciągane w `NPCGenerator`;
+- odpowiada logicznie polskiemu arkuszowi `Ekwipunek`, ale w release angielskim bazujemy na nazwie `Equipment`.
+
+W mapowaniu dla `NPCGenerator` powinna być traktowana jako źródło zwykłego ekwipunku postaci/NPC.
+
+Przykładowa logika aliasów:
+
+- kanoniczny klucz: `equipment`;
+- nazwy arkuszy: `Equipment`, `Ekwipunek`.
+
+#### `Vehicle Wargear`
+
+`Vehicle Wargear` to nowa zakładka dotycząca pojazdów.
+
+Wymagane zachowanie:
+
+- musi być powiązana z checkboxem pojazdów;
+- w wersji polskiej checkbox nazywa się: `Czy wyświetlić zakładki dotyczące pojazdów?`;
+- w wersji angielskiej można zachować lub dodać odpowiednik: `Show tabs related to vehicles?`;
+- odpowiada logicznie polskiemu arkuszowi `Ekwipunek Pojazdów`.
+
+W produkcyjnym JSON-ie po polsku istnieją osobne arkusze `Ekwipunek` i `Ekwipunek Pojazdów`, co potwierdza, że są to dwa różne źródła danych i nie powinny być obsługiwane tym samym przełącznikiem.
+
+Rekomendowana nazwa kanoniczna dla release:
+
+- `Vehicle Wargear`.
+
+Dopuszczalny alias bezpieczeństwa:
+
+- `Vehicle Equipment`.
+
+Przykładowa logika aliasów:
+
+- kanoniczny klucz: `vehicleWargear`;
+- nazwy arkuszy: `Vehicle Wargear`, `Vehicle Equipment`, `Ekwipunek Pojazdów`.
+
+W dokumentacji trzeba wyraźnie zaznaczyć:
+
+Equipment and Vehicle Wargear are separate sheets.
+
+Equipment is normal personal/NPC equipment and is used by NPCGenerator.
+
+Vehicle Wargear is vehicle-related equipment and belongs to the vehicle tab group controlled by the vehicle tabs checkbox.
+
+Polska wersja dokumentacji:
+
+Equipment i Vehicle Wargear to osobne zakładki.
+
+Equipment oznacza zwykły ekwipunek postaci/NPC i jest używany przez NPCGenerator.
+
+Vehicle Wargear oznacza wyposażenie pojazdów i należy do grupy zakładek pojazdów sterowanej checkboxem `Czy wyświetlić zakładki dotyczące pojazdów?`.
+
+---
+
+### 12.3. Sekcja 3.5 — nazwy arkuszy i kolumn jako główne ryzyko release
+
+Doprecyzowanie użytkownika:
+
+Tłumaczymy tylko UI.
+
+Zawartość pliku XLSX, a później JSON, tworzy użytkownik.
+
+W `WnG_Tools` należy opierać się na języku angielskim i obecnie istniejących nazwach kolumn w istniejącym pliku release.
+
+To oznacza, że moduły nie powinny zakładać, że sama zmiana języka UI automatycznie zmienia język nazw arkuszy lub kolumn w danych użytkownika.
+
+Należy rozdzielić trzy warstwy:
+
+1. język interfejsu użytkownika;
+2. nazwy arkuszy w XLSX/JSON;
+3. nazwy kolumn w XLSX/JSON.
+
+Zmiana języka UI nie oznacza zmiany nazw arkuszy i kolumn.
+
+#### Wniosek dla `WnG_Tools`
+
+Dla release należy przyjąć, że podstawowym formatem danych są angielskie nazwy arkuszy i kolumn z obecnego przykładowego pliku.
+
+Polskie nazwy mogą występować jako aliasy pomocnicze, szczególnie przy przenoszeniu danych z produkcyjnego `WrathAndGlory`, ale nie powinny być jedynym wymaganym formatem w `WnG_Tools`.
+
+#### Ważna uwaga dokumentacyjna
+
+Do dokumentacji trzeba dodać sekcję dla użytkowników, którzy chcą przygotować własną wersję językową danych, np. francuską albo niemiecką, i zmienić nazwy kolumn w XLSX/JSON.
+
+Dokumentacja musi wyjaśniać:
+
+- że UI można tłumaczyć niezależnie od danych;
+- że zmiana nazw arkuszy lub kolumn wymaga aktualizacji mapowania w kodzie;
+- gdzie znajdują się mapowania arkuszy;
+- gdzie znajdują się mapowania kolumn;
+- które mapowania są używane przez `NPCGenerator`;
+- które mapowania są używane przez `DataVault`;
+- które arkusze są wymagane przez `NPCGenerator`;
+- które arkusze są opcjonalne;
+- które arkusze należą do grupy pojazdów.
+
+Przykładowy opis do dokumentacji:
+
+If you want to translate the XLSX/JSON data structure itself, not only the UI, you must also update the sheet and column mappings in the code.
+
+Changing the UI language does not automatically change the expected names of sheets and columns.
+
+For example, if you rename the `Bestiary` sheet to a French or German equivalent, you must add that name to the sheet aliases used by `NPCGenerator` and `DataVault`.
+
+If you rename columns such as `Name`, `Type`, `Keywords`, `Source` or `Page`, you must also update the column aliases used by the rendering, filtering and NPC generation logic.
+
+Polska wersja dokumentacji:
+
+Jeżeli chcesz przetłumaczyć nie tylko interfejs, ale również strukturę danych XLSX/JSON, musisz zaktualizować mapowania arkuszy i kolumn w kodzie.
+
+Zmiana języka UI nie zmienia automatycznie oczekiwanych nazw arkuszy i kolumn.
+
+Przykład: jeżeli zmienisz nazwę arkusza `Bestiary` na odpowiednik francuski albo niemiecki, musisz dodać tę nazwę do aliasów arkuszy używanych przez `NPCGenerator` i `DataVault`.
+
+Jeżeli zmienisz nazwy kolumn takich jak `Name`, `Type`, `Keywords`, `Source` albo `Page`, musisz zaktualizować aliasy kolumn używane przez logikę wyświetlania, filtrowania i generowania NPC.
+
+#### Konsekwencja dla implementacji
+
+W kodzie warto wprowadzić jedno jawne miejsce dla mapowania arkuszy i kolumn, np. osobny blok konfiguracyjny lub pomocniczy moduł.
+
+Przykładowa koncepcja, bez narzucania dokładnej implementacji:
+
+- `SHEET_ALIASES` — aliasy arkuszy;
+- `COLUMN_ALIASES` — aliasy kolumn;
+- `REQUIRED_NPCGENERATOR_SHEETS` — arkusze wymagane przez NPCGenerator;
+- `VEHICLE_SHEET_KEYS` — arkusze należące do grupy pojazdów;
+- `KEYWORD_SHEETS_COMMA_NEUTRAL` — arkusze, w których przecinki w słowach kluczowych nie powinny rozbijać wartości.
+
+---
+
+### 12.4. Aktualizacja po załączeniu produkcyjnego JSON-a po polsku
+
+Użytkownik załączył produkcyjny JSON z danymi po polsku.
+
+Plik potwierdza, że produkcyjny `WrathAndGlory` korzysta z polskich nazw arkuszy i kolumn.
+
+W załączonym JSON-ie występują m.in. następujące arkusze:
+
+- `Notatki`;
+- `Bestiariusz`;
+- `Hordy`;
+- `Specjalne Bonusy Wrogów`;
+- `Tabela Rozmiarów`;
+- `Gatunki`;
+- `Archetypy`;
+- `Pakiety Wyniesienia`;
+- `Premie Frakcji`;
+- `Słowa Kluczowe Frakcji`;
+- `Specjalne Bonusy Frakcji`;
+- `Implanty Astartes`;
+- `Zakony Pierwszego Powołania`;
+- `Cechy`;
+- `Stany`;
+- `Słowa Kluczowe`;
+- `Talenty`;
+- `Modlitwy`;
+- `Psionika`;
+- `Augumentacje`;
+- `Ekwipunek`;
+- `Pancerze`;
+- `Bronie`;
+- `Trafienia Krytyczne`;
+- `Groza Osnowy`;
+- `Skrót Zasad`;
+- `Tryby Ognia`;
+- `Kary do ST`;
+- `Role W Pojeździe`;
+- `Akcje Pojazdu`;
+- `Stany Pojazdów`;
+- `Cechy Pojazdów`;
+- `Pojazdy`;
+- `Bronie Pojazdów`;
+- `Ekwipunek Pojazdów`.
+
+Najważniejsze potwierdzone ryzyko:
+
+`WnG_Tools` nie może bezpośrednio kopiować logiki wymagającej polskich nazw arkuszy i kolumn, jeżeli release ma bazować na angielskim sample file i angielskich nazwach danych.
+
+Najważniejsze potwierdzone rozdzielenie:
+
+- `Ekwipunek` odpowiada zwykłemu `Equipment`;
+- `Ekwipunek Pojazdów` odpowiada `Vehicle Wargear`;
+- tylko `Vehicle Wargear` / `Ekwipunek Pojazdów` należy do grupy arkuszy pojazdowych kontrolowanych checkboxem pojazdów.
+
+---
+
+### 12.5. Sekcja 4.6 — formatowanie odnośników do stron w NPCGenerator
+
+Doprecyzowanie użytkownika:
+
+Podobnie jak przy nazwach arkuszy i kolumn, do dokumentacji trzeba dodać instrukcję dotyczącą formatowania odwołań do stron w różnych językach.
+
+Problem:
+
+`NPCGenerator` formatuje lub rozpoznaje odwołania do podręczników i stron. Jeżeli dane użytkownika są w innym języku, mogą pojawić się różne warianty zapisu, np.:
+
+- `Page`;
+- `p.`;
+- `pp.`;
+- `Strona`;
+- `str.`;
+- `Seite`;
+- `S.`;
+- `page`;
+- `pages`.
+
+Dlatego nie należy traktować obecnego formatu jako uniwersalnego dla wszystkich języków.
+
+#### Wymaganie dokumentacyjne
+
+Dokumentacja powinna zawierać sekcję wyjaśniającą:
+
+- jaki format odwołań do stron jest wspierany domyślnie;
+- które kolumny są używane jako źródło informacji o podręczniku i stronie;
+- gdzie w kodzie zmienić aliasy kolumn, jeżeli użytkownik zmienia nazwy `Source`, `Book`, `Page`, `Podręcznik`, `Strona` itd.;
+- gdzie w kodzie zmienić regex lub funkcję formatującą, jeżeli użytkownik chce obsługiwać inne skróty językowe;
+- że tłumaczenie UI nie zmienia automatycznie formatu danych wejściowych.
+
+Przykładowy opis do dokumentacji:
+
+NPCGenerator can display references to books and pages based on the source and page fields from the data file.
+
+If you translate or rename these fields in your XLSX/JSON file, update the column aliases used by NPCGenerator.
+
+If your language uses a different page abbreviation, such as `S.` in German or another local convention, update the page-reference formatting function or regular expression in the NPCGenerator code.
+
+Polska wersja dokumentacji:
+
+NPCGenerator może wyświetlać odwołania do podręczników i stron na podstawie pól źródła i strony z pliku danych.
+
+Jeżeli tłumaczysz lub zmieniasz nazwy tych pól w XLSX/JSON, zaktualizuj aliasy kolumn używane przez NPCGenerator.
+
+Jeżeli Twój język używa innego skrótu dla stron, np. niemieckiego `S.` albo innej lokalnej konwencji, zaktualizuj funkcję formatowania lub wyrażenie regularne odpowiedzialne za odwołania do stron w kodzie NPCGenerator.
+
+#### Konsekwencja dla implementacji
+
+Najlepiej, aby logika odwołań do stron nie była rozproszona w wielu miejscach kodu.
+
+Rekomendowane jest wydzielenie jednej funkcji odpowiedzialnej za:
+
+- pobranie nazwy podręcznika;
+- pobranie numeru strony;
+- rozpoznanie istniejącego odwołania w tekście;
+- zbudowanie końcowego odnośnika wyświetlanego w UI.
+
+W dokumentacji należy podać nazwę tej funkcji lub sekcji kodu po jej ustaleniu w implementacji.
+
+---
+
+### 12.6. Sekcja 10 — uwagi o `Analizy/test.json`
+
+Po ponownym sprawdzeniu przez GitHub API plik `WrathAndGlory/Analizy/test.json` nadal zwraca pustą zawartość.
+
+GitHub zwrócił jedynie metadane pliku:
+
+- encoding: `utf-8`;
+- SHA: `308b8f2b50285863c205dc1d28fd18779656b8c1`;
+- content: puste.
+
+Wniosek:
+
+Na potrzeby tej analizy nie należy traktować `WrathAndGlory/Analizy/test.json` jako użytecznego źródła danych.
+
+Jednocześnie użytkownik załączył do rozmowy produkcyjny JSON z danymi po polsku. Ten załączony plik powinien być traktowany jako właściwe źródło do dalszej weryfikacji struktury polskich danych produkcyjnych.
+
+Jeżeli później `Analizy/test.json` w repozytorium ma pełnić funkcję przykładowych danych, trzeba go uzupełnić albo zastąpić właściwą zawartością.
+
+---
+
+### 12.7. Dodatkowa rekomendacja po komentarzach
+
+Przy wdrożeniu zmian do `WnG_Tools` należy szczególnie pilnować, aby nie pomylić trzech niezależnych poziomów tłumaczenia:
+
+1. tłumaczenie UI;
+2. tłumaczenie nazw arkuszy;
+3. tłumaczenie nazw kolumn i formatów tekstowych w danych.
+
+Dla publicznego release najbezpieczniejszy model to:
+
+- UI dwujęzyczne: English / Polski;
+- przełącznik języka zawsze widoczny;
+- angielskie nazwy arkuszy i kolumn jako domyślny format danych release;
+- polskie nazwy jako aliasy kompatybilności z produkcyjnym `WrathAndGlory`;
+- dokumentacja jasno opisująca, co użytkownik musi zmienić, jeżeli chce przygotować dane w kolejnym języku, np. francuskim albo niemieckim.
+
+Najkrótszy wniosek implementacyjny:
+
+Nie kopiować bezpośrednio produkcyjnych polskich nazw z `WrathAndGlory` jako jedynego źródła prawdy w `WnG_Tools`.
+
+Zamiast tego wprowadzić jawne aliasy arkuszy, kolumn i formatów odwołań do stron, a w dokumentacji opisać, jak użytkownik może rozszerzyć te aliasy dla własnej wersji językowej danych.
 Ta kolejność ogranicza ryzyko, że angielskie sample files albo przyszły angielski `data.json` będą ładować się częściowo, z błędnymi filtrami albo z pustymi listami w NPCGenerator.
