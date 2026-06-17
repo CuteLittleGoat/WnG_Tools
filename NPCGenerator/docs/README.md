@@ -1,223 +1,322 @@
-# 🇬🇧 User instructions (EN)
+# User guide — NPCGenerator
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+NPCGenerator helps you build enemy and NPC cards from the private DataVault runtime. You select a base Bestiary record, optionally modify values, choose weapons, armor, and extra modules, then generate a ready-to-use card.
 
-### What this module is for
-**NPC Generator** helps you quickly build enemy/NPC sheets for sessions. Pick a base profile, adjust values, and generate a ready card.
+This is a user-facing guide. Technical details belong in `NPCGenerator/docs/Documentation.md`. Firebase setup belongs in `NPCGenerator/config/FirebaseREADME.md`.
 
-### Getting started
+---
+
+## How to open NPCGenerator
+
+Open:
+
+```text
+NPCGenerator/index.html
+```
+
+The release version starts in English. Polish may remain available through the language selector where the module still supports it.
+
+---
+
+## DEMO access password
+
+NPCGenerator uses the same private DataVault access gate as DataVault.
+
+The DEMO data password is:
+
+```text
+000000
+```
+
+This is only the DEMO password. A real group should configure its own Firebase project and its own access details.
+
+---
+
+## Data source
+
+NPCGenerator does not contain its own full rules repository. It loads source collections from the private DataVault runtime after authorization.
+
+The shared runtime path is:
+
+```text
+/datavault/live
+```
+
+DataVault Firebase setup must work before NPCGenerator can load live private data.
+
+---
+
+## What you see after opening it
+
+| Area | Purpose |
+| --- | --- |
+| Data source | Shows whether private DataVault data has been loaded. |
+| Base selection | Lets you choose the Bestiary base record. |
+| Show outdated entries? | Reveals or hides Bestiary records marked as outdated. |
+| Record notes | Optional notes added to the generated card. |
+| Active modules | Enables or disables card sections such as Weapons, Armor, Augmentations, Equipment, Talents, Psionics, and Prayers. |
+| Favorites | Saves and reloads NPC setups. Uses Firestore when configured, otherwise may fall back to local browser storage. |
+| Base preview | Shows the selected base record and editable values. |
+| Module selection tables | Let you choose equipment, powers, talents, prayers, and other add-ons. |
+| Generate card | Opens the final card in a new browser tab. |
+
+---
+
+## Basic workflow
+
 1. Open `NPCGenerator/index.html`.
-2. Wait until **Data source** confirms the data is loaded.
+2. Enter the DEMO password `000000`, or the access password configured for your Firebase project.
+3. Wait for **Data source** to confirm that private data has loaded.
+4. In **Base selection**, choose a Bestiary record.
+5. Optionally write **Record notes**.
+6. In **Base preview**, adjust editable values.
+7. In **Active modules**, enable the card sections you want.
+8. Select items in active module tables.
+9. Click **Generate card**.
+10. Review the generated card in the new browser tab.
 
-### Build an NPC step by step
-1. In **Base selection**, choose an entry from **Bestiary · Name**.
-2. (Optional) add custom notes in **Record notes**.
-3. In **Base preview**, adjust values you want to change (e.g., Wounds, Defense, Speed). For **Skills** and **Keywords**, click **Edit** to open a text field, then click **Save**.
-4. In **Active modules**, enable blocks that should appear on final card (e.g., Weapons, Talents, Psionics).
-5. In active blocks, select specific items.
-6. Click **Generate card**.
-7. The final card opens in a new browser tab.
-8. The top card row always shows **Level 1, 2, 3, 4, 5** columns.
-9. The **Threat** row fills those columns from left to right:
-   - if an entry has 5 symbols (for example `PPPPP`), all 1–5 columns are filled,
-   - if an entry has fewer symbols (for example `?`), only the first column is filled and the rest stay empty.
+---
 
-### How “Favorites” works
-1. Configure NPC setup.
-2. (Optional) enter a custom **Alias**.
+## Base selection
+
+The Bestiary dropdown uses the `Bestiary` sheet from the DataVault runtime.
+
+Outdated Bestiary behavior:
+
+- records with `State = old` are hidden by default,
+- **Show outdated entries?** reveals them,
+- outdated entries are visually styled differently,
+- selecting an outdated entry also marks the Bestiary selector with old-entry styling,
+- **Reset** hides outdated entries again.
+
+Legacy data may still use the older `Stan` field, but the release format is English-first and uses `State`.
+
+---
+
+## Base preview and editing
+
+After a Bestiary record is selected, the **Base preview** table shows key/value pairs from that record.
+
+| Field type | Behavior |
+| --- | --- |
+| Numeric combat/stat values | Can be edited directly where supported. |
+| Skills | Can be switched into text-edit mode with **Edit**, then stored with **Save**. |
+| Keywords | Can be switched into text-edit mode with **Edit**, then stored with **Save**. |
+| Long text cells | May be clamped; click to expand or collapse. |
+| Trait tags | May show tooltips when metadata is available. |
+
+---
+
+## Active modules
+
+Use **Active modules** to choose which sections appear on the final card.
+
+Available module sections include:
+
+| Module | Purpose |
+| --- | --- |
+| Weapons | Adds selected attacks and weapon traits. |
+| Armor | Adds or overrides armor-related values and traits. |
+| Augmentations | Adds selected augmentations. |
+| Equipment | Adds selected equipment. |
+| Talents | Adds selected talents. |
+| Psionics | Adds selected psychic powers. |
+| Prayers | Adds selected prayers. |
+
+Empty preview messages are English in the release, for example:
+
+```text
+Select a weapon to view its parameters.
+Select armor to view its parameters.
+Select a psionic power to view its parameters.
+```
+
+---
+
+## Trait descriptions
+
+Weapons and armor can include optional trait descriptions.
+
+| Checkbox | Effect |
+| --- | --- |
+| Include trait descriptions? | Adds trait descriptions where metadata exists. |
+| Include full description? | Adds full text for modules such as talents, equipment, augmentations, psionics, or prayers. |
+
+Trait descriptions depend on DataVault metadata generated from sheets such as:
+
+```text
+Traits
+Vehicle Traits
+```
+
+If a trait description is missing, regenerate and re-import DataVault data from `Repository_EN.xlsx`.
+
+---
+
+## Favorites
+
+Favorites let you save configured NPC setups.
+
+Workflow:
+
+1. Configure the NPC.
+2. Optionally enter an **Alias**.
 3. Click **Add to favorites**.
-4. Saved setups can be:
-   - loaded,
-   - removed,
-   - moved up/down.
-5. **Refresh** reloads favorites list.
+4. Use **Load** to restore a saved setup.
+5. Use **Remove** to delete a saved setup.
+6. Use **Refresh** to reload the list.
 
-### Main buttons
-- **Generate card** – creates final NPC card.
-- **Reset** – clears setup back to defaults.
-- **Edit** (next to **Skills** and **Keywords**) – switches the selected text field into typing mode. The button uses bright text and a bright `var(--code)` border.
-- **Save** (in the same place) – stores the typed text and returns to the normal preview. In the base preview, **Keywords** still use the existing formatter, so keywords stay red while commas remain neutral. The generated printable card remains black and white.
+Favorites behavior:
 
-### Best practices
-- Choose base profile first, then edit numbers.
-- Save recurring opponents as favorites.
-- If your table is bilingual, review card after language switch before print/share.
-
-### Firebase integration — required for shared favorites
-To keep **Favorites** shared and persistent across devices, **NPC Generator** requires Firebase (Firestore). Without it, favorites are local only.
-
-#### Step by step — create project and database
-1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Click **Create a project**.
-3. Enter project name and click **Continue**.
-4. Configure Analytics (optional) and finish creation.
-5. Add a web app using **Web** icon (`</>`).
-6. Copy `firebaseConfig` values.
-7. Paste values into `NPCGenerator/config/firebase-config.js`.
-8. Go to **Firestore Database**.
-9. Click **Create database**.
-10. Choose mode, click **Next**, select region, click **Enable**.
-11. Set access rules in **Rules**.
-12. Open `NPCGenerator/index.html`.
-13. Add one favorite and refresh page — entry should still be present.
-## Copying module for a new group
-- Replace `NPCGenerator/config/firebase-config.js` with the group-specific Firebase configuration.
-- Verify Firebase configuration (`config/firebase-config.js` and `../shared/firebase-config.js`) for your group environment.
-- The module loads core data through `../shared/firebase-data-loader.js` from private DataVault runtime (`/datavault/live`) after authorization.
-- After changes, generate a test card and save favorites to confirm everything works.
-
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-### Access gate and your Firebase project
-The public Firebase placeholders do not connect the module to a private database. To use the password gate, the administrator must configure the group’s own Firebase project. Never store passwords, tokens, service-account files, or private keys in the repository.
-
-# 🇵🇱 Instrukcja dla użytkownika (PL)
-
-### Do czego służy moduł
-**Generator NPC** pomaga szybko zbudować kartę przeciwnika lub postaci niezależnej na sesję. Wybierasz bazę, dopasowujesz statystyki i generujesz gotową kartę do wydruku/podglądu.
-
-### Jak zacząć
-1. Otwórz `NPCGenerator/index.html`.
-2. Poczekaj, aż sekcja **Źródło danych** pokaże, że dane zostały załadowane.
-
-### Tworzenie NPC krok po kroku
-1. W sekcji **Wybór bazowy** wybierz rekord z listy **Bestiariusz · Nazwa**.
-2. (Opcjonalnie) dopisz własne notatki w polu **Uwagi do rekordu**.
-3. W tabeli **Podgląd bazowy** popraw wartości, które chcesz zmienić (np. Żywotność, Obrona, Szybkość). Przy wierszach **Umiejętności** i **Słowa Kluczowe** kliknij **Edytuj**, aby otworzyć pole tekstowe, a potem kliknij **Zapisz**.
-4. W sekcji **Moduły aktywne** zaznacz, które bloki mają być pokazane na finalnej karcie (np. Broń, Talenty, Psionika).
-5. W aktywnych modułach wybierz konkretne elementy z list.
-6. Kliknij **Generuj kartę**.
-7. Karta otworzy się w nowej karcie przeglądarki.
-8. W górnym wierszu karty zobaczysz zawsze kolumny **Poziom 1, 2, 3, 4, 5**.
-9. Wiersz **Zagrożenie** uzupełnia te kolumny od lewej:
-   - gdy rekord ma 5 znaków (np. `PPPPP`) — wszystkie kolumny 1–5 będą wypełnione,
-   - gdy rekord ma mniej znaków (np. `?`) — znak trafi do pierwszej kolumny, a pozostałe zostaną puste.
-
-### Jak działa panel „Ulubione”
-1. Ustaw NPC tak, jak chcesz go zapisać.
-2. (Opcjonalnie) wpisz nazwę własną w polu **Alias**.
-3. Kliknij **Dodaj do ulubionych**.
-4. Zapisany układ możesz później:
-   - wczytać,
-   - usunąć,
-   - przesunąć wyżej/niżej na liście.
-5. Przycisk **Odśwież** ponownie pobiera listę ulubionych.
-
-### Najważniejsze przyciski
-- **Generuj kartę** – tworzy końcowy widok NPC.
-- **Reset** – czyści wybory i wraca do wartości początkowych.
-- **Edytuj** (przy **Umiejętnościach** i **Słowach Kluczowych**) – przełącza wybrane pole tekstowe w tryb pisania. Przycisk ma jasny tekst i jasne obramowanie `var(--code)`.
-- **Zapisz** (w tym samym miejscu) – zapisuje wpisany tekst i ponownie pokazuje zwykły podgląd. W podglądzie bazowym **Słowa Kluczowe** nadal przechodzą przez istniejący formatter, więc słowa pozostają czerwone, a przecinki neutralne. Wygenerowana karta do druku pozostaje czarno-biała.
-
-### Dobre praktyki
-- Najpierw wybierz bazę, potem dopiero modyfikuj liczby.
-- Do często używanych przeciwników twórz wpisy w ulubionych.
-- Przed drukiem sprawdź kartę po zmianie języka, jeśli grasz z grupą dwujęzyczną.
+| Firebase / Firestore state | Behavior |
+| --- | --- |
+| Firestore configured and accessible | Favorites are shared and persistent. |
+| Firestore missing or blocked | The module may use local browser storage fallback. |
+| Local storage only | Favorites are stored only in the current browser/device. |
 
 ---
 
-### Integracja Firebase — wymagana dla współdzielonych ulubionych
-Aby lista **Ulubionych** była współdzielona i trwała między urządzeniami, moduł **Generator NPC** wymaga integracji z Firebase (Firestore). Bez niej zapis działa tylko lokalnie.
+## Generate card
 
-#### Krok po kroku — tworzenie projektu i bazy
-1. Otwórz [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Kliknij **Utwórz projekt**.
-3. Podaj nazwę projektu i kliknij **Dalej**.
-4. Ustaw Analytics (opcjonalnie) i zakończ tworzenie.
-5. Dodaj aplikację webową przez ikonę **Web** (`</>`).
-6. Skopiuj konfigurację `firebaseConfig`.
-7. Wklej wartości do pliku `NPCGenerator/config/firebase-config.js`.
-8. Przejdź do **Firestore Database**.
-9. Kliknij **Utwórz bazę danych**.
-10. Wybierz tryb, kliknij **Dalej**, wybierz region, kliknij **Włącz**.
-11. Ustaw reguły dostępu w zakładce **Reguły**.
-12. Otwórz `NPCGenerator/index.html`.
-13. Dodaj wpis do **Ulubionych** i odśwież stronę — wpis powinien być dalej dostępny.
+Click **Generate card** to create the final NPC card.
 
----
+The generated card opens in a new browser tab.
 
-## Kopia modułu dla nowej grupy
-- Podmień `NPCGenerator/config/firebase-config.js` na konfigurację Firebase grupy.
-- Sprawdź konfigurację Firebase (`config/firebase-config.js` i `../shared/firebase-config.js`) dla własnego środowiska grupy.
-- Moduł ładuje dane główne przez `../shared/firebase-data-loader.js` z prywatnego runtime DataVault (`/datavault/live`) po autoryzacji.
-- Po zmianie wygeneruj testową kartę i zapisz ulubione, aby potwierdzić działanie.
+The top card row always shows Level columns:
+
+```text
+Level 1 | Level 2 | Level 3 | Level 4 | Level 5
+```
+
+The **Threat** row fills those columns from left to right based on the selected Bestiary entry.
+
+| Threat value | Result |
+| --- | --- |
+| `PPPPP` | All five level columns are filled. |
+| `?` | Only the first column is filled. |
 
 ---
 
-## Dodawanie nowej wersji językowej (PL)
+## Reset behavior
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+**Reset** clears the current setup.
 
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+It also:
 
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+- clears the selected Bestiary record,
+- clears selected weapons, armor, augmentations, equipment, talents, psionics, and prayers,
+- clears old-entry Bestiary visibility,
+- removes old-entry select styling,
+- returns editable base-preview values to default behavior.
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-### Bramka dostępu i własny projekt Firebase
-Publiczne placeholdery Firebase nie łączą modułu z prywatną bazą. Aby używać bramki hasła, administrator musi skonfigurować własny projekt Firebase grupy. Nie zapisuj w repozytorium haseł, tokenów, plików kont usługowych ani prywatnych kluczy.
+---
 
 ## Required DataVault sheets
 
-`NPCGenerator` loads required DataVault sheets by logical aliases, not by fuzzy keyword search.
+NPCGenerator loads required DataVault sheets by logical aliases. The release format is English-first.
 
-Required logical sheets:
+| Logical sheet | Current release sheet names / aliases |
+| --- | --- |
+| `bestiary` | `Bestiary` / legacy `Bestiariusz` |
+| `armor` | `Armor` / `Armour` / legacy `Pancerze` |
+| `weapons` | `Weapons` / legacy `Bronie` |
+| `augmentations` | `Augmentations` / `Augmentics` / legacy `Augumentacje` |
+| `equipment` | `Equipment` / legacy `Ekwipunek` |
+| `talents` | `Talents` / legacy `Talenty` |
+| `psionics` | `Psionics` / `Psychic Powers` / legacy `Psionika` |
+| `prayers` | `Prayers` / legacy `Modlitwy` |
 
-- `bestiary`: `Bestiary` / `Bestiariusz`
-- `armor`: `Armor` / `Armour` / `Pancerze`
-- `weapons`: `Weapons` / `Bronie`
-- `augmentations`: `Augmentations` / `Augumentacje`
-- `equipment`: `Equipment` / `Ekwipunek`
-- `talents`: `Talents` / `Talenty`
-- `psionics`: `Psionics` / `Psionika`
-- `prayers`: `Prayers` / `Modlitwy`
+`Equipment` is normal personal/NPC equipment and is used by NPCGenerator. `Vehicle Wargear` is not loaded as normal NPC equipment.
 
-`Equipment` is normal personal/NPC equipment and is used by NPCGenerator. `Vehicle Wargear` is not loaded by NPCGenerator.
+---
 
-## Page references and localized data
+## Sample files
 
-`NPCGenerator` can highlight page references in text. The supported page-reference pattern is configured in `NPCGenerator/index.html` as `PAGE_REF_PATTERN`.
+NPCGenerator depends on DataVault sample/runtime data.
 
-Default supported forms include `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` and `Seite`.
+Sample files are located in:
 
-If your data file uses another language or another page abbreviation, update `PAGE_REF_PATTERN` and the source/page column aliases in `COLUMN_ALIASES`.
+```text
+DataVault/SampleFiles
+```
 
-## Wymagane arkusze DataVault
+| File | Purpose |
+| --- | --- |
+| `Repository_EN.xlsx` | Current English workbook structure used to build DataVault runtime data. |
+| `data.json` | Backup/helper data generated from the workbook. |
+| `firebase-import.json` | Root-ready Realtime Database import file used to publish DataVault runtime data under `/datavault/live`. |
 
-`NPCGenerator` ładuje wymagane arkusze DataVault po logicznych aliasach, a nie przez rozmyte wyszukiwanie słów kluczowych.
+After editing `Repository_EN.xlsx`, regenerate and import `firebase-import.json` before testing NPCGenerator.
 
-Wymagane arkusze logiczne:
+---
 
-- `bestiary`: `Bestiary` / `Bestiariusz`
-- `armor`: `Armor` / `Armour` / `Pancerze`
-- `weapons`: `Weapons` / `Bronie`
-- `augmentations`: `Augmentations` / `Augumentacje`
-- `equipment`: `Equipment` / `Ekwipunek`
-- `talents`: `Talents` / `Talenty`
-- `psionics`: `Psionics` / `Psionika`
-- `prayers`: `Prayers` / `Modlitwy`
+## Firebase behavior
 
-`Equipment` jest zwykłym ekwipunkiem osobistym/NPC i jest używany przez NPCGenerator. `Vehicle Wargear` nie jest ładowany przez NPCGenerator.
+NPCGenerator uses Firebase in two ways:
 
-## Odwołania do stron i dane lokalizowane
+1. It uses shared DataVault Authentication and Realtime Database runtime data.
+2. It may use Firestore for shared Favorites.
 
-`NPCGenerator` potrafi wyróżniać odwołania do stron w tekście. Obsługiwany wzorzec jest skonfigurowany w `NPCGenerator/index.html` jako `PAGE_REF_PATTERN`.
+The module-local Firebase setup guide is:
 
-Domyślne obsługiwane formy obejmują `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` i `Seite`.
+```text
+NPCGenerator/config/FirebaseREADME.md
+```
 
-Jeżeli plik danych używa innego języka albo innego skrótu strony, zaktualizuj `PAGE_REF_PATTERN` oraz aliasy kolumn source/page w `COLUMN_ALIASES`.
+DataVault's Firebase setup guide is:
+
+```text
+DataVault/config/FirebaseREADME.md
+```
+
+Both matter because NPCGenerator depends on DataVault runtime data and may also use its own Firestore Favorites configuration.
+
+---
+
+## Adding another language version
+
+Adding a UI language is not enough. NPCGenerator consumes DataVault data whose sheet and column names are part of the runtime contract.
+
+When adding another language, update and test:
+
+- translation dictionaries,
+- language selector options,
+- static text not controlled by translations,
+- empty table messages,
+- generated card text,
+- Favorites messages,
+- DataVault sheet aliases,
+- DataVault column aliases,
+- shared Firebase data loader aliases,
+- NPCGenerator collection builders and field accessors,
+- `Repository_EN.xlsx` or the new workbook standard,
+- regenerated `data.json` and `firebase-import.json`.
+
+---
+
+## Common problems
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| Access password is rejected. | Wrong password or Firebase Authentication is not configured. | In DEMO use `000000`; in a real setup verify the Firebase technical user. |
+| Data source does not load. | DataVault Firebase runtime is missing or inaccessible. | Configure/import DataVault data first. |
+| Bestiary dropdown is empty. | Required Bestiary sheet is missing or has no rows. | Verify `Bestiary` in `Repository_EN.xlsx`, regenerate, and re-import Firebase data. |
+| Old records are missing. | **Show outdated entries?** is disabled. | Enable the checkbox. |
+| Old record styling looks different. | The selected record has `State = old`. | This is expected old-entry styling. |
+| Armor cannot be selected for a base record. | The selected Bestiary record blocks armor override. | Select another base record or use built-in armor values. |
+| Favorites do not persist across devices. | Firestore is missing, blocked by rules, or not configured. | Configure Firestore according to `NPCGenerator/config/FirebaseREADME.md`. |
+| Favorites persist only locally. | The module fell back to browser storage. | Configure Firestore for shared favorites. |
+| Trait descriptions are missing. | DataVault metadata is missing or stale. | Regenerate DataVault JSON and import the latest `firebase-import.json`. |
+| Some text still appears in the wrong language. | A hardcoded string is not connected to translations. | Update `translations`, static HTML, and generated card text. |
+
+---
+
+## Related documentation
+
+| File | Purpose |
+| --- | --- |
+| `NPCGenerator/docs/Documentation.md` | Technical architecture and maintenance guide. |
+| `NPCGenerator/config/FirebaseREADME.md` | Firebase setup for NPCGenerator and Favorites. |
+| `DataVault/docs/Documentation.md` | DataVault runtime and data contract documentation. |
+| `DataVault/config/FirebaseREADME.md` | DataVault Firebase setup. |
+| `docs-standard.md` | Repository documentation standard. |
