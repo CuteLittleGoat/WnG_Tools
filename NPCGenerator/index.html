@@ -604,6 +604,16 @@ const translations = {
             selectPrayers: "Wybierz modlitwy...",
             armorDisabledTitle: "Pancerz z WP '-' nie może być wybrany.",
             traitDescriptionUnavailable: "Opis cechy nie jest dostępny w _meta.traits.",
+            emptyBestiary: "Wybierz rekord bestiariusza.",
+            emptyWeapon: "Wybierz broń, aby zobaczyć parametry.",
+            emptyArmor: "Wybierz pancerz, aby zobaczyć parametry.",
+            emptyAugmentations: "Wybierz augumentacje, aby zobaczyć parametry.",
+            emptyEquipment: "Wybierz ekwipunek, aby zobaczyć parametry.",
+            emptyTalents: "Wybierz talent, aby zobaczyć parametry.",
+            emptyPsionics: "Wybierz psionikę, aby zobaczyć parametry.",
+            emptyPrayers: "Wybierz modlitwę, aby zobaczyć parametry.",
+            clampExpand: "Kliknij aby rozwinąć",
+            clampCollapse: "Kliknij aby zwinąć",
           },
         },
         en: {
@@ -771,6 +781,16 @@ const translations = {
             selectPrayers: "Select prayers...",
             armorDisabledTitle: "Armor with AV '-' cannot be selected.",
             traitDescriptionUnavailable: "Trait description is unavailable in _meta.traits.",
+            emptyBestiary: "Select a bestiary record.",
+            emptyWeapon: "Select a weapon to view its parameters.",
+            emptyArmor: "Select armor to view its parameters.",
+            emptyAugmentations: "Select augmentations to view their parameters.",
+            emptyEquipment: "Select equipment to view its parameters.",
+            emptyTalents: "Select a talent to view its parameters.",
+            emptyPsionics: "Select a psionic power to view its parameters.",
+            emptyPrayers: "Select a prayer to view its parameters.",
+            clampExpand: "Click to expand",
+            clampCollapse: "Click to collapse",
           },
         },
       };
@@ -1674,7 +1694,9 @@ const translations = {
             content.style.maxHeight = "";
             content.style.overflow = "";
           }
-          hint.textContent = isExpanded ? "Kliknij aby zwinąć" : "Kliknij aby rozwinąć";
+          hint.textContent = isExpanded
+            ? translations[currentLanguage].messages.clampCollapse
+            : translations[currentLanguage].messages.clampExpand;
           cell.title = hint.textContent;
         };
         renderCell();
@@ -1817,7 +1839,7 @@ const translations = {
 
       const renderBestiaryTable = (record) => {
         if (!record) {
-          clearTableBody(bestiaryTableBody, "Wybierz rekord bestiariusza.", 2);
+          clearTableBody(bestiaryTableBody, translations[currentLanguage].messages.emptyBestiary, 2);
           return;
         }
         bestiaryTableBody.innerHTML = "";
@@ -1893,7 +1915,7 @@ const translations = {
           selectedIndices: selected,
           columns: weaponColumns,
           sheetName: "Bronie",
-          emptyMessage: "Wybierz broń, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyWeapon,
         });
       };
 
@@ -1905,7 +1927,7 @@ const translations = {
           selectedIndices: selected,
           columns: armorColumns,
           sheetName: "Pancerze",
-          emptyMessage: "Wybierz pancerz, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyArmor,
         });
       };
 
@@ -1917,7 +1939,7 @@ const translations = {
           selectedIndices: selected,
           columns: augmentationsColumns,
           sheetName: "Augumentacje",
-          emptyMessage: "Wybierz augumentacje, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyAugmentations,
         });
       };
 
@@ -1929,7 +1951,7 @@ const translations = {
           selectedIndices: selected,
           columns: equipmentColumns,
           sheetName: "Ekwipunek",
-          emptyMessage: "Wybierz ekwipunek, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyEquipment,
         });
       };
 
@@ -1941,7 +1963,7 @@ const translations = {
           selectedIndices: selected,
           columns: talentsColumns,
           sheetName: "Talenty",
-          emptyMessage: "Wybierz talent, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyTalents,
         });
       };
 
@@ -1953,7 +1975,7 @@ const translations = {
           selectedIndices: selected,
           columns: psionicsColumns,
           sheetName: "Psionika",
-          emptyMessage: "Wybierz psionikę, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyPsionics,
         });
       };
 
@@ -1965,7 +1987,7 @@ const translations = {
           selectedIndices: selected,
           columns: prayersColumns,
           sheetName: "Modlitwy",
-          emptyMessage: "Wybierz modlitwę, aby zobaczyć parametry.",
+          emptyMessage: translations[currentLanguage].messages.emptyPrayers,
         });
       };
 
