@@ -11,3 +11,29 @@
   }
   window.firebaseConfig = window.firebaseConfig || window.WG_FIREBASE_CONFIG || {};
 })();
+
+// UI LANGUAGE FIX POINT / PUNKT POPRAWKI JĘZYKA UI:
+// NPCGenerator currently keeps the old Bestiary checkbox label outside the normal labels map.
+// This helper keeps the visible text correct without changing data-language aliases.
+(function keepOldBestiaryToggleLocalized(){
+  var labels = {
+    en: "Show outdated entries?",
+    pl: "Czy wyświetlić zdezaktualizowane wpisy?"
+  };
+
+  function applyLabel(){
+    var lang = document.documentElement.getAttribute("lang") || "en";
+    var input = document.getElementById("bestiary-show-old");
+    var label = input && input.parentElement ? input.parentElement.querySelector("span") : null;
+    if (label) label.textContent = labels[lang] || labels.en;
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyLabel);
+  } else {
+    applyLabel();
+  }
+
+  var observer = new MutationObserver(applyLabel);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+})();
