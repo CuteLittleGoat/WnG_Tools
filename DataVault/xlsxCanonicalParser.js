@@ -2,6 +2,13 @@
 (function(global){
   const DOC_REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
+  // DATA LANGUAGE EXTENSION POINT / MIEJSCE ROZSZERZENIA JĘZYKA DANYCH:
+  // WnG_Tools release is EN-first. The canonical XLSX/JSON data language is English.
+  // Polish patterns below are legacy fallback only. To support another data language, add its
+  // numbered column patterns here and keep the generated synthetic column names canonical EN.
+  const RANGE_NUMBERED_RE = /^(?:range|zasi[eę]g)\s*([0-9]+)$/i;
+  const TRAIT_NUMBERED_RE = /^(?:trait|cecha)\s*([0-9]+)$/i;
+
   function parseXml(xmlText){
     return new DOMParser().parseFromString(xmlText, "application/xml");
   }
@@ -23,13 +30,14 @@
     let hasTraits = false;
     for (const col of header){
       if (!col) continue;
-      if (/^lp$/i.test(col.trim())) continue;
-      if (/^zasi[eę]g\s*\d+$/i.test(col)){
-        if (!hasRange){ out.push("Zasięg"); hasRange = true; }
+      const clean = col.trim();
+      if (/^(lp|id)$/i.test(clean)) continue;
+      if (RANGE_NUMBERED_RE.test(clean)){
+        if (!hasRange){ out.push("Range"); hasRange = true; }
         continue;
       }
-      if (/^cecha\s*\d+$/i.test(col)){
-        if (!hasTraits){ out.push("Cechy"); hasTraits = true; }
+      if (TRAIT_NUMBERED_RE.test(clean)){
+        if (!hasTraits){ out.push("Traits"); hasTraits = true; }
         continue;
       }
       out.push(col);
