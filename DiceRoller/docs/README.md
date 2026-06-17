@@ -1,101 +1,102 @@
-# 🇬🇧 User instructions (EN)
+# User guide — DiceRoller
 
-### What this module does
-**DiceRoller** resolves Wrath & Glory dice tests and immediately shows outcome details.
+DiceRoller resolves Wrath & Glory dice tests and immediately shows outcome details.
 
-### How to open
-1. Open `DiceRoller/index.html`.
-2. In the top-right corner:
-   - choose language,
-   - click **Main Page** to return to module launcher.
+This is a user-facing guide. Technical details belong in `DiceRoller/docs/Documentation.md` if that file exists or is added later.
 
-### How to roll (step by step)
-1. Set **Difficulty Number** (required successes).
-2. Set **Dice Pool** (total dice).
-3. Set **Number of Wrath Dice** (red dice count).
+---
+
+## How to open
+
+Open:
+
+```text
+DiceRoller/index.html
+```
+
+In the top-right corner, you can choose the interface language and return to the module launcher with **Main Page**.
+
+---
+
+## How to roll
+
+1. Set **Difficulty Number** — the required number of successes.
+2. Set **Dice Pool** — the total number of dice.
+3. Set **Number of Wrath Dice** — the number of red wrath dice.
 4. Click **Roll the dice!**.
-5. After animation, read the summary panel.
-
-### What result labels mean
-- **Success / Failure** – whether the test passed.
-- **Wrath Complication** – extra negative twist from wrath die.
-- **Wrath Critical** – strong positive wrath effect.
-- **Possible Shift** – extra successes beyond target.
-- **Dice list** – detailed per-die results.
-
-### Input limits
-- All numeric fields: **1 to 99**.
-- **Wrath Dice** cannot exceed **Dice Pool**.
-
-### Helpful tips
-- Set all values first, then roll.
-- Language switching resets current result, so switch language before rolling.
-- Default start values: DN 3, Pool 2, Wrath 1.
-
-### Important when copying the module
-The **Main Page** button uses a hyperlink to the Main module. If you move the app to another location (for example another server or folder), you **must update this link** so return navigation still works.
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-# 🇵🇱 Instrukcja dla użytkownika (PL)
-
-### Do czego służy moduł
-**DiceRoller** wykonuje rzuty kośćmi do testów Wrath & Glory i od razu pokazuje wynik testu.
-
-### Jak uruchomić
-1. Otwórz `DiceRoller/index.html`.
-2. W prawym górnym rogu:
-   - wybierz język,
-   - kliknij **Strona Główna**, jeśli chcesz wrócić do menu modułów.
-
-### Jak wykonać rzut (krok po kroku)
-1. W polu **Stopień Trudności** wpisz, ile sukcesów potrzebujesz.
-2. W polu **Pula Kości** wpisz łączną liczbę kości.
-3. W polu **Ilość Kości Furii** wpisz liczbę czerwonych kości.
-4. Kliknij **Rzuć Kośćmi!**.
-5. Po animacji odczytaj wynik w panelu podsumowania.
-
-### Co oznaczają wyniki
-- **Sukces / Porażka** – czy test się udał.
-- **Komplikacja Furii** – dodatkowe utrudnienie z kości furii.
-- **Krytyczna Furia** – mocny pozytywny efekt kości furii.
-- **Możliwe Przeniesienie** – liczba dodatkowych sukcesów ponad wymagany próg.
-- **Lista kości** – szczegóły każdego rzutu.
-
-### Ograniczenia pól
-- Wszystkie wartości liczbowe: od **1 do 99**.
-- **Ilość Kości Furii** nie może być większa niż **Pula Kości**.
-
-### Przydatne wskazówki
-- Najpierw ustaw pola, potem klikaj rzut — unikniesz przypadkowych testów.
-- Zmiana języka czyści aktualny wynik, więc przełączaj język najlepiej przed rzutem.
-- Domyślne wartości startowe: ST 3, Pula 2, Kości Furii 1.
+5. Wait for the animation to finish.
+6. Read the summary panel.
 
 ---
 
-### Ważne przy kopiowaniu modułu
-Przycisk **Strona Główna** ma ustawiony hiperłącze do modułu Main. Jeśli przeniesiesz aplikację do innej lokalizacji (np. inny serwer, inny folder), **musisz zaktualizować ten link**, aby powrót działał poprawnie.
+## Result labels
+
+| Result label | Meaning |
+| --- | --- |
+| **Success / Failure** | Whether the test passed. |
+| **Wrath Complication** | A negative twist from the wrath die. |
+| **Wrath Critical** | A strong positive wrath effect. |
+| **Possible Shift** | Extra successes beyond the required target. |
+| **Dice list** | Detailed per-die results. |
 
 ---
 
-## Dodawanie nowej wersji językowej (PL)
+## Input limits
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+| Field | Limit |
+| --- | --- |
+| Difficulty Number | 1 to 99 |
+| Dice Pool | 1 to 99 |
+| Number of Wrath Dice | 1 to 99, but cannot exceed Dice Pool |
 
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+---
 
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+## Helpful tips
+
+- Set all values before rolling.
+- Switch language before rolling, because language switching resets the current result.
+- Default start values are DN 3, Pool 2, Wrath 1.
+
+---
+
+## Firebase behavior
+
+DiceRoller does not use Firebase.
+
+It is a local browser module. It does not require:
+
+- Firebase Authentication,
+- Realtime Database,
+- Firestore,
+- Firebase Storage.
+
+---
+
+## Important when copying the module
+
+The **Main Page** button uses a hyperlink to the Main module. If the app is moved to another server or folder, update this link so return navigation still works.
+
+---
+
+## Adding another language version
+
+If another UI language is added, update and test:
+
+- translation dictionary entries,
+- language selector options,
+- static text not controlled by translations,
+- result labels,
+- error messages,
+- input validation messages,
+- this guide.
+
+---
+
+## Common problems
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| Wrath dice value is rejected. | Wrath dice count is greater than dice pool. | Lower wrath dice or increase dice pool. |
+| Result disappears after switching language. | Language switching refreshes current result state. | Choose language before rolling. |
+| Main Page button goes to the wrong place. | App was copied to another folder/server. | Update the Main Page link. |
+| Roll button does nothing. | Invalid numeric input. | Check all fields are within limits. |
