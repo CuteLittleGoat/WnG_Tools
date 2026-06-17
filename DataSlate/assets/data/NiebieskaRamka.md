@@ -1,77 +1,184 @@
-# NiebieskaRamka — wyliczanie pola roboczego (`CONTENT_RECTS_BY_BACKGROUND_ID`)
+# Blue frame guide — calculating `CONTENT_RECTS_BY_BACKGROUND_ID`
 
-Ten plik opisuje dokładnie, jak liczę prostokąt treści (`x, y, w, h`) dla każdego tła na podstawie pliku `*_ramka.png` z niebieską ramką.
+This file explains how to calculate the content rectangle (`x`, `y`, `w`, `h`) for a DataSlate background by using the matching technical `*_ramka.png` file with a visible blue frame.
 
-## 1) Pliki źródłowe
-- Mapa przypisań tło -> ramka: `DataSlate/assets/data/Mapowanie.xlsx`.
-- Grafiki ramek: `DataSlate/assets/ramki/*_ramka.png`.
-- Miejsce użycia wyników: `DataSlate/DataSlate_test.html` -> `CONTENT_RECTS_BY_BACKGROUND_ID`.
+The filename remains `NiebieskaRamka.md` for compatibility with existing project references, but the document content is English-only.
 
-## 2) Definicja współczynników
-Dla każdej ramki liczę pikselowy bounding box niebieskiego obszaru:
-- `minX`, `minY` — lewa/górna krawędź ramki,
-- `maxX`, `maxY` — prawa/dolna krawędź ramki,
-- `imgW`, `imgH` — szerokość i wysokość pliku PNG.
+---
 
-Następnie normalizuję do zakresu 0..1:
-- `x = minX / imgW`
-- `y = minY / imgH`
-- `w = (maxX - minX + 1) / imgW`
-- `h = (maxY - minY + 1) / imgH`
+## 1. Source files
 
-Finalnie wartości zapisuję do 4 miejsc po przecinku (tak jak w kodzie).
+| File / folder | Purpose |
+| --- | --- |
+| `DataSlate/assets/data/Mapowanie.xlsx` | Mapping between final background files and matching blue-frame files. |
+| `DataSlate/assets/ramki/*_ramka.png` | Technical blue-frame images. |
+| `DataSlate/assets/backgrounds/` | Final backgrounds displayed to players. |
+| `DataSlate/DataSlate_test.html` | Current place where `CONTENT_RECTS_BY_BACKGROUND_ID` is used or tested. |
 
-## 3) Reguła wykrywania niebieskiej ramki
-Piksel należy do ramki, gdy:
-- alfa `a > 0` (piksel widoczny),
-- kanał niebieski dominuje:
-  - `b > 140`,
-  - `b > r + 30`,
-  - `b > g + 15`.
+`Mapowanie.xlsx` may stay in its current structure. Do not rewrite the workbook unless the background mapping itself changes.
 
-Ta reguła odtwarza dotychczasowe współrzędne 1:1 dla istniejących teł (DataSlate_01..Pergamin) i daje spójny wynik dla nowych ramek.
+---
 
-## 4) Wynik dla nowego tła WnG
-Plik: `DataSlate/assets/ramki/WnG_ramka.png`
-- Wymiary PNG: `1549 x 2048`
-- Bounding box: `minX=188`, `minY=197`, `maxX=1331`, `maxY=1851`
-- Współczynniki:
-  - `x = 0.1214`
-  - `y = 0.0962`
-  - `w = 0.7385`
-  - `h = 0.8081`
+## 2. What the blue frame is for
 
-Wpis do `CONTENT_RECTS_BY_BACKGROUND_ID`:
+The blue-frame image is not a player-facing background.
+
+It is a technical reference image used to detect the safe text area. The detected rectangle is normalized to 0..1 coordinates and then used by the renderer to position message text on the matching final background.
+
+---
+
+## 3. Pixel bounding box
+
+For each blue-frame image, calculate the pixel bounding box of the visible blue area.
+
+Required pixel values:
+
+| Value | Meaning |
+| --- | --- |
+| `minX` | Left edge of the detected blue area. |
+| `minY` | Top edge of the detected blue area. |
+| `maxX` | Right edge of the detected blue area. |
+| `maxY` | Bottom edge of the detected blue area. |
+| `imgW` | PNG image width. |
+| `imgH` | PNG image height. |
+
+---
+
+## 4. Normalized rectangle formula
+
+Convert the pixel bounding box to normalized 0..1 values:
+
+```text
+x = minX / imgW
+y = minY / imgH
+w = (maxX - minX + 1) / imgW
+h = (maxY - minY + 1) / imgH
+```
+
+Round final values to four decimal places, matching the current code style.
+
+Example object shape:
+
+```js
+{ x:0.1214, y:0.0962, w:0.7385, h:0.8081 }
+```
+
+---
+
+## 5. Blue pixel detection rule
+
+A pixel belongs to the blue frame when all of these are true:
+
+- the pixel is visible,
+- the blue channel is above 140,
+- the blue channel is at least 30 points stronger than red,
+- the blue channel is at least 15 points stronger than green.
+
+This detects visible pixels where the blue channel clearly dominates.
+
+The rule reproduces the current coordinates for the existing backgrounds and gives consistent results for new frames that use the same blue-frame convention.
+
+---
+
+## 6. Example — WnG background
+
+Technical frame file:
+
+```text
+DataSlate/assets/ramki/WnG_ramka.png
+```
+
+Measured PNG dimensions:
+
+```text
+1549 x 2048
+```
+
+Detected bounding box:
+
+```text
+minX = 188
+minY = 197
+maxX = 1331
+maxY = 1851
+```
+
+Normalized coefficients:
+
+```text
+x = 0.1214
+y = 0.0962
+w = 0.7385
+h = 0.8081
+```
+
+Entry for `CONTENT_RECTS_BY_BACKGROUND_ID`:
+
 ```js
 10:{ x:0.1214, y:0.0962, w:0.7385, h:0.8081 } // WnG
 ```
 
+---
 
-## 4a) Wynik po podmianie pliku `Pergamin_ramka.png` (2026-04-22)
-Plik: `DataSlate/assets/ramki/Pergamin_ramka.png`
-- Wymiary PNG: `1024 x 1536`
-- Bounding box: `minX=79`, `minY=200`, `maxX=966`, `maxY=1270`
-- Współczynniki:
-  - `x = 0.0771`
-  - `y = 0.1302`
-  - `w = 0.8672`
-  - `h = 0.6973`
+## 7. Example — updated Pergamin frame
 
-Wpis do `CONTENT_RECTS_BY_BACKGROUND_ID`:
+Technical frame file:
+
+```text
+DataSlate/assets/ramki/Pergamin_ramka.png
+```
+
+Measured PNG dimensions:
+
+```text
+1024 x 1536
+```
+
+Detected bounding box:
+
+```text
+minX = 79
+minY = 200
+maxX = 966
+maxY = 1270
+```
+
+Normalized coefficients:
+
+```text
+x = 0.0771
+y = 0.1302
+w = 0.8672
+h = 0.6973
+```
+
+Entry for `CONTENT_RECTS_BY_BACKGROUND_ID`:
+
 ```js
 9:{ x:0.0771, y:0.1302, w:0.8672, h:0.6973 } // Pergamin
 ```
 
-## 5) Procedura przy dodawaniu kolejnego tła
-1. Dodaj plik tła do `assets/backgrounds/`.
-2. Dodaj odpowiadającą ramkę do `assets/ramki/`.
-3. Dopisz mapowanie w `assets/data/Mapowanie.xlsx` (ID, nazwa, link tła, link ramki).
-4. Wylicz `x,y,w,h` metodą z tego pliku i dopisz wpis w `CONTENT_RECTS_BY_BACKGROUND_ID`.
-5. Upewnij się, że `backgroundId` w payloadzie (GM) odpowiada temu samemu ID.
-6. Jeżeli nowe tło ma być domyślne, ustaw `DEFAULT_FORM_STATE.backgroundId` w `GM_test.html`.
-7. Zaktualizuj dokumentację (`docs/README.md`, `docs/Documentation.md`).
+---
 
-## 6) Notatki praktyczne
-- `Mapowanie.xlsx` służy jako źródło przypisania, ale URL może zawierać literówkę — traktuj nazwę pliku ramki jako źródło prawdy i zawsze sprawdzaj fizyczną obecność pliku w `assets/ramki/`.
-- Jeśli kolor ramki będzie inny niż niebieski, trzeba zmienić progi detekcji koloru.
-- Jeżeli ramka ma antyaliasing, powyższe progi nadal działają, bo używają dominacji kanału `b`, a nie pojedynczej wartości RGB.
+## 8. Procedure for adding a new background
+
+1. Add the final player-facing background to `DataSlate/assets/backgrounds/`.
+2. Add the matching technical blue-frame image to `DataSlate/assets/ramki/`.
+3. Update `DataSlate/assets/data/Mapowanie.xlsx`.
+4. Calculate `x`, `y`, `w`, and `h` using the method in this document.
+5. Add the result to `CONTENT_RECTS_BY_BACKGROUND_ID`.
+6. Verify that `backgroundId` in the GM payload matches the same background entry.
+7. If the new background should be the default, update the relevant default background setting in the GM panel code.
+8. Test the background in `GM_test.html` and `DataSlate_test.html`.
+9. Test the production files `GM.html` and `DataSlate.html` if the change is meant for production.
+10. Update `DataSlate/docs/README.md` and `DataSlate/docs/Documentation.md` if the workflow or default background changes.
+
+---
+
+## 9. Practical notes
+
+- Treat the physical blue-frame file in `assets/ramki/` as the reference when calculating the rectangle.
+- `Mapowanie.xlsx` maps final backgrounds to blue-frame files, but always verify that the referenced file exists.
+- If the frame color changes from blue to another color, update the color-detection thresholds.
+- If the frame uses antialiasing, the current thresholds should still work because they detect blue-channel dominance rather than one exact RGB value.
+- If the safe text area looks wrong on the player screen, re-check the mapping, the frame file, the detected bounding box, and the assigned background ID.
