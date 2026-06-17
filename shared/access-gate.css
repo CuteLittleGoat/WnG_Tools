@@ -19,6 +19,11 @@
 .accessGate__password{grid-column:2;grid-row:1;justify-self:stretch;width:100%;}
 .accessGate__submit{grid-column:2;grid-row:2;justify-self:end;}
 
+/* --- Poprawka szerokości dla NPCGenerator: prawa kolumna grida może się kurczyć, a szerokie tabele przewijają się lokalnie w kartach. / NPCGenerator width fix: the right grid column can shrink, while wide tables scroll locally inside cards. --- */
+.layout:has(#bestiary){grid-template-columns:360px minmax(0,1fr);width:100%;max-width:100%;}
+.layout:has(#bestiary) .workspace{min-width:0;}
+.layout:has(#bestiary) .card{min-width:0;max-width:100%;}
+
 /* --- Mobilny fallback: układ jednokolumnowy z czytelną kolejnością / Mobile fallback: single-column flow with readable order --- */
 @media (max-width:640px){
   /* --- Dodatkowe zabezpieczenie mobilne: karta zawsze mieści się w wysokości widoku / Extra mobile safeguard: card always fits viewport height --- */
