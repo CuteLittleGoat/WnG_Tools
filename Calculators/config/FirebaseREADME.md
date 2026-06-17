@@ -1,165 +1,178 @@
-# 🇵🇱 Instrukcja Firebase dla modułu `Calculators` (PL)
+# Firebase setup — Calculators
 
-## Cel
-Ten plik zawiera pełny skrypt Node.js do utworzenia dokumentu `character_builder/current` wraz z kompletną strukturą pól.
+This guide explains how to configure Firebase for the Calculators module.
 
-## 1) Konfiguracja `config/firebase-config.js`
-Utwórz własny projekt Firebase i bazę Firestore dla grupy. Skopiuj dane z Firebase Console → **Project settings** → **Your apps** → Web app (`</>`), a następnie zastąp nimi angielskie placeholdery w `Calculators/config/firebase-config.js` jako `window.firebaseConfig`. Nie zapisuj haseł, tokenów ani plików kont usługowych w repozytorium.
-
-Firestore w tym module obsługuje zapis i odczyt danych Character Creation między urządzeniami.
-
-## 2) Struktura Firestore (drzewko + typy)
-```text
-character_builder (kolekcja)
-└── current (dokument)
-    ├── schemaVersion (string)
-    ├── updatedAt (string, ISO datetime)
-    ├── xpPool (number)
-    ├── xpSpent (number)
-    ├── xpAvailable (number)
-    ├── attributes (mapa / obiekt)
-    │   └── <attributeName> (string) -> <value> (number)
-    ├── skills (mapa / obiekt)
-    │   └── <skillName> (string) -> <value> (number)
-    ├── talents (tablica obiektów)
-    │   └── [0..n] (obiekt)
-    │       ├── id (string)
-    │       ├── name (string)
-    │       └── rank (number)
-    └── formSnapshot (mapa / obiekt)
-        ├── archetype (string)
-        ├── species (string)
-        └── notes (string)
-```
-
-## 3) Pełny skrypt Node.js (do skopiowania)
-Zapisz jako `Calculators/config/init-firestore-character-builder.js`:
-
-```js
-const admin = require("firebase-admin");
-
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error("[ERR] Ustaw GOOGLE_APPLICATION_CREDENTIALS na ścieżkę do pliku JSON konta serwisowego.");
-  process.exit(1);
-}
-
-admin.initializeApp({
-  credential: admin.credential.applicationDefault()
-});
-
-const db = admin.firestore();
-
-const payload = {
-  schemaVersion: "character-builder-v1",
-  updatedAt: new Date().toISOString(),
-  xpPool: 0,
-  xpSpent: 0,
-  xpAvailable: 0,
-  attributes: {},
-  skills: {},
-  talents: [],
-  formSnapshot: {
-    archetype: "",
-    species: "",
-    notes: ""
-  }
-};
-
-async function main() {
-  const ref = db.collection("character_builder").doc("current");
-  await ref.set(payload, { merge: true });
-  console.log("[OK] Utworzono / zaktualizowano dokument character_builder/current");
-}
-
-main().catch((err) => {
-  console.error("[ERR] Błąd inicjalizacji:", err);
-  process.exit(1);
-});
-```
-
-## 4) Uruchomienie
-```bash
-npm i firebase-admin
-export GOOGLE_APPLICATION_CREDENTIALS="/pełna/ścieżka/do/service-account.json"
-node Calculators/config/init-firestore-character-builder.js
-```
+Only the Character Creation tool uses Firebase, and only for save/load. XP Calculator does not need Firebase.
 
 ---
 
-# 🇬🇧 Firebase guide for `Calculators` module (EN)
+## Firebase services used
 
-## Purpose
-This file contains a full Node.js script to create `character_builder/current` with the complete field structure.
+| Service | Used | Purpose |
+| --- | --- | --- |
+| Cloud Firestore | yes | Stores Character Creation save/load data. |
+| Firebase Authentication | optional | Only needed if your Firestore rules require signed-in users. |
+| Realtime Database | no | Not used by Calculators. |
+| Storage | no | Not used by Calculators. |
 
-## 1) `config/firebase-config.js`
-Create your own Firebase project and Firestore database for the group. Copy web config values from Firebase Console and replace the English placeholders in `Calculators/config/firebase-config.js` as `window.firebaseConfig`. Do not store passwords, tokens, or service-account files in the repository.
+---
 
-Firestore in this module supports cross-device Character Creation save and load.
+## Required repository files
 
-## 2) Firestore structure (tree + types)
+| File | Purpose |
+| --- | --- |
+| `Calculators/config/firebase-config.js` | Firebase Web SDK config for the module. |
+| `Calculators/CharacterCreation.html` | Reads/writes character sheet data. |
+| `Calculators/config/FirebaseREADME.md` | This setup guide. |
+
+Do not commit passwords, private keys, service account files, tokens, or production secrets.
+
+---
+
+## Firestore path
+
+Current document:
+
+```text
+character_builder/current
+```
+
+Structure:
+
 ```text
 character_builder (collection)
 └── current (document)
-    ├── schemaVersion (string)
-    ├── updatedAt (string, ISO datetime)
-    ├── xpPool (number)
-    ├── xpSpent (number)
-    ├── xpAvailable (number)
-    ├── attributes (map / object)
-    │   └── <attributeName> (string) -> <value> (number)
-    ├── skills (map / object)
-    │   └── <skillName> (string) -> <value> (number)
-    ├── talents (array of objects)
-    │   └── [0..n] (object: id/name/rank)
-    └── formSnapshot (map / object)
-        ├── archetype (string)
-        ├── species (string)
-        └── notes (string)
 ```
 
-## 3) Full Node.js script (copy-paste)
-Save as `Calculators/config/init-firestore-character-builder.js`:
+Firestore creates the collection and document automatically on the first successful write. You do not need to manually create them first.
+
+The Firestore service itself must still be enabled manually in Firebase Console, and rules must allow the intended read/write access.
+
+---
+
+## Expected document shape
+
+The saved document may contain fields such as:
+
+```text
+schemaVersion
+updatedAt
+xpPool
+xpSpent
+xpAvailable
+attributes
+skills
+talents
+formSnapshot
+```
+
+The exact payload should follow the current `CharacterCreation.html` implementation.
+
+---
+
+## Step 1 — Create or open a Firebase project
+
+1. Open Firebase Console.
+2. Click **Add project** or open an existing project.
+3. Enter the project name.
+4. Continue through the project wizard.
+5. Configure Analytics according to your group's needs.
+6. Finish project creation.
+7. Open the project overview.
+
+---
+
+## Step 2 — Add a Web App
+
+1. In the Firebase project overview, click the Web icon (`</>`).
+2. Enter an app nickname, for example `WnG Tools Calculators`.
+3. Register the app.
+4. Copy the `firebaseConfig` object.
+5. Paste the public Web SDK values into `Calculators/config/firebase-config.js`.
+
+Example shape:
 
 ```js
-const admin = require("firebase-admin");
-
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error("[ERR] Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON path.");
-  process.exit(1);
-}
-
-admin.initializeApp({
-  credential: admin.credential.applicationDefault()
-});
-
-const db = admin.firestore();
-
-const payload = {
-  schemaVersion: "character-builder-v1",
-  updatedAt: new Date().toISOString(),
-  xpPool: 0,
-  xpSpent: 0,
-  xpAvailable: 0,
-  attributes: {},
-  skills: {},
-  talents: [],
-  formSnapshot: { archetype: "", species: "", notes: "" }
+window.firebaseConfig = {
+  apiKey: "INSERT_YOUR_API_KEY",
+  authDomain: "INSERT_YOUR_AUTH_DOMAIN",
+  projectId: "INSERT_YOUR_PROJECT_ID",
+  storageBucket: "INSERT_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "INSERT_YOUR_MESSAGING_SENDER_ID",
+  appId: "INSERT_YOUR_APP_ID",
 };
+```
 
-async function main() {
-  await db.collection("character_builder").doc("current").set(payload, { merge: true });
-  console.log("[OK] Created / updated character_builder/current");
+`databaseURL` is not required because Calculators do not use Realtime Database.
+
+---
+
+## Step 3 — Enable Cloud Firestore
+
+1. In Firebase Console, open **Build**.
+2. Click **Firestore Database**.
+3. Click **Create database**.
+4. Choose production mode unless you are deliberately creating a temporary demo environment.
+5. Select the region.
+6. Click **Enable**.
+7. Wait until Firestore is ready.
+
+---
+
+## Step 4 — Configure Firestore rules
+
+A minimal authenticated-user rule may look like this:
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /character_builder/current {
+      allow read, write: if request.auth != null;
+    }
+  }
 }
-
-main().catch((err) => {
-  console.error("[ERR] Initialization failed:", err);
-  process.exit(1);
-});
 ```
 
-## 4) Run
-```bash
-npm i firebase-admin
-export GOOGLE_APPLICATION_CREDENTIALS="/full/path/to/service-account.json"
-node Calculators/config/init-firestore-character-builder.js
-```
+If the release copy uses unauthenticated local/private hosting, document that choice and restrict deployment access appropriately. Do not use open public write rules in a real public deployment.
+
+---
+
+## Step 5 — First write creates the document
+
+After Firestore is enabled and rules are set:
+
+1. Open `Calculators/CharacterCreation.html`.
+2. Fill a small test sheet.
+3. Use the save action.
+4. Refresh the page.
+5. Use the load action.
+6. Open Firebase Console.
+7. Open **Firestore Database**.
+8. Verify that collection `character_builder` exists.
+9. Verify that document `current` exists.
+
+No Node.js initialization script is required for the normal release flow. The first successful app write can create the document.
+
+---
+
+## Common errors
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| Save/load does not work. | Firestore is missing, config is missing, or rules block access. | Configure Firestore and publish rules. |
+| Permission denied. | Rules do not allow read/write for `character_builder/current`. | Update rules for the intended access model. |
+| Document is missing. | No successful write has happened yet. | Save one test sheet from Character Creation. |
+| Data does not persist across devices. | Local-only behavior or wrong Firebase project. | Check config and rules. |
+| XP Calculator works but save/load fails. | XP Calculator is local; Character Creation Firebase is separate. | Configure Firestore for Character Creation. |
+
+---
+
+## Security notes
+
+- Do not commit service account files.
+- Do not commit private keys.
+- Do not commit production tokens.
+- Do not use open Firestore rules for public deployments.
+- Calculators do not require Realtime Database.
+- Calculators do not require Firebase Storage.
