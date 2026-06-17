@@ -1,0 +1,158 @@
+name: Fix NPCGenerator outdated entries toggle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/fix-npcgenerator-old-entries.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch NPCGenerator index
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('NPCGenerator/index.html')
+          text = path.read_text(encoding='utf-8')
+          original = text
+
+          def replace_once(old, new, label):
+              global text
+              if new in text:
+                  return
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 match, found {count}')
+              text = text.replace(old, new, 1)
+
+          text = text.replace('data-i18n="toggleOldBestiaryEntries"', 'data-i18n="bestiaryShowOldToggle"')
+
+          replace_once(
+              '      const bestiarySelect = document.querySelector("#bestiary");\n'
+              '      const armorSelect = document.querySelector("#armor");',
+              '      const bestiarySelect = document.querySelector("#bestiary");\n'
+              '      const bestiaryShowOldToggle = document.querySelector("#bestiary-show-old");\n'
+              '      const armorSelect = document.querySelector("#armor");',
+              'bestiaryShowOldToggle declaration',
+          )
+
+          replace_once(
+              '            bestiaryLabel: "Bestiariusz · Nazwa",\n'
+              '            bestiaryNotesLabel: "Uwagi do rekordu",',
+              '            bestiaryLabel: "Bestiariusz · Nazwa",\n'
+              '            bestiaryShowOldToggle: "Czy wyświetlić zdezaktualizowane wpisy?",\n'
+              '            bestiaryNotesLabel: "Uwagi do rekordu",',
+              'Polish label',
+          )
+
+          replace_once(
+              '            bestiaryLabel: "Bestiary · Name",\n'
+              '            bestiaryNotesLabel: "Record notes",',
+              '            bestiaryLabel: "Bestiary · Name",\n'
+              '            bestiaryShowOldToggle: "Show outdated entries?",\n'
+              '            bestiaryNotesLabel: "Record notes",',
+              'English label',
+          )
+
+          replace_once(
+              '      const updateBestiarySelection = () => {\n'
+              '        const index = Number(bestiarySelect.value);\n'
+              '        if (Number.isNaN(index)) {\n'
+              '          state.selectedBestiaryIndex = null;\n'
+              '          resetBestiaryOverrides();\n'
+              '          renderBestiaryTable(null);\n'
+              '          setArmorSelectionEnabled(true);\n'
+              '          return;\n'
+              '        }\n'
+              '        if (state.selectedBestiaryIndex !== index) {\n'
+              '          state.selectedBestiaryIndex = index;\n'
+              '          resetBestiaryOverrides();\n'
+              '        }\n'
+              '        const record = state.bestiary[index];\n'
+              '        renderBestiaryTable(record);\n'
+              '        setArmorSelectionEnabled(!isBestiaryArmorBlocked(record));\n'
+              '      };',
+              '      const updateBestiarySelection = () => {\n'
+              '        const index = Number(bestiarySelect.value);\n'
+              '        if (Number.isNaN(index)) {\n'
+              '          state.selectedBestiaryIndex = null;\n'
+              '          resetBestiaryOverrides();\n'
+              '          renderBestiaryTable(null);\n'
+              '          setArmorSelectionEnabled(true);\n'
+              '          return;\n'
+              '        }\n'
+              '        if (state.selectedBestiaryIndex !== index) {\n'
+              '          state.selectedBestiaryIndex = index;\n'
+              '          resetBestiaryOverrides();\n'
+              '        }\n'
+              '        const record = state.bestiary[index];\n'
+              '        renderBestiaryTable(record);\n'
+              '        setArmorSelectionEnabled(!isBestiaryArmorBlocked(record));\n'
+              '      };\n\n'
+              '      const updateBestiaryOldVisibility = () => {\n'
+              '        state.showOldBestiaryRecords = Boolean(bestiaryShowOldToggle?.checked);\n'
+              '        const selectedRecord =\n'
+              '          state.selectedBestiaryIndex === null ? null : state.bestiary[state.selectedBestiaryIndex];\n'
+              '        const shouldClearOldSelection =\n'
+              '          selectedRecord && isOldBestiaryRecord(selectedRecord) && !state.showOldBestiaryRecords;\n'
+              '        refreshBestiaryOptions();\n'
+              '        if (shouldClearOldSelection) {\n'
+              '          bestiarySelect.value = "";\n'
+              '          state.selectedBestiaryIndex = null;\n'
+              '          resetBestiaryOverrides();\n'
+              '          renderBestiaryTable(null);\n'
+              '          setArmorSelectionEnabled(true);\n'
+              '        }\n'
+              '      };',
+              'updateBestiaryOldVisibility function',
+          )
+
+          replace_once(
+              '        bestiarySelect.addEventListener("change", updateBestiarySelection);\n'
+              '        armorSelect.addEventListener("change", renderArmorTable);',
+              '        bestiarySelect.addEventListener("change", updateBestiarySelection);\n'
+              '        bestiaryShowOldToggle?.addEventListener("change", updateBestiaryOldVisibility);\n'
+              '        armorSelect.addEventListener("change", renderArmorTable);',
+              'bestiaryShowOldToggle listener',
+          )
+
+          replace_once(
+              '        resetButton.addEventListener("click", () => {\n'
+              '          bestiarySelect.selectedIndex = 0;',
+              '        resetButton.addEventListener("click", () => {\n'
+              '          if (bestiaryShowOldToggle) {\n'
+              '            bestiaryShowOldToggle.checked = false;\n'
+              '          }\n'
+              '          state.showOldBestiaryRecords = false;\n'
+              '          refreshBestiaryOptions();\n'
+              '          bestiarySelect.selectedIndex = 0;',
+              'reset old bestiary toggle',
+          )
+
+          if text != original:
+              path.write_text(text, encoding='utf-8')
+
+          workflow_path = Path('.github/workflows/fix-npcgenerator-old-entries.yml')
+          if workflow_path.exists():
+              workflow_path.unlink()
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Fix NPCGenerator outdated entries toggle"
+            git push
+          fi
