@@ -51,7 +51,7 @@
           </div>
           <label class="checkbox checkbox-inline">
             <input type="checkbox" id="bestiary-show-old" />
-            <span data-i18n="toggleOldBestiaryEntries">Show outdated entries?</span>
+            <span data-i18n="bestiaryShowOldToggle">Show outdated entries?</span>
           </label>
           <div class="field">
             <label for="bestiary-notes" data-i18n="bestiaryNotesLabel">Uwagi do rekordu</label>
@@ -395,6 +395,7 @@
       const accessError = document.querySelector("#accessError");
 
       const bestiarySelect = document.querySelector("#bestiary");
+      const bestiaryShowOldToggle = document.querySelector("#bestiary-show-old");
       const armorSelect = document.querySelector("#armor");
       const weaponSelect = document.querySelector("#weapon");
       const augmentationsSelect = document.querySelector("#augmentations");
@@ -453,6 +454,7 @@ const translations = {
             dataStatusLoading: "Ładowanie danych...",
             baseSelectionTitle: "Wybór bazowy",
             bestiaryLabel: "Bestiariusz · Nazwa",
+            bestiaryShowOldToggle: "Czy wyświetlić zdezaktualizowane wpisy?",
             bestiaryNotesLabel: "Uwagi do rekordu",
             bestiaryNotesPlaceholder: "Opcjonalne notatki",
             activeModulesTitle: "Moduły aktywne",
@@ -619,6 +621,7 @@ const translations = {
             dataStatusLoading: "Loading data...",
             baseSelectionTitle: "Base selection",
             bestiaryLabel: "Bestiary · Name",
+            bestiaryShowOldToggle: "Show outdated entries?",
             bestiaryNotesLabel: "Record notes",
             bestiaryNotesPlaceholder: "Optional notes",
             activeModulesTitle: "Active modules",
@@ -2009,6 +2012,22 @@ const translations = {
         setArmorSelectionEnabled(!isBestiaryArmorBlocked(record));
       };
 
+      const updateBestiaryOldVisibility = () => {
+        state.showOldBestiaryRecords = Boolean(bestiaryShowOldToggle?.checked);
+        const selectedRecord =
+          state.selectedBestiaryIndex === null ? null : state.bestiary[state.selectedBestiaryIndex];
+        const shouldClearOldSelection =
+          selectedRecord && isOldBestiaryRecord(selectedRecord) && !state.showOldBestiaryRecords;
+        refreshBestiaryOptions();
+        if (shouldClearOldSelection) {
+          bestiarySelect.value = "";
+          state.selectedBestiaryIndex = null;
+          resetBestiaryOverrides();
+          renderBestiaryTable(null);
+          setArmorSelectionEnabled(true);
+        }
+      };
+
       const splitEntries = (raw) => {
         const value = String(raw ?? "");
         if (!hasMeaningfulValue(value)) {
@@ -2885,6 +2904,7 @@ const translations = {
 
       const attachListeners = () => {
         bestiarySelect.addEventListener("change", updateBestiarySelection);
+        bestiaryShowOldToggle?.addEventListener("change", updateBestiaryOldVisibility);
         armorSelect.addEventListener("change", renderArmorTable);
         weaponSelect.addEventListener("change", renderWeaponTable);
         augmentationsSelect.addEventListener("change", renderAugmentationsTable);
@@ -2896,6 +2916,11 @@ const translations = {
           toggle.addEventListener("change", updateModuleVisibility);
         });
         resetButton.addEventListener("click", () => {
+          if (bestiaryShowOldToggle) {
+            bestiaryShowOldToggle.checked = false;
+          }
+          state.showOldBestiaryRecords = false;
+          refreshBestiaryOptions();
           bestiarySelect.selectedIndex = 0;
           state.selectedBestiaryIndex = null;
           Array.from(armorSelect.options).forEach((option) => {
