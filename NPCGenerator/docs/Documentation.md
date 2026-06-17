@@ -1,640 +1,605 @@
-# 🇬🇧 Technical documentation (EN)
+# Technical documentation — NPCGenerator
 
-## 1. Purpose and architecture
-`NPCGenerator` builds printable NPC profiles from DataVault records. The browser interface loads source collections through the shared Firebase data loader after authentication against the administrator-configured project. Favorites use the module Firebase configuration where enabled.
+NPCGenerator builds printable NPC/enemy cards from the private DataVault runtime. It is a browser-only module that loads source data through the shared Firebase data loader, lets users compose an NPC from selected records, optionally stores Favorites in Firestore, and generates a card in a new browser tab.
 
-## 2. Files and dependencies
-- `index.html` contains the access gate, HTML structure, localization dictionaries, module aggregation, render logic, printable-card logic, and Firebase integration hooks.
-- `style.css` defines top bar, sidebar, workspace, tables, popovers, tags, clamps, print card, and responsive behavior.
-- `config/firebase-config.js` is the public Firebase Web SDK template for module configuration.
-- `../shared/firebase-data-loader.js` and `../shared/firebase-config.js` provide DataVault access.
-
-## 3. Interface and mechanics
-The public access screen starts in English and can switch to Polish. Public placeholders do not connect to private data: the administrator must configure the group’s own Firebase project before the password gate can work. After loading data, users select NPC components, inspect tables and traits, save favorites, and generate a printable card. Text formatters preserve inline markers, page references, ranges, state styling, and compact table geometry.
-
-## 4. Data and layout
-The module depends on the canonical DataVault structure for NPCs, archetypes, attributes, skills, weapons, armor, equipment, talents, psychic powers, and prayers. The layout uses a dark tabletop-oriented palette, responsive wide-table handling, popovers, truncated fields with expansion behavior, and print-specific health/shock trackers.
-
-## 5. Rebuild checklist
-Restore HTML, CSS, Firebase templates, and shared loader references. Configure a separate Firebase project and compatible neutral data. Verify gate EN → PL → EN switching, understandable authentication errors, each source collection, selections, favorites, popovers, formatting, wide tables on phones, print output, and missing-config behavior. Never commit passwords, tokens, service-account files, or private keys.
-
-# 🇵🇱 Dokumentacja techniczna (PL)
-
-# Generator NPC — dokumentacja techniczna (pełny opis)
-
-## 1. Cel aplikacji i ogólny opis
-
-Generator NPC jest narzędziem do losowania, modyfikowania i zapisu profili postaci niezależnych. Interfejs działa po stronie przeglądarki, a dane źródłowe są pobierane z prywatnego zasobu DataVault przez Firebase.
-
-## 2. Źródło danych
-
-NPCGenerator nie korzysta obecnie z publicznego pliku `../DataVault/data.json` jako głównego źródła danych.
-
-Aktualny przepływ danych wygląda następująco:
-
-1. Strona ładuje `../shared/firebase-config.js`.
-2. Strona ładuje `../shared/firebase-data-loader.js`.
-3. Loader inicjalizuje nazwaną aplikację Firebase `wg-private-data`.
-4. Użytkownik przechodzi ekran dostępu K.O.Z.A. i loguje się hasłem technicznego konta Firebase Authentication.
-5. Po autoryzacji loader odczytuje Realtime Database ze ścieżki `datavault/live`.
-6. Jeżeli odczytany obiekt jest wrapperem `datavault-firebase-import-v1`, loader parsuje pole `dataJson`.
-7. NPCGenerator oczekuje finalnego obiektu danych zawierającego `sheets`.
-8. Z `sheets` budowane są kolekcje: bestiariusz, pancerze, bronie, augumentacje, ekwipunek, talenty, psionika i modlitwy.
-
-## 3. Ekran dostępu
-
-Moduł pokazuje ekran dostępu przed załadowaniem prywatnych danych. Teksty ekranu używają motywu K.O.Z.A. i Rytuału Uwierzytelnienia.
-
-Najważniejsze elementy ekranu:
-- tytuł: „Dostęp do danych z klauzulą tajności K.O.Z.A.”,
-- opis informujący o Litanii Dostępu i Rytuale Uwierzytelnienia,
-- pole hasła `accessPassword`,
-- przycisk „Rozpocznij Rytuał”,
-- pole błędu `accessError`.
-
-Błędy dostępu są tłumaczone przez `getReadableAccessError` ze wspólnego loadera Firebase.
-
-## 4. Ulubione profile NPC
-
-Ulubione profile NPC są niezależne od prywatnego DataVault.
-
-Jeżeli `NPCGenerator/config/firebase-config.js` zawiera poprawne `window.firebaseConfig`, moduł tworzy osobną nazwaną aplikację Firebase `generator-npc-favorites` i zapisuje ulubione w Firestore:
-
-`generatorNpc/favorites`
-
-Jeżeli Firestore nie jest dostępny albo konfiguracja nie istnieje, moduł przechodzi na lokalny zapis w `localStorage` pod kluczem `generatorNpcFavorites`.
-
-
-## 5. Struktura projektu
-- `index.html` — główny dokument HTML (tytuł karty: `Generator NPC`), zawiera szkielet UI oraz cały skrypt JS.
-- `style.css` — komplet stylów interfejsu (layout, typografia, tabele, popover, układ responsywny).
-- `config/firebase-config.js` — konfiguracja Firebase (ten sam projekt co Audio) używana do zapisu listy ulubionych.
-- `config/firebase-config.template.js` — szablon konfiguracji Firebase do podmiany.
-- `docs/Documentation.md` — niniejsza dokumentacja techniczna.
-- `docs/README.md` — instrukcja obsługi dla użytkownika (PL/EN).
+This document is English-only and describes the current release architecture.
 
 ---
 
-## 6. Dane wejściowe i źródło
-**Źródło danych głównych (runtime NPC):**
-- Dane są pobierane z prywatnego runtime DataVault przez wspólny loader `../shared/firebase-data-loader.js`.
-- Loader korzysta z Firebase Auth oraz Firebase Realtime Database (`/datavault/live`).
-- Sekcja „Źródło danych” w UI pokazuje status ładowania i nie eksponuje publicznego linku do statycznego pliku JSON.
+## 1. Module purpose
 
-**Wczytywanie danych:**
-- Dane są pobierane asynchronicznie przez `loadDataVaultRuntimeData(...)` po inicjalizacji konfiguracji Firebase.
-- Po wczytaniu dane są analizowane i rozdzielane na kolekcje: bestiariusz, pancerze, bronie, augumentacje, ekwipunek, talenty, psionika, modlitwy.
-- Kolekcje są sortowane przed zasileniem list wyboru: domyślnie po kolumnie `LP` (jeśli istnieje), a gdy jej brak — bestiariusz, talenty i modlitwy alfabetycznie po nazwie; broń, pancerze, augumentacje, ekwipunek po typie i nazwie; psionika po typie malejąco i nazwie.
+NPCGenerator is responsible for:
 
-**Meta dane:**
-- `_meta.traits` zawiera listę cech wraz z opisami wykorzystywanymi w popoverze.
-
-**Ulubione (Firebase / localStorage):**
-- Aplikacja zapisuje listę ulubionych w Firestore w dokumencie `generatorNpc/favorites` (jedna lista).
-- Jeśli Firestore jest niedostępny lub brak konfiguracji, dane są zapisywane lokalnie w `localStorage` pod kluczem `generatorNpcFavorites`.
+- loading private source data from the shared DataVault runtime,
+- building internal collections for Bestiary, Armor, Weapons, Augmentations, Equipment, Talents, Psionics, and Prayers,
+- allowing users to select and edit a base Bestiary record,
+- allowing users to add optional module sections,
+- supporting outdated Bestiary entries through a toggle,
+- rendering preview tables,
+- rendering trait tags and optional trait descriptions,
+- saving/loading Favorites through Firestore when configured,
+- falling back to local storage when Firestore is unavailable,
+- generating a printable NPC card in a new browser tab.
 
 ---
 
-## 7. Struktura HTML i elementy UI
+## 2. Entry points and files
 
-### 7.1. Pasek górny (`.topbar`)
-- Zawiera tytuł aplikacji, przełącznik języka oraz dwa przyciski:
-  - **Wersja językowa** (`#languageSelect`) — select z opcjami PL/EN, z ciemnym tłem.
-  - **Reset** (`#reset-page`) — przywraca domyślny stan wyborów.
-  - **Generuj kartę** (`#generate-card`) — uruchamia generowanie karty do druku.
-
-### 7.2. Panel boczny (`.sidebar`)
-Składa się z trzech sekcji:
-1. **Źródło danych** — informuje o prywatnym źródle DataVault i statusie wczytywania (`#data-status`). Sekcja używa klas `panel-data-source` i `data-source-text`; status ładowania danych jest wyświetlany w `#data-status`. Interfejs nie eksponuje publicznego linku do statycznego pliku JSON.
-2. **Wybór bazowy** — wybór rekordu bestiariusza (`#bestiary`) + notatki (`#bestiary-notes`).
-3. **Moduły aktywne** — checkboxy włączające/wyłączające karty modułów:
-   - Broń, Pancerz, Augumentacje, Ekwipunek, Talenty, Psionika, Modlitwy.
-4. **Ulubione** — panel zapisu i odczytu zapisanych konfiguracji:
-   - `#favorites-status` — informacja o statusie połączenia z Firestore.
-   - `#favorites-alias` — pole aliasu (opcjonalne) dla nowego wpisu.
-   - `#favorites-add`, `#favorites-refresh` — przyciski zapisu i odświeżenia listy.
-   - `#favorites-list` — lista zapisanych wpisów z akcjami „Wczytaj”, „Usuń” oraz strzałkami ▲/▼ do zmiany kolejności.
-
-### 4.3. Obszar roboczy (`.workspace`)
-Zawiera karty z tabelami danych:
-- **Podgląd bazowy Bestiariusza** (`#bestiary-table-body`).
-  - W wybranych wierszach (S, Wt, Zr, I, SW, Int, Ogd, Odporność (w tym WP), Obrona, Żywotność, Odporność Psychiczna, Upór, Odwaga, Szybkość) zamiast tekstu pojawiają się pola `number` z przyciskami góra–dół.
-  - Pole „Odporność Psychiczna” jest blokowane dla rekordów z wartością `-` (brak edycji).
-  - Pola liczbowe są ograniczone do 25 znaków — nadmiar jest automatycznie obcinany również przy wstępnym ustawieniu wartości — oraz mają wizualny limit szerokości 25ch.
-  - Wiersze „Umiejętności” i „Słowa Kluczowe” posiadają przycisk **Edytuj/Zapisz** w kolumnie klucza, który przełącza komórkę na edycję w `textarea`.
-- **Wybór Broni** (`#weapon`, `#weapon-table-body`).
-- **Wybór Pancerzy** (`#armor`, `#armor-table-body`).
-- **Wybór Augumentacji** (`#augmentations`, `#augmentations-table-body`).
-- **Wybór Ekwipunku** (`#equipment`, `#equipment-table-body`).
-- **Wybór Talentów** (`#talents`, `#talents-table-body`).
-- **Wybór Psioniki** (`#psionics`, `#psionics-table-body`).
-- **Wybór Modlitw** (`#prayers`, `#prayers-table-body`).
-
-Każda karta posiada listę wielokrotnego wyboru (`<select multiple size="15">`) oraz tabelę danych. W tabelach nagłówki są „sticky”, a wiersze mają efekt zebry.
-
-### 4.4. Popover cech (`#trait-popover`)
-- Wyświetla nazwę i opis cechy po kliknięciu w tag (`.tag`).
-- Ukrywa się po kliknięciu poza popover.
+| File | Role |
+| --- | --- |
+| `NPCGenerator/index.html` | Main HTML and JavaScript module. Contains the access gate, UI structure, translations, state, data loading, collection builders, Favorites logic, rendering, and card generation. |
+| `NPCGenerator/style.css` | Module styling, layout, controls, tables, Favorites, old-entry styling, clamp behavior, and generated card styles. |
+| `NPCGenerator/config/firebase-config.js` | Module Firebase config for Favorites when Firestore is used. |
+| `NPCGenerator/docs/README.md` | User guide. |
+| `NPCGenerator/docs/Documentation.md` | This technical guide. |
+| `NPCGenerator/config/FirebaseREADME.md` | Firebase setup guide for NPCGenerator. |
+| `../shared/firebase-config.js` | Shared private DataVault Firebase config. |
+| `../shared/firebase-data-loader.js` | Shared access gate, Authentication, and Realtime Database loader for DataVault runtime. |
+| `../shared/access-gate.css` | Shared access gate styles plus NPCGenerator layout overflow fix. |
 
 ---
 
-## 5. Typografia i fonty
-- Aplikacja używa lokalnego stosu konsolowego:
-  - `Consolas`, `Fira Code`, `Source Code Pro`, `monospace`.
-- Font jest ustawiony globalnie na `*`, więc wszystkie elementy dziedziczą tę samą typografię.
+## 3. Data source architecture
 
-Ustawienia globalne:
-- `font-family: "Consolas", "Fira Code", "Source Code Pro", monospace;`
-- `line-height: 1.45;`
-- `letter-spacing: 0.03em;`
+NPCGenerator does not use a public local `DataVault/data.json` file as its primary runtime source.
 
----
+Current runtime flow:
 
-## 6. Style i klasy CSS (pełny opis)
+1. `NPCGenerator/index.html` loads `../shared/firebase-config.js`.
+2. It loads `../shared/firebase-data-loader.js`.
+3. The shared loader initializes the named private-data Firebase app.
+4. The K.O.Z.A. access gate signs in through Firebase Authentication.
+5. The shared loader reads Realtime Database path:
 
-### 6.1. Zmienne CSS (`:root`)
-- Kolory tła i paneli:
-  - `--bg: #031605`
-  - `--bg-grad`: radialne gradienty + `#031605`
-  - `--panel: #000`
-  - `--panel2: #000`
-- Tekst:
-  - `--text: #9cf09c`
-  - `--text2: #4FAF4F`
-  - `--muted: #4a8b4a`
-  - `--code: #D2FAD2`
-  - `--red: #d74b4b`
-- Obramowania i akcenty:
-  - `--border: #16c60c`
-  - `--accent: #16c60c`
-  - `--accent-dark: #0d7a07`
-  - `--b: rgba(22,198,12,.35)`
-  - `--b2: rgba(22,198,12,.2)`
-  - `--div: rgba(22,198,12,.18)`
-- Tła pomocnicze:
-  - `--hbg: rgba(22,198,12,.06)`
-  - `--zebra: rgba(22,198,12,.04)`
-  - `--hover: rgba(22,198,12,.08)`
-- Cienie:
-  - `--glow: 0 0 25px rgba(22, 198, 12, 0.45)`
-  - `--glowH: 0 0 18px rgba(22, 198, 12, 0.35)`
-- `--header-row-height` — wysokość wiersza nagłówków tabel (36px).
+```text
+datavault/live
+```
 
-### 6.2. Klasy layoutu
-- `.topbar`, `.layout`, `.sidebar`, `.workspace`, `.panel`, `.card`, `.card-header`.
-- `.card.is-hidden` — ukrywa moduł, gdy jest wyłączony.
+6. If the object is a `datavault-firebase-import-v1` wrapper, the loader parses `dataJson`.
+7. NPCGenerator receives a data object containing `sheets`.
+8. NPCGenerator builds internal collections from the required sheets.
 
-### 6.3. Tekst i typografia
-- `.text-muted`, `.text-red` — stonowane i czerwone akcenty.
-- `.panel-data-source .data-source-text` — zmniejszony rozmiar tekstu (`0.82rem`) i zwiększona wysokość linii (`1.55`) wyłącznie w panelu „Źródło danych”.
-- `.panel-data-source .data-source-link` — wymusza łamanie długiego adresu (`overflow-wrap: anywhere`, `word-break: break-word`), co zapobiega wychodzeniu linku poza ramkę panelu.
-- `.badge` — etykieta typu „Bestiariusz”.
+The DEMO access password is:
 
-### 6.4. Formularze
-- `select`, `input`, `textarea` — jednolite tła, obramowania, fokus (`box-shadow: var(--glow)`).
-- `.field`, `.field-label-row` — układ etykiet i kontroli.
-- `.checkbox`, `.checkbox-list`, `.checkbox-inline` — checkboxy modułów i ustawień szczegółów.
-- `.table-number-input` — wąskie pole `number` w tabeli bestiariusza (mniejszy padding i font); wejście jest obcinane do 25 znaków, a szerokość jest ograniczona do 25ch (`width: min(25ch, 100%); max-width: 25ch`).
-- `.editable-textarea` — pole edycji pól tekstowych bestiariusza (`Umiejętności` i `Słowa Kluczowe`; ciemne tło, resize w pionie, focus z `--glow`).
-- `.skills-key-cell` — układ flex dla etykiety pola tekstowego i przycisku **Edytuj/Zapisz**.
-- `.editable-text-button` — dedykowany jasny wariant przycisku **Edytuj/Zapisz** dla edytowalnych pól tekstowych; używa `border-color: var(--code)`, `color: var(--code)` i `opacity: 1` bez globalnej zmiany `.btn.secondary`.
-- `.btn.btn-small` — kompaktowa wersja przycisku dla edycji w tabeli.
-- `.favorites-actions`, `.favorites-list`, `.favorite-item`, `.favorite-title`, `.favorite-subtitle`, `.favorite-actions` — layout i typografia listy ulubionych.
+```text
+000000
+```
 
-### 6.5. Tabele
-- `.data-table` — tabela z `border-collapse`, efektami hover i zebra.
-- `.data-table th` — sticky header, gradient tła i uppercase, z tym samym fontem co reszta UI.
-- `min-col-*` — klasy wymuszające minimalne szerokości kolumn (definiowane per arkusz danych).
-
-### 6.6. Tagowanie i formatowanie
-- `.tag` — klikany tag cechy.
-- `.celltext` — pre-wrap i poprawne zawijanie treści.
-- `.inline-red`, `.inline-bold`, `.inline-italic` — formatowanie markerów `{{RED}}`, `{{B}}`, `{{I}}`.
-- `.keyword-red`, `.keyword-comma` — kolorowanie słów kluczowych i przecinków.
-- `.ref`, `.caretref` — wyróżnianie odwołań do stron i linii `*[n]`.
-- `.slash` — styl separatorów zakresu.
-
-### 6.7. Clamp (skracanie tekstu)
-- `.clamp-cell`, `.clamp-cell.is-clampable`, `.clamp-hint` — obsługa komórek, które można rozwijać/zwijać.
-
-### 6.8. Popover
-- `.popover`, `.popover.active` — panel opisu cechy.
-
-### 6.9. Responsywność
-- `@media (max-width: 1000px)` — przełącza layout na jednokolumnowy.
-
-### 6.10. Karta do druku — trackery „Ż/T” (PL) / „H/S” (EN)
-Style te są wbudowane w HTML karty do druku (`buildPrintableCardHTML`):
-- `.tracker-section` — kontener z paddingiem `6px 8px`, układ `grid` i `gap: 6px`, zakończony dolną ramką `1px solid #111`.
-- `.tracker-row` — pojedynczy wiersz trackera z dwoma kolumnami (etykieta + siatka pól):
-  - zmienne `--tracker-size: 18px`, `--tracker-gap: 1px`,
-  - `display: grid`, `grid-template-columns: var(--tracker-size) 1fr`,
-  - `column-gap: 1px`, etykieta i pola są niezależnymi elementami.
-- `.tracker-squares` — siatka pustych kwadratów:
-  - `display: grid`, `grid-template-columns: repeat(auto-fit, var(--tracker-size))`,
-  - `grid-auto-rows: var(--tracker-size)`,
-  - `gap: 1px`, siatka rozciąga się na całą szerokość karty (bez sztucznego limitu liczby kolumn).
-- `.tracker-cell` — pojedynczy kwadrat (tło `#fff`, obramowanie `1px solid #111`, wyśrodkowany tekst).
-- `.tracker-label` — etykieta trackera (PL: „Ż”/„T”, EN: „H”/„S”) osadzona w `<label>`:
-  - ma stałą szerokość `var(--tracker-size)`,
-  - wysokość to `var(--tracker-size)`, czyli pojedynczy kwadrat niezależny od liczby linii.
-- `.tracker-row--mental` — wariant z szarym wypełnieniem pól (`--tracker-fill: #e9e9e9`).
+This is a DEMO value only.
 
 ---
 
-## 7. Zasady formatowania treści danych
+## 4. Required DataVault sheets
 
-### 7.1. Markery inline
-- `{{RED}}...{{/RED}}` → `.inline-red`.
-- `{{B}}...{{/B}}` → `.inline-bold`.
-- `{{I}}...{{/I}}` → `.inline-italic`.
+NPCGenerator loads sheets by logical aliases. The release format is English-first.
 
-### 7.2. Referencje stron
-- Tekst w nawiasach zawierający `str.`, `str` lub `strona` otrzymuje klasę `.ref`.
+| Internal collection | Current release sheet names / aliases |
+| --- | --- |
+| `state.bestiary` | `Bestiary` / legacy `Bestiariusz` |
+| `state.armor` | `Armor` / `Armour` / legacy `Pancerze` |
+| `state.weapons` | `Weapons` / legacy `Bronie` |
+| `state.augmentations` | `Augmentations` / `Augmentics` / legacy `Augumentacje` |
+| `state.equipment` | `Equipment` / legacy `Ekwipunek` |
+| `state.talents` | `Talents` / legacy `Talenty` |
+| `state.psionics` | `Psionics` / `Psychic Powers` / legacy `Psionika` |
+| `state.prayers` | `Prayers` / legacy `Modlitwy` |
 
-### 7.3. Linie przypisów
-- Linie typu `*[n]` są renderowane jako `.caretref`.
-
-### 7.4. Zakresy wartości
-- Kolumny „Zasięg” są dzielone po `/`, a separator otrzymuje `.slash`.
-
-### 7.5. Słowa kluczowe
-- Kolumny „Słowa Kluczowe” są renderowane jako `.keyword-red`.
-- W arkuszach: `Bestiariusz`, `Psionika`, `Augumentacje`, `Ekwipunek`, `Pancerze`, `Bronie` przecinki są neutralne (`.keyword-comma`).
+`Equipment` means normal personal/NPC equipment. `Vehicle Wargear` is not used as the normal NPC equipment collection.
 
 ---
 
-## 8. Logika aplikacji (pełny opis funkcji)
+## 5. Required column aliases
 
-### 8.1. Stałe i stan aplikacji
-- `loadDataVaultRuntimeData(...)` — główny mechanizm ładowania danych z prywatnego runtime DataVault (Firebase Auth + RTDB).
-- `CLAMP_LINES = 9` — liczba linii do przycinania komórek.
-- `MAX_NUMERIC_INPUT_LENGTH = 25` — maksymalna długość tekstu w polach liczbowych bestiariusza (obcina nadmiar znaków przy inicjalizacji, wpisywaniu i zapisie).
-- `CARD_LEVEL_COLUMNS = 5` — liczba kolumn poziomu na karcie do druku. Stała steruje równocześnie:
-  - limitem znaków pobieranych z pola `Zagrożenie`,
-  - dopełnianiem pustych komórek do stałej szerokości wiersza,
-  - renderowaniem nagłówka `Poziom` (1..N),
-  - siatką CSS `.row` (`grid-template-columns: 140px repeat(N, 1fr)`).
-- `FAVORITES_STORAGE_KEY = "generatorNpcFavorites"` — klucz `localStorage` dla ulubionych.
-- `FAVORITES_COLLECTION = "generatorNpc"` i `FAVORITES_DOC_ID = "favorites"` — docelowa ścieżka dokumentu w Firestore.
-- `EDITABLE_STATS_KEYS`, `EDITABLE_SKILLS_KEY`, `EDITABLE_KEYWORDS_KEY`, `EDITABLE_RESISTANCE_KEYS`, `EDITABLE_MENTAL_RESISTANCE_KEYS`, `EDITABLE_NUMERIC_KEYS` — definicje pól bestiariusza, które mają wbudowaną edycję (liczbowe oraz tekstowe „Umiejętności”/„Słowa Kluczowe”).
-- `state` — obiekt z danymi aplikacji i stanem UI:
-  - `data`, `traits` (Map), `expandedCells` (Set), `selectedBestiaryIndex`,
-  - `bestiaryOverrides` — obiekt nadpisań wprowadzonych przez użytkownika:
-    - `numeric` (Map) dla pól liczbowych,
-    - `skills` (string) dla „Umiejętności”,
-    - `skillsEditing` (boolean) przełączający tryb edycji umiejętności,
-    - `keywords` (string) dla „Słowa Kluczowe”,
-    - `keywordsEditing` (boolean) przełączający tryb edycji słów kluczowych,
-  - kolekcje: `bestiary`, `armor`, `weapons`, `augmentations`, `equipment`, `talents`, `psionics`, `prayers`.
-  - ulubione: `favorites` (tablica wpisów), `firestore` (instancja), `favoritesDoc` (referencja), `usingFirestore` (flaga).
-- `clampEvaluators` (WeakMap) — przechowuje funkcje obliczające clamp dla komórek.
-- `nameKeyCache` (WeakMap) — cache klucza nazwy rekordu.
-- `clampObserver` (ResizeObserver) — reaguje na zmianę rozmiaru komórek i przelicza clamp.
+NPCGenerator field access depends on canonical column aliases from the shared runtime and module code.
 
-### 8.2. Funkcje narzędziowe (tekst i HTML)
-- `normalizeText(value)` — zamienia wartość na string, usuwa nadmiarowe białe znaki.
-- `normalizeKey(value)` — normalizuje tekst do porównywania (lowercase, usuwa diakrytyki).
-- `escapeHtml(value)` — ucieka znaki HTML (`&`, `<`, `>`, `"`, `'`).
-- `getColumnClass(label)` — tworzy klasę kolumny `min-col-*` na podstawie etykiety.
-- `formatInlineHTML(raw)` — parsuje markery `{{RED}}`, `{{B}}`, `{{I}}`, dodatkowo oznacza referencje stron w nawiasach.
-- `formatTextHTML(raw, { maxLines, appendHint })` — formatuje tekst, obsługuje marker `*[n]`, przycina liczbę linii, może dodać wskazówkę clamp.
-- `formatRangeHTML(raw)` — formatuje zakresy (dzieli po `/`, wstawia `.slash`).
-- `formatKeywordHTML(raw, { commasNeutral, maxLines, appendHint })` — formatuje słowa kluczowe i przecinki.
-- `isKeywordColumn(key)` — rozpoznaje kolumnę „Słowa Kluczowe”.
-- `isRangeColumn(key)` — rozpoznaje kolumnę „Zasięg”.
-- `getFormattedCellHTML(sheetName, key, rawValue, options)` — decyduje o sposobie formatowania komórki w zależności od typu kolumny.
+Important logical fields:
 
-### 8.3. Ulubione — logika zapisu
-- `setFavoritesStatus(message, { isError })` — aktualizuje status połączenia/operacji ulubionych.
-- `createFavoriteId()` — generuje unikalne ID wpisu (UUID lub fallback z timestampem).
-- `serializeBestiaryOverrides()` / `deserializeBestiaryOverrides()` — zamieniają Map ↔ obiekt do zapisu w Firestore/localStorage.
-- `setSelectedIndices()` — ustawia zaznaczenie w `<select multiple>` na podstawie tablicy indeksów.
-- `renderFavorites()` — buduje listę wpisów wraz z przyciskami „Wczytaj”, „Usuń” i strzałkami do przesuwania wpisów w górę/dół (pierwszy/ostatni wpis ma zablokowane odpowiednie strzałki).
-- `loadFavoritesFromLocal()` / `saveFavoritesToLocal()` — obsługa `localStorage`.
-- `saveFavorites()` — zapis do Firestore (z `updatedAt: serverTimestamp()`), a przy błędzie fallback do lokalnego zapisu.
-- `initFavoritesStore()` — inicjalizacja Firebase i nasłuch `onSnapshot()` lub fallback na pamięć lokalną.
-- `buildFavoritePayload()` — tworzy snapshot bieżącego UI (bestiariusz, nadpisania, notatki, wybory modułów, przełączniki).
-- `addFavorite()` / `removeFavorite()` — dodawanie i usuwanie wpisów z listy.
-- `moveFavorite()` — przesuwa wpis o jedną pozycję w górę lub dół i zapisuje nową kolejność.
-- `applyFavorite()` — odtwarza zapisany stan UI i re-renderuje tabele.
+```text
+id
+state
+type
+kind
+name
+threat
+keywords
+skills
+bonuses
+abilities
+attacks
+armorValue
+traits
+range
+damage
+dn
+ap
+rateOfFire
+source
+page
+effect
+requirements
+activation
+duration
+targets
+boost
+```
 
-### 8.4. Funkcje narzędziowe (rekordy i kolekcje)
-- `canonicalTraitName(name)` — normalizuje nazwę cechy.
-- `toDisplayString(value)` — bezpiecznie zwraca string (pusty jeśli brak wartości).
-- `hasMeaningfulValue(value)` — sprawdza, czy tekst ma realną zawartość.
-- `getRecordValueByLabels(record, labels)` — zwraca wartość pierwszej pasującej etykiety.
-- `extractRecords(section)` — wydobywa tablicę rekordów z obiektu sekcji.
-- `getSectionName(section)` — zwraca nazwę sekcji (normalizuje nazwy pól `name`).
-- `looksLikeRecordArray(items)` — heurystyka sprawdzająca, czy tablica wygląda jak lista rekordów.
-- `findCollectionInNode(node, keywords, visited)` — rekurencyjne wyszukiwanie kolekcji po słowach kluczowych.
-- `getCollection(db, keywords)` — zwraca kolekcję rekordów dla podanych słów kluczowych.
-- `resolveNameKey(record)` — znajduje klucz nazwy rekordu (cache w `nameKeyCache`).
-- `getRecordName(record, index)` — zwraca nazwę rekordu lub fallback „Rekord n”.
-- `compareStrings(left, right, { descending })` — porównanie stringów z normalizacją i opcją sortowania malejącego (locale `pl`).
-- `getSortableLp(record)` — odczytuje `LP` jako wartość liczbową, zwraca `null` gdy brak/niepoprawne.
-- `getSortableType(record)` — zwraca znormalizowaną wartość pola typu (`Typ`, `Type`).
-- `sortRecords(records, compare)` — stabilne sortowanie rekordów z zachowaniem kolejności wejściowej przy remisie; priorytetowo sortuje po `LP`, jeśli oba rekordy mają tę wartość.
-- `sortByName(records)` — sortuje rekordy alfabetycznie po nazwie.
-- `sortByTypeThenName(records, { typeDescending })` — sortuje po typie, a następnie po nazwie (opcjonalnie malejąco po typie).
-- `findRecordKey(record, label)` — znajduje klucz odpowiadający etykiecie (porównanie znormalizowane).
-- `getRecordValue(record, label)` — odczytuje wartość pola z rekordu.
-- `parseNumericValue(value, fallback)` — wyciąga liczbę z tekstu lub zwraca wartość domyślną.
-- `getBestiaryWpMinimum(record)` — wyznacza minimalną wartość pola „Odporność (w tym WP)” na podstawie WP (lub 1, gdy WP to `-`).
-- `getEditableNumericMinimum(label, record)` — zwraca minimum dla edytowalnego pola (1 lub wartość WP).
-- `getNumericOverride(label)` — pobiera nadpisaną wartość liczbową z `state.bestiaryOverrides`.
-- `resetBestiaryOverrides()` — czyści wszystkie nadpisania bestiariusza i wyłącza tryb edycji „Umiejętności” oraz „Słów Kluczowych”.
+Current English release columns include:
 
-### 8.13. Specyfika pancerzy i cech
-- `getArmorWpValue(record)` — odczytuje wartość WP z rekordu pancerza.
-- `isArmorBlocked(record)` — blokuje pancerze z WP „-”.
-- `isBestiaryArmorBlocked(record)` — sprawdza, czy bestiariusz ma blokującą wartość WP.
-- `isBestiaryMentalResistanceBlocked(record)` — blokuje edycję „Odporność Psychiczna”, gdy pole ma wartość `-`.
-- `buildTraitsMap(data)` — buduje Mapę cech z `_meta.traits`.
-- `resolveTraitDescription(traitName)` — zwraca opis cechy z mapy (lub komunikat o braku opisu).
+```text
+ID
+State
+Type
+Kind
+Name
+Threat
+Keywords
+Skills
+Bonuses
+Abilities
+Attacks
+Armour Rating
+Traits
+Range
+Damage
+ED
+AP
+Salvo
+Book
+Page
+Effect
+Requirements
+Activation
+Duration
+Multi Target
+Boost
+```
 
-### 8.13. UI i renderowanie tabel
-- `setStatus(message)` — ustawia tekst statusu w panelu danych.
-- `updateModuleVisibility()` — ukrywa/pokazuje moduły według checkboxów.
-- `setSelectOptions(select, items, placeholder, { disableOption, disabledTitle })` — wypełnia select opcjami.
-- `clearTableBody(tbody, message, colSpan)` — czyści tabelę i wstawia komunikat.
-- `createTag(traitName)` — tworzy element `.tag` dla cechy.
-- `renderTraitsCell(value, columnClass)` — renderuje komórkę cech jako zestaw tagów.
-- `createClampCell(sheetName, rowId, key, valueString, columnClass)` — tworzy komórkę z mechanizmem clamp.
-- `createNumericInputCell(record, key, valueString)` — tworzy pole `number` z minimum zależnym od WP, obcina wpis do 25 znaków i zapisuje nadpisanie do `state.bestiaryOverrides`.
-- `EDITABLE_TEXT_FIELDS` — mapuje znormalizowane klucze `Umiejętności` i `Słowa Kluczowe` na pola `skills`/`keywords` oraz flagi `skillsEditing`/`keywordsEditing`.
-- `createEditableTextRow(record, key, valueString, config)` — renderuje wiersz edytowalnego pola tekstowego z przyciskiem **Edytuj/Zapisz** i `textarea`; po zapisie podgląd używa `createClampCell(...)`, więc „Słowa Kluczowe” nadal przechodzą przez formatter kolumny.
-- `renderOrderedTable({ tableBody, records, columns, sheetName })` — renderuje tabelę z określonymi kolumnami.
-- `renderBestiaryTable(record)` — renderuje tabelę bazowego bestiariusza, podmieniając wybrane komórki na pola edycyjne (z blokadą „Odporność Psychiczna” przy wartości `-`).
-
-### 8.13. Konfiguracje kolumn
-- `weaponColumns`, `armorColumns`, `augmentationsColumns`, `equipmentColumns`, `talentsColumns`, `psionicsColumns`, `prayersColumns` — listy nagłówków dla tabel modułów.
-
-### 8.13. Obsługa wyborów
-- `getSelectedIndices(select)` — zwraca indeksy zaznaczonych opcji.
-- `renderWeaponTable()`, `renderArmorTable()`, `renderAugmentationsTable()`, `renderEquipmentTable()`, `renderTalentsTable()`, `renderPsionicsTable()`, `renderPrayersTable()` — renderują odpowiednie tabele według aktualnego wyboru.
-- `setArmorSelectionEnabled(enabled)` — włącza/wyłącza select pancerzy.
-- `updateBestiarySelection()` — aktualizuje podgląd bestiariusza i stan pancerzy, resetuje nadpisania przy zmianie rekordu.
-
-### 8.13. Formatowanie sekcji na karcie
-- `splitEntries(raw)` — dzieli wpisy na sekcje wg heurystyki (np. `Nazwa — ...`, `Etykieta: ...`, `*[n]`, `[n]`).
-- `formatSectionEntries(entries)` — tworzy HTML z naprzemiennym tłem wierszy.
-
-### 8.13. Moduły i agregacja danych
-- `getSelectedRecords(records, selectedIndices)` — mapuje wybór na listę rekordów.
-- `getTraitNamesFromRecords(records)` — wyciąga i normalizuje unikalne cechy.
-- `buildTraitDescriptionLine(records, label)` — generuje linię „Cechy: ...” z opisami.
-- `parseArmorWpValue(value)` — parsuje WP pancerza (liczba, gwiazdka, tekst).
-- `getArmorOverrides(records, { includeTraitDescriptions })` — agreguje WP i cechy pancerzy.
-- `buildWeaponEntry(record)` — buduje pojedynczy wpis ataku (z `Obrażenia`, `DK`, `PP`, `Zasięg`, `Szybkostrzelność`).
-- `buildWeaponOverride(records, { includeTraitDescriptions })` — tworzy listę ataków oraz opis cech z broni.
-- `buildModuleEntries(records, columns, { includeFull, normalizeColumns })` — generuje listę wpisów modułu (nazwy + szczegóły).
-
-### 8.13. Parsowanie wartości liczbowych
-- `normalizeStarPrefix(value, hasStar)` — usuwa gwiazdki i dodaje je wg potrzeby.
-- `formatNumericWithStar(numeric, hasStar, fallbackText)` — buduje wartość z gwiazdką.
-- `parseStarNumber(value)` — parsuje liczbę i informację o gwiazdce.
-- `extractWpFromResistance(value)` — wyciąga WP z pola „Odporność”.
-- `resolveTrackerCount(value)` — wewnętrzna funkcja karty do druku zamienia wartość „Żywotność” lub „Odporność Psychiczna” na liczbę kwadratów (ignoruje brak liczby i ujemne wartości).
-
-### 8.13. Karta do druku
-- `buildPrintableCardHTML(record, notes, { weaponOverride, armorOverride, moduleEntries, bestiaryOverrides })` — generuje pełny HTML karty do druku z osobnymi stylami (czarno-biała karta, układ tabelaryczny), uwzględniając nadpisania liczb, „Umiejętności” i „Słów Kluczowych”, a etykiety karty są wybierane z tłumaczeń (PL/EN).
-  - Sekcje kart: tytuł, zagrożenie, słowa kluczowe, statystyki, odporność, pancerze/cechy, obrona/żywotność/odporność psychiczna, **trackery pól „Ż/T” (PL) / „H/S” (EN)**, bloki opisowe (umiejętności, premie, zdolności, atak, horda itd.), upór/odwaga/szybkość/rozmiar, notatki.
-  - Mechanizm `CARD_LEVEL_COLUMNS = 5` działa jako pojedyncze źródło prawdy dla sekcji `Poziom/Zagrożenie`: parser obcina dane do 5 znaków, fallback (`split("")`) zachowuje nietypowe znaki jak `?`, brakujące wartości są dopełniane pustymi komórkami, a nagłówek poziomów jest budowany dynamicznie (`1..5`).
-  - Dzięki temu rekordy `PPPPP` renderują komplet pięciu kolumn, a krótsze rekordy (np. `?`) zostawiają puste pola od kolumny 2 do 5.
-- Trackery są generowane dynamicznie: osobne siatki z etykietami „Ż”/„T” w PL lub „H”/„S” w EN oraz pustymi kwadratami. Liczba kwadratów wynika z „Żywotność” i „Odporność Psychiczna”, a gdy „Odporność Psychiczna” ma wartość `-`, renderowana jest tylko etykieta trackera.
-  - Układ trackerów używa inline CSS z przezroczystym tłem i ramkami pól (brak ciemnego wypełnienia po prawej stronie), a liczba pól w wierszu jest obliczana przez `grid-template-columns: repeat(auto-fit, ...)`.
-- `openPrintableCard(record, notes, overrides)` — otwiera nową kartę i wstrzykuje wygenerowany HTML.
-
-### 8.13. Eventy i inicjalizacja
-- `attachListeners()` — podpina listenery `change` i `click`, resetuje stan, generuje kartę.
-- `loadData()` — pobiera dane, inicjalizuje listy wyboru, wypełnia tabele i status.
-- Listener `document.addEventListener("click")` — obsługuje popover tagów cech.
-- Na końcu: `attachListeners(); updateModuleVisibility(); loadData();`.
+Changing column names requires updates in DataVault and NPCGenerator. See section 18.
 
 ---
 
-## 9. Mechanizm clamp (skracanie długich pól)
-- Długie komórki są skracane do `CLAMP_LINES`.
-- Jeśli komórka ma więcej linii niż limit, pokazuje się wskazówka „kliknij, aby rozwinąć”.
-- Kliknięcie przełącza stan rozwinięcia i zapisuje go w `state.expandedCells`.
-- `ResizeObserver` przelicza, czy komórka nadal wymaga clampa po zmianie rozmiaru.
+## 6. Main UI structure
+
+### 6.1 Access gate
+
+The access gate is shared with DataVault and uses K.O.Z.A. wording.
+
+Important elements:
+
+```text
+#accessGate
+#accessForm
+#accessPassword
+#accessError
+```
+
+The shared loader provides readable access errors.
+
+### 6.2 Top bar
+
+Important elements:
+
+```text
+#languageSelect
+#reset-page
+#generate-card
+```
+
+### 6.3 Sidebar
+
+Sidebar panels:
+
+| Panel | Important elements |
+| --- | --- |
+| Data source | `#data-status` |
+| Base selection | `#bestiary`, `#bestiary-show-old`, `#bestiary-notes` |
+| Active modules | `[data-module-toggle]` checkboxes |
+| Favorites | `#favorites-status`, `#favorites-alias`, `#favorites-add`, `#favorites-refresh`, `#favorites-list` |
+
+### 6.4 Workspace
+
+Workspace tables:
+
+```text
+#bestiary-table-body
+#weapon-table-body
+#armor-table-body
+#augmentations-table-body
+#equipment-table-body
+#talents-table-body
+#psionics-table-body
+#prayers-table-body
+```
+
+Each module section has a selector and preview table.
 
 ---
 
-## 10. Logika generowania karty do druku
-- Karta jest generowana w nowym oknie i posiada własny zestaw stylów inline.
-- W sekcji „Odporność” wartość WP jest opisywana etykietą „w tym Pancerz”.
-- Jeśli użytkownik zmodyfikuje statystyki, „Umiejętności” lub „Słowa Kluczowe”, karta używa wartości z `bestiaryOverrides`; edytowana „Odporność (w tym WP)” jest bazą do przeliczeń z pancerzem, a „Odporność Psychiczna” jest przenoszona bezpośrednio na kartę. Słowa kluczowe na karcie pozostają czarno-białe, ponieważ karta używa własnych stylów druku.
-- Trackery „Ż/T” obliczają liczbę kwadratów na podstawie wartości liczbowych; etykiety „Ż/T” to niezależne pojedyncze kwadraty, a siatka pól skaluje się do szerokości wiersza dzięki `auto-fit`.
-- Dla modułu psioniki możliwe jest normalizowanie kolumny „Wzmocnienie” do jednej linii.
-- Sekcje bez danych są pomijane.
-- Bloki z listami wpisów używają naprzemiennego „zebra striping”.
+## 7. Application state
+
+The main state object stores:
+
+```text
+bestiary
+armor
+weapons
+augmentations
+equipment
+talents
+psionics
+prayers
+selectedBestiaryIndex
+showOldBestiaryRecords
+bestiaryOverrides
+expandedCells
+favorites
+```
+
+Important state behavior:
+
+- `showOldBestiaryRecords` controls whether `State = old` records are visible.
+- `selectedBestiaryIndex` points to the original index in `state.bestiary`.
+- `bestiaryOverrides` stores edited base values.
+- `expandedCells` stores clamp expansion state.
+- Favorites may be Firestore-backed or local-only.
 
 ---
 
-## 11. Instrukcje utrzymaniowe
-Po każdej zmianie kodu modułu należy zaktualizować:
-- `NPCGenerator/docs/Documentation.md`,
-- `NPCGenerator/docs/README.md`.
+## 8. Outdated Bestiary entries
 
-`docs/README.md` jest instrukcją użytkownika i powinien zawierać pełną wersję polską oraz pełną wersję angielską.
+Outdated entries are Bestiary records where:
 
-`docs/Documentation.md` jest dokumentacją techniczną i powinien opisywać funkcje, style, fonty, strukturę danych, integracje Firebase oraz zasady działania UI w sposób pozwalający odtworzyć moduł 1:1.
+```text
+State = old
+```
 
-## 12. Dokument referencyjny Firebase
-Specyfikacja Firebase dla modułu NPCGenerator znajduje się w pliku:
+Legacy compatibility may also recognize old Polish `Stan` through canonical field access.
 
-`NPCGenerator/config/FirebaseREADME.md`
+Important functions/mechanisms:
 
-Dokument opisuje konfigurację Web Firebase używaną przez moduł, zapis ulubionych w Firestore oraz fallback do `localStorage`.
+| Mechanism | Role |
+| --- | --- |
+| `isOldBestiaryRecord(record)` | Checks whether the record is outdated. |
+| `getVisibleBestiaryRecords()` | Returns all Bestiary records or hides old ones depending on the toggle. |
+| `shouldGrayBestiaryKey(key, record)` | Applies old-entry styling to selected key/value rows. |
+| `updateBestiarySelectOldClass(record)` | Adds/removes old-entry styling on the Bestiary selector. |
+| `updateBestiaryOldVisibility()` | Refreshes visible options when the toggle changes. |
+| Reset handler | Turns old-entry visibility off and clears old-entry styling. |
 
-## 13. Stan rekordu, przekreślenie i stabilna geometria tabeli
-### 13.1. Formatowanie inline
-Funkcja `formatInlineHTML(raw)` obsługuje markery:
-- `{{RED}}...{{/RED}}`,
-- `{{B}}...{{/B}}`,
-- `{{I}}...{{/I}}`,
-- `{{S}}...{{/S}}`.
+Old-entry styling is defined in `NPCGenerator/style.css`, including:
 
-Segmenty oznaczone markerem `{{S}}` otrzymują klasę `.inline-strike` i są renderowane jako przekreślone. Jeżeli segment jest jednocześnie czerwony i przekreślony, klasa `.inline-red` utrzymuje czerwony kolor tekstu.
+```text
+.bestiary-option-old
+.bestiary-select-old
+.bestiary-show-old-toggle
+#bestiary-show-old
+```
 
-### 13.2. Pole `Stan` i rekordy `old`
-Helper `isOldBestiaryRecord(record)` odczytuje wartość pola `Stan` w sposób niewrażliwy na wielkość liter. Wartość jest normalizowana przez `trim()` i `lowercase`, a następnie porównywana z tekstem `old`.
+---
 
-Helper `shouldGrayBestiaryKey(key, record)` działa dla rekordów oznaczonych jako `old` i obejmuje pola:
-- `LP`,
-- `Nazwa`,
-- `Typ`.
+## 9. Rendering empty table messages
 
-W tabeli podglądu bazowego pole techniczne `Stan` nie jest pokazywane jako zwykły wiersz danych. Dla rekordów `old` komórki klucza i wartości pól `LP`, `Nazwa` i `Typ` otrzymują klasę `.bestiary-old-key`.
+Empty preview messages are stored in the translation dictionary.
 
-### 13.3. Geometria tabeli podglądu bazowego
-Tabela `.data-table[data-sheet="Bestiariusz"]` używa `table-layout: fixed`.
+English message keys include:
 
-Pierwsza kolumna (`th:first-child`, `td:first-child`) ma stałą szerokość `25ch`. Druga kolumna przejmuje pozostałą dostępną szerokość.
+```text
+emptyBestiary
+emptyWeapon
+emptyArmor
+emptyAugmentations
+emptyEquipment
+emptyTalents
+emptyPsionics
+emptyPrayers
+```
 
-Ten układ stabilizuje szerokość kolumny „Klucz” między rekordami i zapobiega skokom layoutu podczas zmiany wybranego wpisu bestiariusza.
+Rendering functions use `translations[currentLanguage].messages.*`, not hardcoded Polish strings.
 
-### 13.4. Zakres działania
-Mechanika pola `Stan`, szarego oznaczania rekordów `old` i stabilizacji kolumn dotyczy podglądu bazowego w module NPCGenerator.
+Examples:
 
-Generator karty do druku używa osobnej ścieżki renderowania przez `buildPrintableCardHTML`.
+```text
+Select a bestiary record.
+Select a weapon to view its parameters.
+Select armor to view its parameters.
+Select a psionic power to view its parameters.
+```
 
-## 14. Specyfikacja stylu
-### 14.1. Kolory UI głównego
-- `--bg`: `#031605`; `--bg-grad`: radialne gradienty + `#031605`.
-- `--panel` / `--panel2`: `#000`.
-- `--text`: `#9cf09c`; `--text2`: `#4FAF4F`; `--muted`: `#4a8b4a`; `--code`: `#D2FAD2`; `--red`: `#d74b4b`.
-- `--border`: `#16c60c`; `--accent`: `#16c60c`; `--accent-dark`: `#0d7a07`.
-- `--b`: `rgba(22,198,12,.35)`; `--b2`: `rgba(22,198,12,.2)`; `--div`: `rgba(22,198,12,.18)`.
-- `--hbg`: `rgba(22,198,12,.06)`; `--zebra`: `rgba(22,198,12,.04)`; `--hover`: `rgba(22,198,12,.08)`.
-- `--glow`: `0 0 25px rgba(22, 198, 12, 0.45)`; `--glowH`: `0 0 18px rgba(22, 198, 12, 0.35)`.
-- Dodatkowe warstwy tła sekcji używają wariantów `rgba(22,198,12,...)`.
-- Akcenty pomocnicze używają wariantów `rgba(111, 227, 140, ...)`.
+If a new module table is added, add its empty-state text to every supported language.
 
-### 14.2. Fonty
-- UI: `"Consolas", "Fira Code", "Source Code Pro", monospace`.
-- Karta eksportowana / druk: `"Times New Roman", "Liberation Serif", serif`.
+---
 
-## 15. Mapa logiki aplikacji
-- Dane runtime są pobierane z DataVault przez wspólny loader Firebase (`loadDataVaultRuntimeData`).
-- Rekordy są transformowane i używane do zasilenia list wyboru.
-- Tabela bazowa NPC jest interaktywna i obsługuje edycję części pól liczbowych in-place.
-- Moduły broni, pancerza, augumentacji, ekwipunku, talentów, psioniki i modlitw są obsługiwane przez sekcje wielokrotnego wyboru.
-- System ulubionych używa Firestore (`generatorNpc/favorites`) z fallbackiem do `localStorage`.
-- Karta eksportowa jest generowana jako osobny szablon HTML print z osobną paletą i fontem.
+## 10. Base preview editing
 
-## 16. Firebase i izolacja aplikacji
-### 16.1. Dane prywatne NPC
-NPCGenerator uruchamia przepływ `startPrivateDataFlow()`, który:
-- sprawdza aktywną sesję,
-- pokazuje bramkę hasła przy braku sesji,
-- ładuje dane przez `loadDataVaultLive()`.
+The Bestiary preview renders key/value rows.
 
-Moduł nie używa publicznego `data.json` ani bezpośredniego REST `fetch` do `/datavault/live.json`.
+Editable behavior:
 
-`shared/firebase-data-loader.js` używa nazwanej aplikacji Firebase `wg-private-data` dla Auth + RTDB (`/datavault/live`) i nie korzysta z beznazwowego `getApp()`.
+| Field type | Mechanism |
+| --- | --- |
+| Numeric values | Render as numeric inputs where supported. |
+| Skills | Editable text row with Edit/Save. |
+| Keywords | Editable text row with Edit/Save. |
+| Blocked armor/mental values | Render as non-editable when the selected record blocks editing. |
+| Long text values | Render through clamp cells. |
 
-### 16.2. Ulubione
-Ulubione są zapisywane w Firestore. Inicjalizacja ulubionych używa nazwanej aplikacji Firebase `generator-npc-favorites` przez helper `getOrCreateNamedFirebaseApp(name, config)`.
+The generated card uses the current override values when present.
 
-Inicjalizacja ulubionych ma zabezpieczenie `try/catch`, dzięki czemu awaria Firestore favorites nie blokuje `startPrivateDataFlow()` i ładowania prywatnych danych NPC.
+---
 
-### 16.3. Wdrożenia dla wielu grup
-Dla odizolowanych grup zalecany jest osobny projekt Firebase na grupę.
+## 11. Clamp behavior
 
-W pliku `NPCGenerator/index.html` komentarze `WAŻNE/IMPORTANT` oznaczają istotne miejsca wdrożeniowe:
-- `script src="config/firebase-config.js"`,
-- inicjalizacja loadera Firebase,
-- obsługa zdarzenia gotowości danych.
+Long table cells may become expandable clamp cells.
 
-Po wdrożeniu należy przetestować zapis i odczyt ulubionych.
+Important behavior:
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+- clamp state is stored in `state.expandedCells`,
+- collapsed cells use localized hint text `clampExpand`,
+- expanded cells use localized hint text `clampCollapse`,
+- clicking a clampable cell toggles the state,
+- the cell `title` matches the current hint.
 
-Zwykły użytkownik nie widzi selektora języka.
+The current English hints are:
 
-Lokalizacja techniczna:
-- plik: `NPCGenerator/index.html`,
-- kontener: `<div class="language-switcher">`,
-- selektor pola: `#languageSelect`,
-- opcje: `pl` i `en`,
-- The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+```text
+Click to expand
+Click to collapse
+```
 
-Przełącznik ukrywa klasa CSS:
+---
 
+## 12. Module preview tables
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+Current column definitions:
 
-Mechanizm tłumaczeń pozostaje częścią kodu, ponieważ słowniki tłumaczeń i funkcje aktualizacji języka nadal istnieją.
+```text
+weaponColumns = [name, damage, dn, ap, range, rateOfFire, traits, keywords, source, page]
+armorColumns = [name, armorValue, traits, keywords, source, page]
+augmentationsColumns = [name, effect]
+equipmentColumns = [name, effect]
+talentsColumns = [name, effect]
+psionicsColumns = [name, dn, activation, duration, range, targets, effect, boost]
+prayersColumns = [name, effect]
+```
 
-## 18. Dodawanie nowej wersji językowej
-Mapa miejsc do aktualizacji przy dodaniu kolejnego języka, na przykład FR albo DE:
+Column labels come from `COLUMN_LABEL_KEYS` and the current language dictionary.
 
-1. W kodzie modułu należy znaleźć słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. W selektorze języka należy dodać nową opcję `<option>`, jeśli przełącznik jest aktywny w danym module.
-3. W modułach bez widocznego menu językowego należy ręcznie zaktualizować teksty statyczne.
-4. Jeśli moduł otwiera instrukcję zależną od języka, należy dodać odpowiedni plik instrukcji.
-5. Po dodaniu języka należy sprawdzić przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport i druk.
+Changing a canonical column key requires updating:
 
-Miejsca w kodzie są oznaczone komentarzem:
+- field accessors,
+- table column arrays,
+- `COLUMN_LABEL_KEYS`,
+- translations,
+- DataVault alias maps,
+- shared Firebase data loader aliases.
 
-`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`
+---
 
-## 19. Źródło danych
-Sekcja „Źródło danych” w UI informuje, że dane są pobierane z prywatnego DataVault po autoryzacji Firebase.
+## 13. Trait descriptions and popovers
 
-NPCGenerator używa wspólnego loadera Firebase i otrzymuje rozpakowany obiekt DataVault runtime z `/datavault/live`.
+Trait description behavior depends on DataVault metadata.
 
-## 20. Bramka dostępu prywatnych danych
-Bramka dostępu używa tekstów K.O.Z.A. w wersji PL/EN. NPCGenerator korzysta ze wspólnego `shared/firebase-data-loader.js` dla błędów autoryzacji i odczytu.
+Important metadata objects from DataVault:
 
-Formularz `#accessForm` używa kontenera `.accessGate__credentials` opartego o CSS Grid:
-- lewa kolumna: etykieta `.accessGate__label`,
-- prawa kolumna: pole `#accessPassword` (`.accessGate__password`) i przycisk `.accessGate__submit`.
+```text
+_meta.traits
+_meta.vehicleTraits
+_meta.vehicleWeaponTraits
+_meta.traitIndex
+_meta.vehicleTraitIndex
+_meta.vehicleWeaponTraitIndex
+```
 
-W breakpoint `max-width: 640px` układ przechodzi do jednej kolumny z jawną kolejnością wierszy w `shared/access-gate.css`:
-- `.accessGate__label` — wiersz 1,
-- `.accessGate__password` — wiersz 2,
-- `.accessGate__submit` — wiersz 3.
+NPCGenerator can include trait descriptions for selected weapons/armor when the relevant checkbox is enabled.
 
-Wspólny overlay `shared/access-gate.css` jest zakotwiczony do viewportu (`width: 100vw`, `max-width: 100vw`, `height: 100dvh`) i ma `overflow: auto`, dzięki czemu karta hasła pozostaje widoczna także przy szerokim layoucie modułu.
+If trait descriptions are missing:
 
-Ikona bramki używa stałego slotu `.accessGate__iconSlot` (`72px × 72px`) z obrazem `../IkonaPowiadomien2.png` renderowanym jako `.accessGate__icon` (`object-fit: contain`), aby ograniczyć przesunięcia layoutu podczas ładowania grafiki.
+1. Confirm the trait exists in DataVault `Traits` or `Vehicle Traits`.
+2. Regenerate DataVault JSON from `Repository_EN.xlsx`.
+3. Import the updated `firebase-import.json` into Firebase.
+4. Reload NPCGenerator.
 
-## 21. Szerokie tabele na telefonie
-W `NPCGenerator/style.css` karty danych używają `overflow-x: auto`, a `.data-table` używa `min-width: max-content`.
+---
 
-Dzięki temu szerokie tabele przewijają się wewnątrz kart zamiast rozszerzać cały dokument.
+## 14. Favorites architecture
 
-## Required DataVault sheets
+Favorites are separate from the main DataVault runtime.
 
-`NPCGenerator` loads required DataVault sheets by logical aliases, not by fuzzy keyword search.
+Primary path when Firestore is configured:
 
-Required logical sheets:
+```text
+generatorNpc/favorites
+```
 
-- `bestiary`: `Bestiary` / `Bestiariusz`
-- `armor`: `Armor` / `Armour` / `Pancerze`
-- `weapons`: `Weapons` / `Bronie`
-- `augmentations`: `Augmentations` / `Augumentacje`
-- `equipment`: `Equipment` / `Ekwipunek`
-- `talents`: `Talents` / `Talenty`
-- `psionics`: `Psionics` / `Psionika`
-- `prayers`: `Prayers` / `Modlitwy`
+Fallback path:
 
-`Equipment` is normal personal/NPC equipment and is used by NPCGenerator. `Vehicle Wargear` is not loaded by NPCGenerator.
+```text
+localStorage key: generatorNpcFavorites
+```
 
-## Page references and localized data
+Behavior:
 
-`NPCGenerator` can highlight page references in text. The supported page-reference pattern is configured in `NPCGenerator/index.html` as `PAGE_REF_PATTERN`.
+| State | Behavior |
+| --- | --- |
+| Firestore available | Favorites are loaded from and saved to Firestore. |
+| Firestore unavailable | Module falls back to local storage. |
+| Firestore rules block access | User sees a readable fallback/error status and local storage is used if possible. |
 
-Default supported forms include `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` and `Seite`.
+Firestore document creation can happen on the first successful write. The Firestore service itself must still be enabled first in Firebase Console.
 
-If your data file uses another language or another page abbreviation, update `PAGE_REF_PATTERN` and the source/page column aliases in `COLUMN_ALIASES`.
+---
 
-## Wymagane arkusze DataVault
+## 15. Firebase dependencies
 
-`NPCGenerator` ładuje wymagane arkusze DataVault po logicznych aliasach, a nie przez rozmyte wyszukiwanie słów kluczowych.
+NPCGenerator uses Firebase in two ways:
 
-Wymagane arkusze logiczne:
+| Firebase service | Purpose |
+| --- | --- |
+| Firebase Authentication | Shared DataVault access gate. |
+| Realtime Database | Shared DataVault runtime data at `/datavault/live`. |
+| Cloud Firestore | Optional shared Favorites storage. |
 
-- `bestiary`: `Bestiary` / `Bestiariusz`
-- `armor`: `Armor` / `Armour` / `Pancerze`
-- `weapons`: `Weapons` / `Bronie`
-- `augmentations`: `Augmentations` / `Augumentacje`
-- `equipment`: `Equipment` / `Ekwipunek`
-- `talents`: `Talents` / `Talenty`
-- `psionics`: `Psionics` / `Psionika`
-- `prayers`: `Prayers` / `Modlitwy`
+Firebase setup must be documented in:
 
-`Equipment` jest zwykłym ekwipunkiem osobistym/NPC i jest używany przez NPCGenerator. `Vehicle Wargear` nie jest ładowany przez NPCGenerator.
+```text
+NPCGenerator/config/FirebaseREADME.md
+```
 
-## Odwołania do stron i dane lokalizowane
+Because source data comes from DataVault, DataVault setup also matters:
 
-`NPCGenerator` potrafi wyróżniać odwołania do stron w tekście. Obsługiwany wzorzec jest skonfigurowany w `NPCGenerator/index.html` jako `PAGE_REF_PATTERN`.
+```text
+DataVault/config/FirebaseREADME.md
+```
 
-Domyślne obsługiwane formy obejmują `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` i `Seite`.
+---
 
-Jeżeli plik danych używa innego języka albo innego skrótu strony, zaktualizuj `PAGE_REF_PATTERN` oraz aliasy kolumn source/page w `COLUMN_ALIASES`.
+## 16. Layout and overflow behavior
+
+NPCGenerator uses a sidebar/workspace layout.
+
+A release overflow fix exists in `shared/access-gate.css`:
+
+```css
+.layout:has(#bestiary) {
+  grid-template-columns: 360px minmax(0, 1fr);
+  width: 100%;
+  max-width: 100%;
+}
+.layout:has(#bestiary) .workspace { min-width: 0; }
+.layout:has(#bestiary) .card { min-width: 0; max-width: 100%; }
+```
+
+Purpose:
+
+- the right grid column can shrink,
+- wide module tables scroll locally inside cards,
+- the full page should not be pushed sideways by wide tables.
+
+Test this after table/header changes.
+
+---
+
+## 17. Generated card behavior
+
+The generated card opens in a new browser tab.
+
+Important behavior:
+
+- base Bestiary data is combined with user overrides,
+- selected modules add sections to the card,
+- optional notes are included,
+- Level columns 1-5 are always shown,
+- Threat symbols fill columns from left to right,
+- trait descriptions and full descriptions are included only when enabled,
+- generated card language depends on the current UI language.
+
+When adding new language support, test the generated card separately from the on-screen UI.
+
+---
+
+## 18. What to update when sheet or column names change
+
+Changing DataVault sheet/column names can break NPCGenerator.
+
+Update all relevant places:
+
+1. `DataVault/SampleFiles/Repository_EN.xlsx`.
+2. `DataVault/app.js` sheet and column alias maps.
+3. `DataVault/release-admin-overrides.js` sheet and column alias maps.
+4. `DataVault/build_json.py` sheet and column alias maps.
+5. `shared/firebase-data-loader.js` alias groups.
+6. `NPCGenerator/index.html` sheet resolution / collection builders.
+7. `NPCGenerator/index.html` field accessors.
+8. `NPCGenerator/index.html` table column arrays.
+9. `NPCGenerator/index.html` generated card mapping.
+10. `NPCGenerator/docs/README.md`.
+11. `NPCGenerator/docs/Documentation.md`.
+12. `NPCGenerator/config/FirebaseREADME.md` if Firebase data assumptions change.
+13. Regenerate DataVault `data.json` and `firebase-import.json`.
+14. Import the updated `firebase-import.json` into Firebase.
+15. Run the control tests.
+
+---
+
+## 19. Adding a new language version
+
+Adding a UI language requires more than adding labels.
+
+Update:
+
+- language selector options,
+- `translations.labels`,
+- `translations.messages`,
+- `translations.card`,
+- `translations.cardSections`,
+- placeholder text,
+- empty table messages,
+- clamp hints,
+- Favorites messages,
+- generated card text,
+- static HTML not covered by `data-i18n`,
+- DataVault sheet/column aliases if the data language changes,
+- shared loader alias groups,
+- documentation.
+
+Then test:
+
+1. access gate,
+2. data source status,
+3. Base selection,
+4. each module selector,
+5. empty table messages,
+6. Favorites,
+7. generated card,
+8. reset behavior.
+
+---
+
+## 20. Control tests
+
+| Test | Steps | Expected result |
+| --- | --- | --- |
+| DEMO sign-in | Open NPCGenerator and enter `000000`. | Data source starts loading from private DataVault runtime. |
+| Data load | Use a configured Firebase project with `/datavault/live`. | Required collections are populated. |
+| Missing sheet | Remove or rename a required sheet in test data. | Module reports or behaves with a clear missing-data state. |
+| Bestiary selection | Select a Bestiary record. | Base preview renders key/value rows. |
+| Outdated toggle | Enable **Show outdated entries?**. | `State = old` records appear and are styled as old. |
+| Reset old toggle | Enable old entries, select one, click Reset. | Old visibility is cleared and selector styling resets. |
+| Empty messages | Open module tables with no selection. | Empty messages are in the selected UI language. |
+| Weapon selection | Select one or more weapons. | Weapon table renders canonical fields. |
+| Armor selection | Select armor when allowed. | Armor table renders canonical fields. |
+| Trait descriptions | Enable trait descriptions for weapons/armor. | Trait descriptions appear when metadata exists. |
+| Favorites Firestore | Configure Firestore and save a favorite. | Favorite persists after refresh. |
+| Favorites fallback | Disable Firestore config and save a favorite. | Local storage fallback is used. |
+| Horizontal overflow | Open on a narrow viewport with wide tables. | Workspace/card scroll locally instead of forcing page overflow. |
+| Generated card | Generate a card. | New tab opens with selected data and correct language text. |
+
+---
+
+## 21. Rebuild checklist
+
+When rebuilding or copying NPCGenerator:
+
+1. Keep `NPCGenerator/index.html` and `NPCGenerator/style.css` together.
+2. Keep `../shared/firebase-config.js` and `../shared/firebase-data-loader.js` available.
+3. Configure DataVault Firebase runtime first.
+4. Configure NPCGenerator Firestore Favorites if shared Favorites are needed.
+5. Verify `Repository_EN.xlsx` data has been generated and imported into Firebase.
+6. Open NPCGenerator and test data load.
+7. Test every selector.
+8. Test old Bestiary entries.
+9. Test Favorites.
+10. Generate a card.
+11. Test on narrow viewport for overflow.
+12. Run language switching if more than one UI language remains available.
+
+---
+
+## 22. Known release notes
+
+- NPCGenerator is English-first in the public release.
+- The module still carries legacy Polish aliases for compatibility with older DataVault data.
+- Source data is owned by DataVault and loaded from `/datavault/live`.
+- Firestore Favorites are separate from the DataVault runtime.
+- The DEMO data password is `000000`.
+- Changing sheet or column names requires coordinated updates across DataVault, the shared loader, and NPCGenerator.
