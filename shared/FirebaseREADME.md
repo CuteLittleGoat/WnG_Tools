@@ -1,189 +1,205 @@
 # 🇵🇱 Instrukcja Firebase dla folderu `shared/` (PL)
 
 ## Cel
-Ten dokument dotyczy wyłącznie wspólnego źródła prywatnych danych DataVault używanego przez moduły korzystające z `shared/firebase-data-loader.js`. Nie opisuje Firestore dla ulubionych NPCGenerator ani Firestore dla modułu Audio.
+Ten dokument dotyczy wspólnego źródła prywatnych danych DataVault używanego przez moduły korzystające z `shared/firebase-data-loader.js`, przede wszystkim `DataVault` i `NPCGenerator`.
 
-Ten plik zawiera pełny skrypt Node.js tworzący strukturę **Realtime Database** wymaganą przez wspólny loader danych (`shared/firebase-data-loader.js`). Loader runtime nadal czyta `DATA_PATH = "datavault/live"`.
+Wersja DEMO/PREVIEW repozytorium `WnG_Tools` jest podpięta do tego samego projektu Firebase, którego używa `rpg-dataslate-relay`.
 
-## 1) Konfiguracja `shared/firebase-config.js`
-Utwórz własny projekt Firebase dla grupy i zastąp angielskie placeholdery w tym pliku własnymi wartościami:
-- `window.WG_FIREBASE_CONFIG` (web config Firebase),
-- `window.WG_DATA_ACCESS_EMAIL` (email użytkownika technicznego z Firebase Authentication).
+## Aktualna konfiguracja DEMO/PREVIEW
 
-`DataVault` i `NPCGenerator` używają tej wspólnej konfiguracji do odczytu danych przez `shared/firebase-data-loader.js`. Nie zapisuj hasła użytkownika technicznego w repozytorium — użytkownik wpisuje je podczas logowania w aplikacji.
+`shared/firebase-config.js` ładuje web config Firebase z:
 
-## 2) Struktura Realtime Database (drzewko + typy)
 ```text
-root
-└── datavault (obiekt)
-    └── live (obiekt)
-        ├── schemaVersion (string) = "datavault-firebase-import-v1"
-        ├── createdAt (string, ISO datetime)
-        ├── source (string)
-        └── dataJson (string, pełny JSON zapisany jako tekst)
+https://cutelittlegoat.github.io/rpg-dataslate-relay/DataSlate/config/firebase-config.js
 ```
 
-## 3) Root-ready import z DataVault
-`DataVault` generuje `firebase-import.json` jako plik root-ready, czyli przeznaczony do importu z poziomu root Firebase Realtime Database (`/`). Plik ma zewnętrzne drzewo `datavault.live`, a właściwy payload znajduje się pod `/datavault/live` i zawiera `schemaVersion`, `createdAt`, `source` oraz `dataJson`.
+i dopina do niego Realtime Database:
 
-Poprawny import:
+```text
+https://rpg-dataslate-relay-default-rtdb.europe-west1.firebasedatabase.app/
+```
+
+Dostęp do prywatnych danych DataVault/NPCGenerator używa Firebase Authentication:
+
+```text
+Email: youhavebeenrickrolledbyme@gmail.com
+Hasło DEMO: 000000
+User UID: 9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2
+```
+
+To jest świadomie publiczna konfiguracja pokazowa. Nie używać jej do prawdziwych prywatnych danych.
+
+## Struktura Realtime Database
+
+Loader runtime nadal czyta:
+
+```text
+datavault/live
+```
+
+Oczekiwana struktura:
+
+```text
+root
+└── datavault
+    └── live
+        ├── schemaVersion = "datavault-firebase-import-v1"
+        ├── createdAt
+        ├── source
+        └── dataJson
+```
+
+`dataJson` musi być stringiem JSON, nie surowym obiektem.
+
+## Import danych DataVault
+
+`DataVault` generuje `firebase-import.json` jako plik root-ready. Poprawny import:
+
 1. Otwórz Firebase Realtime Database.
 2. Przejdź do root bazy (`/`).
 3. Zaimportuj `firebase-import.json`.
 4. Sprawdź, że powstało `/datavault/live`.
-5. Nie importuj tego pliku będąc już w `/datavault/live`.
+5. Nie importuj tego pliku będąc już w `/datavault/live`, bo utworzy błędną ścieżkę `/datavault/live/datavault/live`.
 
-`dataJson` pozostaje stringiem JSON, a `schemaVersion` payloadu pozostaje `datavault-firebase-import-v1`. `data.json` z DataVault jest backupem / artefaktem pomocniczym. Jeśli zaimportujesz nowy root-ready plik bezpośrednio do `/datavault/live`, powstanie błędne podwójne zagnieżdżenie `/datavault/live/datavault/live`.
+## Reguły RTDB dla aktualnego demo
 
-## 4) Pełny skrypt Node.js (do skopiowania)
-Zapisz jako `shared/init-rtdb-datavault-live.js`:
+Obecne demo może działać z regułami wymagającymi zalogowanego użytkownika:
 
-```js
-const admin = require("firebase-admin");
-
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error("[ERR] Ustaw GOOGLE_APPLICATION_CREDENTIALS na ścieżkę do pliku JSON konta serwisowego.");
-  process.exit(1);
-}
-
-if (!process.env.FIREBASE_DATABASE_URL) {
-  console.error("[ERR] Ustaw FIREBASE_DATABASE_URL, np. https://twoj-projekt-default-rtdb.europe-west1.firebasedatabase.app");
-  process.exit(1);
-}
-
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  databaseURL: process.env.FIREBASE_DATABASE_URL
-});
-
-const db = admin.database();
-
-const payload = {
-  schemaVersion: "datavault-firebase-import-v1",
-  createdAt: new Date().toISOString(),
-  source: "node-bootstrap",
-  dataJson: JSON.stringify({
-    meta: {
-      note: "Wstaw tutaj docelowe dane DataVault jako JSON."
+```json
+{
+  "rules": {
+    "datavault": {
+      "live": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
     }
-  })
-};
-
-async function main() {
-  await db.ref("datavault/live").set(payload);
-  console.log("[OK] Utworzono / zaktualizowano ścieżkę datavault/live w Realtime Database");
+  }
 }
-
-main().catch((err) => {
-  console.error("[ERR] Błąd inicjalizacji:", err);
-  process.exit(1);
-});
 ```
 
-## 5) Uruchomienie skryptu
-```bash
-npm i firebase-admin
-export GOOGLE_APPLICATION_CREDENTIALS="/pełna/ścieżka/do/service-account.json"
-export FIREBASE_DATABASE_URL="https://twoj-projekt-default-rtdb.REGION.firebasedatabase.app"
-node shared/init-rtdb-datavault-live.js
+Bardziej restrykcyjna wersja dla obecnego technicznego użytkownika:
+
+```json
+{
+  "rules": {
+    "datavault": {
+      "live": {
+        ".read": "auth != null && auth.uid === '9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2'",
+        ".write": "auth != null && auth.uid === '9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2'"
+      }
+    }
+  }
+}
 ```
 
-## 6) Ważne uwagi zgodności
-- `dataJson` musi być **stringiem JSON**, nie surowym obiektem.
+## Uwagi zgodności
+
 - `schemaVersion` musi mieć wartość `datavault-firebase-import-v1`.
-- Jeśli używasz eksportu z DataVault, standardowo importuj cały root-ready `firebase-import.json` z poziomu root bazy (`/`). Nie wklejaj całego root-ready eksportu jako wartość `dataJson`; `dataJson` to wewnętrzny string payloadu pod `/datavault/live`.
+- `DataVault` i `NPCGenerator` używają tej samej nazwanej aplikacji prywatnych danych: `wg-private-data`.
+- Zalogowanie w jednym module odblokowuje drugi moduł w tej samej sesji przeglądarki.
+- Moduły Firestore korzystające z `window.firebaseConfig` pobierają konfigurację z tego samego źródła preview.
 
 ---
 
 # 🇬🇧 Firebase guide for `shared/` folder (EN)
 
 ## Purpose
-This document applies only to the shared private DataVault data source used by modules that rely on `shared/firebase-data-loader.js`. It does not describe NPCGenerator favorites Firestore or Audio module Firestore.
+This document covers the shared private DataVault data source used by modules that rely on `shared/firebase-data-loader.js`, mainly `DataVault` and `NPCGenerator`.
 
-This file includes a full Node.js script that creates the **Realtime Database** structure required by the shared data loader. The runtime loader still reads `DATA_PATH = "datavault/live"`.
+The DEMO/PREVIEW version of `WnG_Tools` is connected to the same Firebase project used by `rpg-dataslate-relay`.
 
-## 1) `shared/firebase-config.js`
-Create your own Firebase project for the group and replace the English placeholders in this file with your own values:
-- `window.WG_FIREBASE_CONFIG` (Firebase web config),
-- `window.WG_DATA_ACCESS_EMAIL` (technical user email from Firebase Authentication).
+## Current DEMO/PREVIEW configuration
 
-`DataVault` and `NPCGenerator` use this shared config to read data through `shared/firebase-data-loader.js`. Do not store the technical user's password in the repository — the user enters it when signing in through the app.
+`shared/firebase-config.js` loads the Firebase web config from:
 
-## 2) Realtime Database structure (tree + field types)
 ```text
-root
-└── datavault (object)
-    └── live (object)
-        ├── schemaVersion (string) = "datavault-firebase-import-v1"
-        ├── createdAt (string, ISO datetime)
-        ├── source (string)
-        └── dataJson (string, full JSON serialized as text)
+https://cutelittlegoat.github.io/rpg-dataslate-relay/DataSlate/config/firebase-config.js
 ```
 
-## 3) Root-ready import from DataVault
-`DataVault` generates `firebase-import.json` as a root-ready file, meaning it is meant to be imported from the Firebase Realtime Database root (`/`). The file has the outer `datavault.live` tree, and the actual payload lands under `/datavault/live` with `schemaVersion`, `createdAt`, `source`, and `dataJson`.
+and adds this Realtime Database URL:
 
-Correct import:
+```text
+https://rpg-dataslate-relay-default-rtdb.europe-west1.firebasedatabase.app/
+```
+
+Private DataVault/NPCGenerator access uses Firebase Authentication:
+
+```text
+Email: youhavebeenrickrolledbyme@gmail.com
+DEMO password: 000000
+User UID: 9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2
+```
+
+This is intentionally public preview configuration. Do not use it for real private data.
+
+## Realtime Database structure
+
+The runtime loader still reads:
+
+```text
+datavault/live
+```
+
+Expected structure:
+
+```text
+root
+└── datavault
+    └── live
+        ├── schemaVersion = "datavault-firebase-import-v1"
+        ├── createdAt
+        ├── source
+        └── dataJson
+```
+
+`dataJson` must be a JSON string, not a raw object.
+
+## DataVault import
+
+`DataVault` generates `firebase-import.json` as a root-ready file. Correct import:
+
 1. Open Firebase Realtime Database.
 2. Go to the database root (`/`).
 3. Import `firebase-import.json`.
 4. Verify that `/datavault/live` exists.
-5. Do not import this file while already inside `/datavault/live`.
+5. Do not import this file while already inside `/datavault/live`; that creates the wrong nested path `/datavault/live/datavault/live`.
 
-`dataJson` remains a JSON string, and the payload `schemaVersion` remains `datavault-firebase-import-v1`. DataVault `data.json` is a backup / helper artifact. If you import the new root-ready file directly into `/datavault/live`, it creates the invalid nested path `/datavault/live/datavault/live`.
+## RTDB rules for the current demo
 
-## 4) Full Node.js script (copy-paste)
-Save as `shared/init-rtdb-datavault-live.js`:
+The current demo works with rules that require an authenticated user:
 
-```js
-const admin = require("firebase-admin");
-
-if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  console.error("[ERR] Set GOOGLE_APPLICATION_CREDENTIALS to your service account JSON path.");
-  process.exit(1);
+```json
+{
+  "rules": {
+    "datavault": {
+      "live": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
 }
-
-if (!process.env.FIREBASE_DATABASE_URL) {
-  console.error("[ERR] Set FIREBASE_DATABASE_URL, e.g. https://your-project-default-rtdb.europe-west1.firebasedatabase.app");
-  process.exit(1);
-}
-
-admin.initializeApp({
-  credential: admin.credential.applicationDefault(),
-  databaseURL: process.env.FIREBASE_DATABASE_URL
-});
-
-const db = admin.database();
-
-const payload = {
-  schemaVersion: "datavault-firebase-import-v1",
-  createdAt: new Date().toISOString(),
-  source: "node-bootstrap",
-  dataJson: JSON.stringify({
-    meta: { note: "Put the final DataVault JSON payload here." }
-  })
-};
-
-async function main() {
-  await db.ref("datavault/live").set(payload);
-  console.log("[OK] Created / updated datavault/live in Realtime Database");
-}
-
-main().catch((err) => {
-  console.error("[ERR] Initialization failed:", err);
-  process.exit(1);
-});
 ```
 
-## 5) How to run
-```bash
-npm i firebase-admin
-export GOOGLE_APPLICATION_CREDENTIALS="/full/path/to/service-account.json"
-export FIREBASE_DATABASE_URL="https://your-project-default-rtdb.REGION.firebasedatabase.app"
-node shared/init-rtdb-datavault-live.js
+A stricter version for the current technical user:
+
+```json
+{
+  "rules": {
+    "datavault": {
+      "live": {
+        ".read": "auth != null && auth.uid === '9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2'",
+        ".write": "auth != null && auth.uid === '9BRwtAfnjMYvE4GINnUmLJ0Z8Tm2'"
+      }
+    }
+  }
+}
 ```
 
-## 6) Compatibility notes
-- `dataJson` must be a **JSON string**, not a raw object.
+## Compatibility notes
+
 - `schemaVersion` must be `datavault-firebase-import-v1`.
-- If you use DataVault export, normally import the whole root-ready `firebase-import.json` from the database root (`/`). Do not paste the whole root-ready export as the `dataJson` value; `dataJson` is the inner payload string under `/datavault/live`.
+- `DataVault` and `NPCGenerator` use the same named private-data app: `wg-private-data`.
+- Signing in through one module unlocks the other module in the same browser session.
+- Firestore modules that use `window.firebaseConfig` load the same preview Firebase configuration.
