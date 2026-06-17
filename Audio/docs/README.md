@@ -1,193 +1,190 @@
-# 🇬🇧 User instructions (EN)
+# User guide — Audio
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+The Audio module lets you quickly play sound effects during sessions. It supports a normal playback view and an extended admin view for managing sound lists, aliases, favorites, and ordering.
 
-### What this module is for
-The **Audio** module lets you quickly play sound effects (SFX) during sessions. You can use a simple player view or the extended admin view to manage lists and ordering.
+This is a user-facing guide. Technical details belong in `Audio/docs/Documentation.md`. Firebase setup belongs in `Audio/config/FirebaseREADME.md`.
 
-### How to open the module
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+---
+
+## How to open the module
+
+| Mode | Entry point | Purpose |
+| --- | --- | --- |
+| User playback mode | `Audio/index.html` | Play sounds and loops during a session. |
+| Admin mode | `Audio/index.html?admin=1` | Manage manifest data, aliases, favorites lists, and ordering. |
+
+The release starts in English. Polish may remain available in the language selector where the module still supports it.
+
+---
+
+## What you see in user mode
+
+User mode shows:
+
+- a sound grid with playable SFX tiles,
+- a navigation panel with main view and favorites lists,
+- per-sound volume sliders,
+- loop controls,
+- sound names, tags, and optional aliases.
+
+---
+
+## How to play sounds
 
 1. Open `Audio/index.html`.
-2. For standard playback mode, keep the URL as is.
-3. For the full management panel, append: `?admin=1`.
+2. In navigation, click **Main view** or a selected favorites list.
+3. Click a sound name to start playback.
+4. Click the same sound again to stop it.
+5. Click **Loop** to start that sound in loop mode.
+6. Click the red active **Loop** button again to stop loop mode.
+7. Use the tile volume slider to adjust that sound.
+8. Multiple sounds can play at the same time.
 
-### What you see in user view (without `?admin=1`)
-- **Sound grid** panel (left) with playable SFX tiles.
-- **Navigation** panel (right) to choose the main view or a favorites list.
-- The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+Loop behavior:
 
-### How to play sounds (user view)
-1. In navigation, click **Main view** or a selected favorites list.
-2. Click a sound name to start it.
-3. Click again to stop it.
-4. Click **Loop** to start that sound immediately in loop mode. When the file ends, the next playback starts automatically. If the sound has multiple grouped variants, each new iteration picks a random variant and avoids immediately repeating the same URL when another option exists.
-5. Click the red **Loop** button again to stop the current sound and turn loop mode off.
-6. Multiple sounds can play at the same time.
-7. Use the tile slider to adjust volume for that sound; active loops read the current slider value on later iterations too.
+- if a sound has grouped variants, each new loop iteration may pick a random variant,
+- the same URL is avoided twice in a row when another option exists,
+- loop playback reads the current slider volume on later iterations.
 
-### What each sound tile element means
-- **Sound name** – main play/stop button.
-- **Tag below name** – source group/folder hint.
-- **Alias in parentheses** (if set) – extra custom label.
-- **Loop** – loop switch; normal green means off, red means the loop is active.
-- **Volume slider** – per-sound volume control.
+---
 
-### Production manifest
-The tracked `Audio/AudioManifest.xlsx` file is the production-ready neutral manifest included with the public package. Its example records use a neutral URL and can be replaced with your own sound links without changing the workbook structure.
+## Sound tile elements
 
-### How to use admin mode (`?admin=1`)
+| Element | Meaning |
+| --- | --- |
+| Sound name | Main play/stop button. |
+| Tag below name | Source group/folder hint. |
+| Alias in parentheses | Extra custom label if one is set. |
+| Loop | Loop switch. Normal green means off; red means active. |
+| Volume slider | Per-sound volume control. |
+
+---
+
+## Production manifest
+
+The tracked production manifest is:
+
+```text
+Audio/AudioManifest.xlsx
+```
+
+It is a neutral public manifest included with the release package. Its example records use neutral URLs and can be replaced with your own sound links without changing the workbook structure.
+
+---
+
+## Admin mode workflow
+
+Open:
+
+```text
+Audio/index.html?admin=1
+```
+
+Typical workflow:
+
 1. Click **Load manifest** to load the SFX database.
 2. Use tag filters to narrow visible sounds.
-3. Use search to quickly find a sound by name fragment.
-4. Click **New favorites list** to create a favorites list.
-5. On a sound tile, choose destination list and click **Add to list**.
-6. In list management you can:
-   - reorder lists,
-   - rename lists,
-   - delete lists,
-   - reorder items inside a list.
+3. Use search to find a sound by name fragment.
+4. Click **New favorites list** to create a list.
+5. On a sound tile, choose a destination list.
+6. Click **Add to list**.
+7. Reorder lists if needed.
+8. Rename lists if needed.
+9. Reorder items inside a list.
+10. Test playback before the session.
 
-### Special buttons
-- **Clear all aliases** – removes all aliases at once (with confirmation).
-- **Play / Stop** – quick preview from the admin panel.
-- **Loop** – not displayed in admin mode; available only in the normal user view without `?admin=1`.
-- **Clear** (next to alias field) – clears alias for one sound.
+---
 
-### Session best practices
-- Prepare 1 main list and 2–3 scene-based lists before play.
-- Use aliases for sounds with unclear names.
+## Special admin actions
+
+| Button / element | What it does |
+| --- | --- |
+| **Clear all aliases** | Removes all aliases at once after confirmation. |
+| **Play / Stop** | Quick preview from the admin panel. |
+| **Clear** | Clears one sound alias. |
+| **Loop** | Not displayed in admin mode; loop is available in normal user view. |
+
+---
+
+## Firebase behavior
+
+Audio uses Firestore for shared lists and settings.
+
+| Firebase service | Purpose |
+| --- | --- |
+| Cloud Firestore | Shared favorites/lists/settings across devices. |
+| Firebase Authentication | Optional, depending on your rules. |
+| Realtime Database | Not used by Audio. |
+| Storage | Not used by the release Audio module. |
+
+Without Firebase, settings and lists are local to one device/browser.
+
+Setup instructions belong in:
+
+```text
+Audio/config/FirebaseREADME.md
+```
+
+---
+
+## Copying the module for a new group
+
+Before first use in another group:
+
+1. Configure that group's Firebase project if shared lists are needed.
+2. Replace `Audio/config/firebase-config.js` with that group's Web SDK config.
+3. Open `Audio/index.html?admin=1`.
+4. Verify that Firebase status points to the intended project.
+5. Create a test list.
+6. Refresh the page and verify the list persists.
+
+Separate configurations prevent groups from overwriting one another's lists and views.
+
+---
+
+## Session best practices
+
+- Prepare one main list and a few scene-based lists before play.
+- Use aliases for sounds with unclear filenames.
 - Pre-check key sound volumes before the session starts.
-- Use **Loop** for ambient backgrounds in the normal user view, and use the sound name or the admin **Play** button for short one-shot effects.
-
-### Firebase integration — required for shared lists
-To share favorites and settings across multiple devices/users, **Audio** requires Firebase (Firestore). Without it, settings work only locally on one device.
-
-#### Step by step — database setup
-1. Open [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Click **Create a project**.
-3. Enter project name and click **Continue**.
-4. Choose Analytics settings (optional) and finish creation.
-5. Click the **Web** icon (`</>`) and register a web app.
-6. Copy the `firebaseConfig` object.
-7. Paste values into `Audio/config/firebase-config.js`.
-8. Open **Firestore Database** in Firebase menu.
-9. Click **Create database**.
-10. Choose initial mode, click **Next**, pick region, click **Enable**.
-11. In **Rules** set read/write access for authorized users.
-12. Open `Audio/index.html?admin=1` and verify Firebase status.
-13. Create a test favorites list and refresh page — it should persist.
-## Copying module for a new group
-- Before first use on a new server, replace `Audio/config/firebase-config.js` with that group’s Firebase credentials.
-- After opening `Audio/index.html?admin=1`, verify the “Firebase” status points to the intended project.
-- Separate configurations prevent groups from overwriting each other’s lists and views.
-
-## Adding a new language version (EN)
-
-This is the update map for adding another language (for example FR/DE):
-
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-# 🇵🇱 Instrukcja dla użytkownika (PL)
-
-### Do czego służy moduł
-Moduł **Audio** służy do szybkiego odtwarzania efektów dźwiękowych (SFX) podczas sesji. Możesz korzystać z gotowego widoku gracza albo z rozszerzonego widoku prowadzącego (admina), w którym ustawiasz listy i kolejność dźwięków.
-
-### Jak otworzyć moduł
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-1. Otwórz `Audio/index.html`.
-2. Jeśli chcesz zwykły widok odtwarzania, pozostaw adres bez zmian.
-3. Jeśli chcesz pełny panel zarządzania, dopisz w adresie: `?admin=1`.
-
-### Co zobaczysz w widoku użytkownika (bez `?admin=1`)
-- Panel **dźwięków** (po lewej) z przyciskami odtwarzania.
-- Panel **Nawigacja** (po prawej) z wyborem widoku głównego i list ulubionych.
-
-### Jak odtwarzać dźwięki (widok użytkownika)
-1. W panelu nawigacji kliknij **Widok główny** albo wybraną listę ulubionych.
-2. Kliknij nazwę dźwięku, aby go uruchomić.
-3. Kliknij ponownie, aby zatrzymać.
-4. Możesz uruchomić kilka dźwięków równocześnie.
-5. Suwakiem na kafelku ustaw głośność konkretnego dźwięku.
-
-### Co oznaczają elementy na kafelku dźwięku
-- **Nazwa dźwięku** – główny przycisk odtwarzania.
-- **Tag pod nazwą** – informacja, z jakiej grupy/folderu pochodzi dźwięk.
-- **Alias w nawiasie** (jeśli ustawiony) – dodatkowa pomocnicza nazwa.
-- **Suwak głośności** – indywidualna głośność tego dźwięku.
-
-### Jak korzystać z panelu administratora (`?admin=1`)
-1. Kliknij **Wczytaj manifest**, aby załadować bazę dźwięków.
-2. Użyj filtrów tagów, aby zawęzić listę widocznych SFX.
-3. W polu wyszukiwarki wpisz fragment nazwy, aby szybciej znaleźć konkretny dźwięk.
-4. Kliknij **Nowa lista ulubionych**, aby utworzyć nową listę.
-5. Przy wybranym dźwięku wybierz listę docelową i kliknij **Dodaj do listy**.
-6. W sekcji list możesz:
-   - zmieniać kolejność list,
-   - zmieniać nazwy list,
-   - usuwać listy,
-   - zmieniać kolejność dźwięków w liście.
-
-### Manifest produkcyjny
-Śledzony plik `Audio/AudioManifest.xlsx` jest gotowym do użycia, neutralnym manifestem produkcyjnym dołączonym do publicznej paczki. Jego przykładowe rekordy używają neutralnego URL-u i mogą zostać zastąpione własnymi linkami audio bez zmiany struktury arkusza.
-
-### Przyciski specjalne
-- **Wyczyść wszystkie aliasy** – usuwa wszystkie aliasy dźwięków jednocześnie (po potwierdzeniu).
-- **Odtwórz / Zatrzymaj** – szybki odsłuch pojedynczego dźwięku z panelu admina.
-- **Loop** – nie jest wyświetlany w trybie admina; działa tylko w zwykłym widoku użytkownika bez `?admin=1`.
-- **Wyczyść** (przy polu aliasu) – usuwa alias tylko dla jednego dźwięku.
-
-### Dobre praktyki podczas sesji
-- Przed sesją przygotuj 1 listę „główną” i 2–3 listy tematyczne.
-- Nadawaj aliasy dźwiękom trudnym do rozpoznania po samej nazwie.
-- Ustaw głośność każdego kluczowego dźwięku przed sesją, żeby nie poprawiać tego w trakcie sceny.
+- Use **Loop** for ambient backgrounds.
+- Use one-shot playback for short effects.
+- Avoid changing manifest structure during a live session.
 
 ---
 
-### Integracja Firebase — wymagana dla współdzielonych list
-Aby listy ulubionych i ustawienia były wspólne dla wielu urządzeń/użytkowników, moduł **Audio** wymaga integracji z Firebase (Firestore). Bez niej działa tylko lokalnie na jednym urządzeniu.
+## Adding another language version
 
-#### Krok po kroku — konfiguracja bazy
-1. Wejdź na [https://console.firebase.google.com](https://console.firebase.google.com).
-2. Kliknij **Utwórz projekt**.
-3. Wpisz nazwę projektu i kliknij **Dalej**.
-4. Wybierz ustawienia Analytics (opcjonalnie) i zakończ tworzenie.
-5. Kliknij ikonę **Web** (`</>`) i zarejestruj aplikację webową.
-6. Skopiuj obiekt `firebaseConfig`.
-7. Wklej dane do `Audio/config/firebase-config.js`.
-8. Otwórz **Firestore Database** w menu Firebase.
-9. Kliknij **Utwórz bazę danych**.
-10. Wybierz tryb startowy, kliknij **Dalej**, wybierz region i kliknij **Włącz**.
-11. W zakładce **Reguły** ustaw dostęp tak, aby uprawnieni użytkownicy mogli czytać i zapisywać ustawienia.
-12. Otwórz `Audio/index.html?admin=1` i sprawdź status Firebase.
-13. Utwórz testową listę ulubionych i odśwież stronę — lista powinna pozostać.
+If another UI language is added, update and test:
+
+- translation dictionaries,
+- language selector options,
+- static text not controlled by translations,
+- admin labels and messages,
+- user playback labels and messages,
+- confirmation dialogs,
+- error/status messages,
+- documentation.
 
 ---
 
-## Kopia modułu dla nowej grupy
-- Przed pierwszym użyciem na nowym serwerze podmień `Audio/config/firebase-config.js` na dane Firebase tej grupy.
-- Po uruchomieniu `Audio/index.html?admin=1` sprawdź status „Firebase” — ma wskazywać połączenie z właściwym projektem.
-- Dzięki osobnym konfiguracjom grupy nie nadpisują sobie danych list i widoków.
+## Common problems
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| Sound does not play. | Browser audio policy, missing URL, invalid link, or muted system audio. | Interact with the page, check volume, and verify the sound URL. |
+| Loop does not stop. | Active loop button not clicked or sound still finishing current iteration. | Click the red Loop button and wait for current playback to stop. |
+| Favorites list disappears after refresh. | Firebase is not configured or local storage was cleared. | Configure Firestore and test persistence. |
+| Another group sees your lists. | Shared Firebase project/path. | Use a separate Firebase config. |
+| Manifest does not load. | `AudioManifest.xlsx` missing or malformed. | Verify the manifest file and workbook structure. |
+| Aliases are missing. | Local/Firebase state was reset. | Restore from backup or recreate aliases. |
 
 ---
 
-## Dodawanie nowej wersji językowej (PL)
+## Related documentation
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
-
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
-
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+| File | Purpose |
+| --- | --- |
+| `Audio/docs/Documentation.md` | Technical architecture and maintenance guide. |
+| `Audio/config/FirebaseREADME.md` | Firebase setup guide. |
+| `docs-standard.md` | Repository documentation standard. |
