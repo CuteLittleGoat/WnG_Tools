@@ -22,6 +22,9 @@ const els = {
   filterMenu: document.getElementById("filterMenu"),
   toggleCharacterTabs: document.getElementById("toggleCharacterTabs"),
   toggleCombatTabs: document.getElementById("toggleCombatTabs"),
+  toggleOldBestiaryEntries: document.getElementById("toggleOldBestiaryEntries"),
+  toggleBestiaryOldGroup: document.getElementById("toggleBestiaryOldGroup"),
+  toggleVehicleTabs: document.getElementById("toggleVehicleTabs"),
   accessGate: document.getElementById("accessGate"),
   accessForm: document.getElementById("accessForm"),
   accessPassword: document.getElementById("accessPassword"),
@@ -47,7 +50,9 @@ const translations = {
       mainPageButton: "Strona Główna",
       fullViewButton: "Pełen Widok",
       defaultViewButton: "Widok Domyślny",
-      viewButtonsNote: "Część danych jest domyślnie ukryta.",
+      viewButtonsNote: "Widok Domyślny jest taki sam jak Pełen Widok w tej wersji release.",
+      toggleOldBestiaryEntries: "Czy wyświetlić zdezaktualizowane wpisy?",
+      toggleVehicleTabs: "Czy wyświetlić zakładki dotyczące pojazdów?",
       compareButton: "Porównaj zaznaczone",
       filtersTitle: "FILTRY",
       globalSearchLabel: "Szukaj (globalnie)",
@@ -72,7 +77,7 @@ const translations = {
     },
     titles: {
       fullView: "Pokaż pełny widok danych (bez ukryć domyślnych)",
-      defaultView: "Przywróć domyślny widok danych (z ukryciami)",
+      defaultView: "Przywróć release'owy Widok Domyślny, taki sam jak Pełen Widok",
     },
     aria: {
       close: "Zamknij",
@@ -117,7 +122,9 @@ const translations = {
       mainPageButton: "Main Page",
       fullViewButton: "Full View",
       defaultViewButton: "Default View",
-      viewButtonsNote: "Some data is hidden by default.",
+      viewButtonsNote: "Default View is identical to Full View in this release.",
+      toggleOldBestiaryEntries: "Show outdated entries?",
+      toggleVehicleTabs: "Show tabs related to vehicles?",
       compareButton: "Compare selected",
       filtersTitle: "FILTERS",
       globalSearchLabel: "Search (global)",
@@ -142,7 +149,7 @@ const translations = {
     },
     titles: {
       fullView: "Show the full data view (without default hiding)",
-      defaultView: "Restore the default data view (with hidden values)",
+      defaultView: "Restore the release Default View, identical to Full View",
     },
     aria: {
       close: "Close",
@@ -231,44 +238,26 @@ const applyLanguage = (lang) => {
 // If you add a new language (e.g., fr/de), provide mapping from localized tab names to current canonical keys
 // (for example via canonKey + alias dictionary) or update every set/condition that depends on tab names.
 // Otherwise some default filters/behaviors (keywords, default view, sorting) will stop working.
-const KEYWORD_SHEETS_COMMA_NEUTRAL = new Set(["Bestiariusz", "Archetypy", "Psionika", "Augumentacje", "Ekwipunek", "Pancerze", "Bronie", "Pakiety Wyniesienia"]);
-const KEYWORD_SHEET_ALL_RED = "Słowa Kluczowe";
-const ADMIN_ONLY_SHEETS = new Set(["Bestiariusz", "Trafienia Krytyczne", "Groza Osnowy", "Hordy", "Specjalne Bonusy Wrogów", "Notatki"]);
-const CHARACTER_CREATION_SHEETS = new Set([
-  "Tabela Rozmiarów",
-  "Gatunki",
-  "Archetypy",
-  "Premie Frakcji",
-  "Słowa Kluczowe Frakcji",
-  "Pakiety Wyniesienia",
-  "Specjalne Bonusy Frakcji",
-  "Implanty Astartes",
-  "Zakony Pierwszego Powołania",
-]);
-const COMBAT_RULES_SHEETS = new Set(["Trafienia Krytyczne", "Groza Osnowy", "Skrót Zasad", "Tryby Ognia", "Kary do ST"]);
-const CHARACTER_CREATION_SHEET_KEYS = new Set([...CHARACTER_CREATION_SHEETS].map(name => canonKey(name)));
-const COMBAT_RULES_SHEET_KEYS = new Set([...COMBAT_RULES_SHEETS].map(name => canonKey(name)));
+const KEYWORD_SHEET_KEYS_COMMA_NEUTRAL = new Set(["bestiary", "archetypes", "psionics", "augmentations", "equipment", "armor", "weapons", "ascensionPackages", "vehicles", "vehicleWeapons", "vehicleWargear"]);
+const KEYWORD_SHEET_ALL_RED_KEY = "keywords";
+const ADMIN_ONLY_SHEET_KEYS = new Set(["bestiary", "criticalHits", "perilsOfTheWarp", "mobs", "specialEnemyBonuses", "notes"]);
+const CHARACTER_CREATION_SHEET_KEYS = new Set(["sizeTable", "species", "archetypes", "factionBonuses", "factionKeywords", "ascensionPackages", "specialFactionBonuses", "astartesImplants", "firstFoundingChapters"]);
+const COMBAT_RULES_SHEET_KEYS = new Set(["criticalHits", "perilsOfTheWarp", "rulesReference", "fireModes", "dnPenalties"]);
+const VEHICLE_SHEET_KEYS = new Set(["vehicleRoles", "vehicleActions", "vehicleConditions", "vehicleTraits", "vehicles", "vehicleWeapons", "vehicleWargear"]);
 
 let DB = null;          // {sheets: {name:{rows, cols}}, _meta:{traits, states, traitIndex, stateIndex}}
 let currentSheet = null;
 
-const SESSION_VIEW_KEY = "datavault_session_view_v2";
-const DEFAULT_VIEW_CONFIG = {
-  "Archetypy": {
-    "Gatunek": ["Człowiek"]
-  },
-  "Premie Frakcji": { "Frakcja": ["Adepta Sororitas", "Adeptus Astartes", "Adeptus Astra Telepathica", "Adeptus Mechanicus", "Adeptus Ministorum", "Astra Militarum", "Chaos", "Dynastie Wolnych Kupców", "Inkwizycja", "Ogryn", "Szczurak", "Szumowiny"] },
-  "Psionika": { "Typ": ["Uniwersalne Zdolności Psioniczne", "Pomniejsze Moce Psioniczne", "Uniwersalna Dyscyplina Psioniczna", "Dyscyplina Biomancji", "Dyscyplina Dywinacji", "Dyscyplina Piromancji", "Dyscyplina Telekinezy", "Dyscyplina Telepatii"] },
-  "Augumentacje": { "Typ": ["Ulepszenia", "Wszczepy", "Mechadendryt"] },
-  "Ekwipunek": { "Typ": ["Ulepszenia Broni", "Amunicja", "Ekwipunek Imperium"] },
-  "Pancerze": { "Typ": ["Zwykłe", "Wspomagane", "Energetyczne"] },
-  "Bronie": { "Typ": ["Adeptus Mechanicus", "Boltowa", "Broń biała", "Broń biała Adeptus Mechanicus", "Broń dystansowa", "Broń dystansowa Adeptus Mechnicus", "Broń dystansowa Milczących Sióstr", "Broń energetyczna", "Broń łańcuchowa", "Broń łańcuchowa Astartes", "Broń psioniczna", "Egzotyczna broń biała", "Granaty i Wyrzutnie", "Imperialna broń biała", "Laserowa", "Ogniowa", "Palna", "Plazmowa", "Termiczna"] },
-  "Talenty": { "Typ": ["Człowiek", "Imperium", "Inkwizycja", "Mechanicus", "Militarum", "Ogólne", "Sororitas"] },
-};
+const SESSION_VIEW_KEY = "datavault_session_view_v3_release";
+// --- RELEASE DEFAULT VIEW CONFIGURATION / KONFIGURACJA WIDOKU DOMYŚLNEGO RELEASE ---
+// Default View is intentionally identical to Full View. Use canonical sheet/column keys if filters return later.
+const DEFAULT_VIEW_CONFIG = {};
 
 const uiState = {
   showCharacterTabs: false,
-  showCombatTabs: false
+  showCombatTabs: false,
+  showVehicleTabs: false,
+  showOldBestiaryEntries: false,
 };
 const viewBySheet = {};
 let view = createSheetViewState();
@@ -284,8 +273,9 @@ if (els.btnMainPage) {
     els.btnMainPage.style.display = "none";
   }
 }
-const HIDDEN_COLUMNS = new Set(["lp", "stan"]);
+const HIDDEN_COLUMNS = new Set(["lp", "id", "stan", "state"]);
 const STATUS_OLD_VALUE = "old";
+const PAGE_REF_PATTERN = /\(([^)]*(?:\bstr\.?\b|\bstrona\b|\bpage\b|\bpages\b|\bp\.\b|\bpp\.\b|\bs\.\b|\bseite\b)[^)]*)\)/ig;
 
 /* ---------- Utilities ---------- */
 function norm(s){
@@ -394,17 +384,36 @@ function canonKey(s){
   return norm(s).toLowerCase().replace(/\s+\(/g,"(");
 }
 
+const SHEET_ALIASES = {
+  notes: ["Notes", "Notatki"], bestiary: ["Bestiary", "Bestiariusz"], mobs: ["Mobs", "Hordy"], specialEnemyBonuses: ["Special Enemy Bonuses", "Specjalne Bonusy Wrogów"], sizeTable: ["Size Table", "Tabela Rozmiarów"], species: ["Species", "Gatunki"], archetypes: ["Archetypes", "Archetypy"], ascensionPackages: ["Ascension Packages", "Pakiety Wyniesienia"], factionBonuses: ["Faction Bonuses", "Premie Frakcji"], factionKeywords: ["Faction Keywords", "Słowa Kluczowe Frakcji"], specialFactionBonuses: ["Special Faction Bonuses", "Specjalne Bonusy Frakcji"], astartesImplants: ["Astartes Implants", "Implanty Astartes"], firstFoundingChapters: ["First Founding Chapters", "Zakony Pierwszego Powołania"], traits: ["Traits", "Cechy"], conditions: ["Conditions", "States", "Stany"], keywords: ["Keywords", "Słowa Kluczowe"], talents: ["Talents", "Talenty"], prayers: ["Prayers", "Modlitwy"], psionics: ["Psionics", "Psychic Powers", "Psionika"], augmentations: ["Augmentations", "Augmentics", "Augumentacje"], equipment: ["Equipment", "Ekwipunek"], armor: ["Armor", "Armour", "Pancerze"], weapons: ["Weapons", "Bronie"], criticalHits: ["Critical Hits", "Trafienia Krytyczne"], perilsOfTheWarp: ["Perils of the Warp", "Warp Perils", "Groza Osnowy"], rulesReference: ["Rules Reference", "Quick Reference Guide", "Skrót Zasad"], fireModes: ["Fire Modes", "Tryby Ognia"], dnPenalties: ["DN Penalties", "Kary do ST"], vehicleRoles: ["Vehicle Roles", "Role W Pojeździe"], vehicleActions: ["Vehicle Actions", "Akcje Pojazdu"], vehicleConditions: ["Vehicle Conditions", "Vehicle States", "Stany Pojazdów"], vehicleTraits: ["Vehicle Traits", "Cechy Pojazdów"], vehicles: ["Vehicles", "Pojazdy"], vehicleWeapons: ["Vehicle Weapons", "Bronie Pojazdów"], vehicleWargear: ["Vehicle Wargear", "Vehicle Equipment", "Ekwipunek Pojazdów"],
+};
+const COLUMN_ALIASES = { id:["ID","LP","Lp"], state:["State","Stan"], type:["Type","Typ","Kind","Rodzaj"], name:["Name","Nazwa"], description:["Description","Opis"], effect:["Effect","Efekt"], example:["Example","Przykład"], keywords:["Keywords","Słowa Kluczowe","Słowo Kluczowe"], traits:["Traits","Cechy"], range:["Range","Zasięg"], damage:["Damage","Obrażenia"], dn:["DN","DK","ST"], ap:["AP","PP"], rateOfFire:["Rate of fire","Rate Of Fire","Szybkostrzelność","Salvo"], armorValue:["AV","AR","Armor Rating","Armour Rating","Wartość Pancerza","WP"], source:["Source","Book","Podręcznik"], page:["Page","Strona"] };
+const getCanonicalSheetKey = (sheetName) => { const wanted = canonKey(sheetName); for (const [key, aliases] of Object.entries(SHEET_ALIASES)) if (aliases.some((alias) => canonKey(alias) === wanted)) return key; return wanted; };
+const sheetIsOneOf = (sheetName, canonicalKeys) => canonicalKeys.has(getCanonicalSheetKey(sheetName));
+const getColumnAliases = (canonicalKey) => COLUMN_ALIASES[canonicalKey] || [canonicalKey];
+const getRecordValueByColumnKey = (record, canonicalKey) => { if (!record || typeof record !== "object") return null; const aliases = getColumnAliases(canonicalKey).map((alias) => canonKey(alias)); const actualKey = Object.keys(record).find((key) => aliases.includes(canonKey(key))); return actualKey ? record[actualKey] : null; };
+const columnIsOneOf = (columnName, canonicalKeys) => { const wanted = canonKey(columnName); return [...canonicalKeys].some((canonicalKey) => getColumnAliases(canonicalKey).some((alias) => canonKey(alias) === wanted)); };
+
 function isCharacterCreationSheet(name){
-  return CHARACTER_CREATION_SHEET_KEYS.has(canonKey(name));
+  return sheetIsOneOf(name, CHARACTER_CREATION_SHEET_KEYS);
 }
 
 function isCombatRulesSheet(name){
-  return COMBAT_RULES_SHEET_KEYS.has(canonKey(name));
+  return sheetIsOneOf(name, COMBAT_RULES_SHEET_KEYS);
+}
+
+function isVehicleSheet(name){
+  return sheetIsOneOf(name, VEHICLE_SHEET_KEYS);
+}
+
+function isBestiarySheet(name){
+  return getCanonicalSheetKey(name) === "bestiary";
 }
 
 function createSheetViewState(sheetName = null){
+  void sheetName;
   return {
-    sort: sheetName ? getDefaultSort(sheetName) : null,
+    sort: null,
     global: "",
     filtersText: {},
     filtersSet: {},
@@ -475,30 +484,7 @@ function restoreSheetView(sheetName){
 }
 
 function applyDefaultViewForSheet(sheetName){
-  const rows = DB?.sheets?.[sheetName] || [];
-  const cols = inferColumns(rows, sheetName);
-  const config = getDefaultConfigForSheet(sheetName);
-  const next = createSheetViewState(sheetName);
-  next.sort = getDefaultSort(sheetName);
-  for (const col of cols){
-    const allVals = uniqueValuesForColumnFromRows(rows, col);
-    const cfg = config?.[canonKey(col)];
-    if (!cfg) continue;
-    const allowed = allVals.filter(v => cfg.includes(v));
-    if (allowed.length === allVals.length){
-      next.filtersSet[col] = null;
-    } else {
-      next.filtersSet[col] = new Set(allowed);
-    }
-  }
-  viewBySheet[sheetName] = {
-    sort: next.sort,
-    global: "",
-    filtersText: {},
-    filtersSet: Object.fromEntries(Object.entries(next.filtersSet).map(([col, set]) => [col, set instanceof Set ? [...set] : null])),
-    selected: [],
-    expandedCells: [],
-  };
+  applyFullViewForSheet(sheetName);
 }
 
 function applyFullViewForSheet(sheetName){
@@ -519,7 +505,11 @@ function saveSessionState(){
   persistCurrentSheetView();
   const payload = {
     sheetViews: viewBySheet,
-    toggles: {...uiState},
+    toggles: {
+      showCharacterTabs: uiState.showCharacterTabs,
+      showCombatTabs: uiState.showCombatTabs,
+      showVehicleTabs: uiState.showVehicleTabs,
+    },
     language: currentLanguage,
   };
   sessionStorage.setItem(SESSION_VIEW_KEY, JSON.stringify(payload));
@@ -582,6 +572,8 @@ function loadSessionState(){
     if (parsed.toggles){
       uiState.showCharacterTabs = Boolean(parsed.toggles.showCharacterTabs);
       uiState.showCombatTabs = Boolean(parsed.toggles.showCombatTabs);
+      uiState.showVehicleTabs = Boolean(parsed.toggles.showVehicleTabs);
+      uiState.showOldBestiaryEntries = false;
     }
     if (parsed.language && translations[parsed.language]){
       applyLanguage(parsed.language);
@@ -613,7 +605,7 @@ function applyViewModeToAllSheets(mode){
 function formatInlineHTML(raw){
   const s = String(raw ?? "");
   // --- Wykrywanie odnośników do stron w PL i EN / Detect page references in PL and EN ---
-  const reRefParen = /\(([^)]*(?:\bstr\.?\b|\bstr\b|\bstrona\b|\bpage\b|\bp\.)[^)]*)\)/ig;
+  const reRefParen = PAGE_REF_PATTERN;
   const segments = parseInlineSegments(s);
 
   // Build global positions to allow refs to span across style segments
@@ -729,14 +721,21 @@ function parseInlineSegments(raw){
 }
 
 function isOldStatusRow(row){
-  if (!row || typeof row !== "object") return false;
-  const statusKey = Object.keys(row).find((key)=>{
-    const normKey = String(key ?? "").trim().toLowerCase();
-    return normKey === "stan";
-  });
-  if (!statusKey) return false;
-  const value = stripMarkers(String(row[statusKey] ?? "")).trim().toLowerCase();
+  const value = stripMarkers(String(getRecordValueByColumnKey(row, "state") ?? "")).trim().toLowerCase();
   return value === STATUS_OLD_VALUE;
+}
+
+function shouldShowRowInCurrentSystemView(row, sheetName){
+  if (isBestiarySheet(sheetName) && !uiState.showOldBestiaryEntries && isOldStatusRow(row)) return false;
+  return true;
+}
+function getSystemVisibleRows(sheetName){
+  return (DB?.sheets?.[sheetName] || []).filter((row) => shouldShowRowInCurrentSystemView(row, sheetName));
+}
+function pruneHiddenOldBestiarySelection(){
+  if (!isBestiarySheet(currentSheet) || uiState.showOldBestiaryEntries) return;
+  const visibleIds = new Set(getSystemVisibleRows(currentSheet).map((row) => row.__id));
+  for (const selectedId of [...view.selected]) if (!visibleIds.has(selectedId)) view.selected.delete(selectedId);
 }
 
 function formatFactionKeywordHTML(raw, opts = {}){
@@ -816,23 +815,19 @@ function formatKeywordHTML(row, col, opts = {}){
 }
 
 function formatDataCellHTML(row, col, sheetName = currentSheet){
-  const isKeywordName = sheetName === KEYWORD_SHEET_ALL_RED && col === "Nazwa";
-  const isKeywordCommaNeutral = KEYWORD_SHEETS_COMMA_NEUTRAL.has(sheetName) && col === "Słowa Kluczowe";
-  const isAscensionPackageKeyword = sheetName === "Pakiety Wyniesienia" && col === "Słowa Kluczowe";
-  const isFactionKeyword = sheetName === "Słowa Kluczowe Frakcji" && col === "Słowo Kluczowe";
-
-  if (isKeywordName){
-    return formatKeywordHTML(row, col);
-  }
-  if (isFactionKeyword){
-    return formatFactionKeywordHTML(row[col]);
-  }
-  if (isAscensionPackageKeyword){
-    return getFormattedCellHTML(row, col);
-  }
-  if (isKeywordCommaNeutral){
-    return formatKeywordHTML(row, col, {commasNeutral:true});
-  }
+  const sheetKey = getCanonicalSheetKey(sheetName);
+  const isNameColumn = columnIsOneOf(col, new Set(["name"]));
+  const isKeywordsColumn = columnIsOneOf(col, new Set(["keywords"]));
+  const isRangeColumn = columnIsOneOf(col, new Set(["range"]));
+  const isKeywordName = sheetKey === KEYWORD_SHEET_ALL_RED_KEY && isNameColumn;
+  const isKeywordCommaNeutral = KEYWORD_SHEET_KEYS_COMMA_NEUTRAL.has(sheetKey) && isKeywordsColumn;
+  const isAscensionPackageKeyword = sheetKey === "ascensionPackages" && isKeywordsColumn;
+  const isFactionKeyword = sheetKey === "factionKeywords" && isKeywordsColumn;
+  if (isKeywordName) return formatKeywordHTML(row, col);
+  if (isFactionKeyword) return formatFactionKeywordHTML(row[col]);
+  if (isAscensionPackageKeyword) return getFormattedCellHTML(row, col);
+  if (isKeywordCommaNeutral) return formatKeywordHTML(row, col, {commasNeutral:true});
+  if (isRangeColumn) return formatRangeHTML(row[col]);
   return getFormattedCellHTML(row, col);
 }
 
@@ -840,7 +835,7 @@ function getFormattedCellHTML(row, col){
   if (!row.__fmt) row.__fmt = {};
   if (row.__fmt[col]) return row.__fmt[col];
   let html = "";
-  if (col === "Zasięg") html = formatRangeHTML(row[col]);
+  if (columnIsOneOf(col, new Set(["range"]))) html = formatRangeHTML(row[col]);
   else html = formatTextHTML(row[col]);
   row.__fmt[col] = html;
   return html;
@@ -1318,13 +1313,16 @@ function initUI(){
   // Tabs
   els.tabs.innerHTML = "";
   const available = Object.keys(DB.sheets);
-  const baseVisible = ADMIN_MODE ? available : available.filter(name => !ADMIN_ONLY_SHEETS.has(name));
+  const baseVisible = ADMIN_MODE ? available : available.filter(name => !sheetIsOneOf(name, ADMIN_ONLY_SHEET_KEYS));
   let visibleSheets = uiState.showCharacterTabs
     ? baseVisible
     : baseVisible.filter(name => !isCharacterCreationSheet(name));
   visibleSheets = uiState.showCombatTabs
     ? visibleSheets
     : visibleSheets.filter(name => !isCombatRulesSheet(name));
+  visibleSheets = uiState.showVehicleTabs
+    ? visibleSheets
+    : visibleSheets.filter(name => !isVehicleSheet(name));
   const order = getSheetOrder(available);
   const visibleOrder = order.filter(name => visibleSheets.includes(name));
   for (const name of visibleOrder){
@@ -1337,11 +1335,14 @@ function initUI(){
     if (isCombatRulesSheet(name)){
       b.classList.add("tab--combat");
     }
+    if (isVehicleSheet(name)){
+      b.classList.add("tab--vehicle");
+    }
     b.addEventListener("click", ()=>selectSheet(name));
     els.tabs.appendChild(b);
   }
   // select first
-  const preferredStartSheet = ADMIN_MODE ? "Notatki" : "Bronie";
+  const preferredStartSheet = ADMIN_MODE ? (available.find(name => getCanonicalSheetKey(name) === "notes") || "Notes") : (available.find(name => getCanonicalSheetKey(name) === "weapons") || "Weapons");
   const fallbackSheet = visibleOrder[0] || visibleSheets[0];
   const nextSheet = visibleOrder.includes(currentSheet)
     ? currentSheet
@@ -1353,6 +1354,15 @@ function initUI(){
   }
   if (els.toggleCombatTabs){
     els.toggleCombatTabs.checked = uiState.showCombatTabs;
+  }
+  if (els.toggleVehicleTabs){
+    els.toggleVehicleTabs.checked = uiState.showVehicleTabs;
+  }
+  if (els.toggleBestiaryOldGroup){
+    els.toggleBestiaryOldGroup.hidden = !ADMIN_MODE;
+  }
+  if (els.toggleOldBestiaryEntries){
+    els.toggleOldBestiaryEntries.checked = uiState.showOldBestiaryEntries;
   }
 
   // Actions / admin visibility
@@ -1524,7 +1534,7 @@ function updateSortMarks(){
 
 /* ---------- Filtering ---------- */
 function uniqueValuesForColumn(col){
-  const rows = DB.sheets[currentSheet] || [];
+  const rows = getSystemVisibleRows(currentSheet);
   const vals = new Set();
   for (const r of rows){
     vals.add(String(r[col] ?? "").trim() || "-");
@@ -1763,8 +1773,9 @@ function updateClampableHints(){...}
 
 function renderBody(){
   if (!DB || !currentSheet || !tbodyEl) return;
-  const rowsAll = DB.sheets[currentSheet] || [];
-  const cols = DB.sheets[currentSheet]._cols || inferColumns(rowsAll, currentSheet);
+  const rowsAll = getSystemVisibleRows(currentSheet);
+  const cols = DB.sheets[currentSheet]._cols || inferColumns(DB.sheets[currentSheet] || [], currentSheet);
+  pruneHiddenOldBestiarySelection();
   updateFilterIndicators();
 
   const filtered = sortRows(rowsAll.filter(r => passesFilters(r, cols)));
@@ -2081,6 +2092,21 @@ if (els.toggleCombatTabs){
     saveSessionState();
   });
   uiState.showCombatTabs = els.toggleCombatTabs.checked;
+}
+if (els.toggleVehicleTabs){
+  els.toggleVehicleTabs.addEventListener("change", ()=>{
+    uiState.showVehicleTabs = els.toggleVehicleTabs.checked;
+    initUI();
+    saveSessionState();
+  });
+  uiState.showVehicleTabs = els.toggleVehicleTabs.checked;
+}
+if (els.toggleOldBestiaryEntries){
+  els.toggleOldBestiaryEntries.addEventListener("change", ()=>{
+    uiState.showOldBestiaryEntries = ADMIN_MODE && els.toggleOldBestiaryEntries.checked;
+    renderBody();
+    saveSessionState();
+  });
 }
 
 if (els.languageSelect){

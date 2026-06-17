@@ -99,9 +99,9 @@ Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
   - `#btnReset` — **Pełen Widok** (odsłania wszystkie dane i czyści filtry/sortowanie).
   - `#btnDefaultView` — **Widok Domyślny** (przywraca predefiniowane ukrycia i domyślne sortowanie).
   - `#btnCompare` — porównanie zaznaczonych wierszy.
-- Pod przyciskami `#btnReset` i `#btnDefaultView` widoczny jest podpis i18n (`viewButtonsNote`): „Część danych jest domyślnie ukryta.” / „Some data is hidden by default.”.
+- Pod przyciskami `#btnReset` i `#btnDefaultView` widoczny jest podpis i18n (`viewButtonsNote`): „Widok Domyślny jest taki sam jak Pełen Widok w tej wersji release.” / „Default View is identical to Full View in this release.”.
 - Przełącznik języka:
-  - `.language-switcher select#languageSelect` z opcjami `pl` i `en`.
+  - `.language-switcher select#languageSelect` z opcjami `en` i `pl`.
   - Ciemne tło selecta (`#0b0b0b`) utrzymuje spójność z motywem konsolowym.
 
 **Ważne:** `#updateDataGroup` jest ukrywany w trybie gracza (JS ustawia `display:none`). W trybie admina grupa pokazuje komunikat, że użytkownik ma wskazać lokalny plik `Repozytorium.xlsx`; następnie aplikacja generuje `data.json` (backup) oraz root-ready `firebase-import.json` do importu z poziomu root Firebase Realtime Database (`/`). Po imporcie dane trafiają pod `/datavault/live`.
@@ -485,17 +485,17 @@ Kolumna `Przykłady` w **Tabela Rozmiarów** ma jawne `text-align: left`.
 ## 4) JS: stałe, stan aplikacji i helpery
 
 ### 4.1 Stałe
-- `KEYWORD_SHEETS_COMMA_NEUTRAL` — arkusze, gdzie przecinki w „Słowa Kluczowe” są neutralne (kolor podstawowy): `Bestiariusz`, `Archetypy`, `Psionika`, `Augumentacje`, `Ekwipunek`, `Pancerze`, `Bronie`, `Pakiety Wyniesienia`.
+- `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` — arkusze, gdzie przecinki w „Słowa Kluczowe” są neutralne (kolor podstawowy): `Bestiariusz`, `Archetypy`, `Psionika`, `Augumentacje`, `Ekwipunek`, `Pancerze`, `Bronie`, `Pakiety Wyniesienia`.
   Uwaga implementacyjna: dla `Pakiety Wyniesienia / Słowa Kluczowe` działa dodatkowy wyjątek w `formatDataCellHTML`, który pomija globalne wymuszanie czerwieni i oddaje renderowanie do zwykłego `getFormattedCellHTML` (czyli tylko style inline z XLSX).
 - `KEYWORD_SHEET_ALL_RED` — arkusz `Słowa Kluczowe`, gdzie kolumna `Nazwa` zawsze jest czerwona.
-- `ADMIN_ONLY_SHEETS` — zestaw arkuszy widocznych tylko w trybie admina (`Bestiariusz`, `Trafienia Krytyczne`, `Groza Osnowy`, `Hordy`, `Specjalne Bonusy Wrogów`, `Notatki`).
+- `ADMIN_ONLY_SHEET_KEYS` — zestaw arkuszy widocznych tylko w trybie admina (`Bestiariusz`, `Trafienia Krytyczne`, `Groza Osnowy`, `Hordy`, `Specjalne Bonusy Wrogów`, `Notatki`).
 - `CHARACTER_CREATION_SHEETS` — zestaw zakładek sterowanych przez checkbox tworzenia postaci (`Tabela Rozmiarów`, `Gatunki`, `Archetypy`, `Premie Frakcji`, `Słowa Kluczowe Frakcji`, `Pakiety Wyniesienia`, `Specjalne Bonusy Frakcji`, `Implanty Astartes`, `Zakony Pierwszego Powołania`).
 - `COMBAT_RULES_SHEETS` — zestaw zakładek sterowanych przez checkbox zasad walki (`Trafienia Krytyczne`, `Groza Osnowy`, `Skrót Zasad`, `Tryby Ognia`, `Kary do ST`).
 - `CHARACTER_CREATION_SHEET_KEYS` i `COMBAT_RULES_SHEET_KEYS` — kanoniczne (znormalizowane) wersje nazw arkuszy używane do odpornego dopasowania nazw zakładek niezależnie od drobnych różnic zapisu.
 - `RENDER_CHUNK_SIZE = 80` — ile wierszy renderuje się w jednym kroku (progressive rendering).
 - `ADMIN_MODE` — `?admin=1` w URL.
 - `SESSION_VIEW_KEY = "datavault_session_view_v2"` — klucz zapisu stanu widoku w `sessionStorage`.
-- `DEFAULT_VIEW_CONFIG` — mapa domyślnych checkboxów (sheet/column/values) dla przycisku `Widok Domyślny` i startu aplikacji.
+- `DEFAULT_VIEW_CONFIG` — w release pusty obiekt; `Widok Domyślny` jest identyczny z `Pełnym Widokiem`.
 - Kolejność zakładek i kolumn **nie jest hardcode** — pochodzi z `_meta.sheetOrder` i `_meta.columnOrder` w `data.json` (a w razie braku jest odzyskiwana z bieżącego układu danych).
 
 ### 4.2 Elementy DOM (`els`)
@@ -504,7 +504,7 @@ Mapowanie na `getElementById`:
 - `popover`, `popoverTitle`, `popoverBody`, `popoverClose`.
 - `modal`, `modalBody`, `modalClose`.
 - `filterMenu`.
-- `toggleCharacterTabs`, `toggleCombatTabs`, `languageSelect`.
+- `toggleCharacterTabs`, `toggleCombatTabs`, `toggleVehicleTabs`, `toggleOldBestiaryEntries`, `languageSelect`.
 
 ### 4.3 Stan widoku (per zakładka + globalny UI)
 - `uiState`:
@@ -580,7 +580,7 @@ Mapowanie na `getElementById`:
   - pipeline: markery inline → referencje `(str./page/p.)` → reguły per-kolumna/per-arkusz → clamp/podpowiedzi,
   - obsługa markerów `RED/B/I/S` i ich łączenia na jednym segmencie,
   - `Słowa Kluczowe` (`Nazwa`) = pełna czerwień,
-  - `KEYWORD_SHEETS_COMMA_NEUTRAL` = czerwone słowa + neutralne przecinki,
+  - `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` = czerwone słowa + neutralne przecinki,
   - wyjątek `Pakiety Wyniesienia / Słowa Kluczowe` = brak globalnego wrappera `.keyword-red`, tylko style inline z XLSX,
   - `Słowa Kluczowe Frakcji / Słowo Kluczowe` = neutralne `-` i `lub`, czerwone `[ŚWIAT-KUŹNIA]`,
   - `Zasięg` = separator `/` renderowany jako `.slash`,
@@ -727,7 +727,7 @@ Mapowanie na `getElementById`:
   - Ustawia `aria-hidden="true"` i czyści HTML menu.
 - Etykiety w menu są wyświetlane bez markerów `{{RED}}`, `{{B}}`, `{{I}}`, ale filtrowanie działa na surowych wartościach (nie zmienia logiki danych).
 - `view.filtersSet[col] = null` oznacza brak filtra (wszystko zaznaczone).
-- Domyślny profil widoku jest definiowany przez `DEFAULT_VIEW_CONFIG` (mapa `sheet -> column -> allowedValues`) i nakładany przez `applyDefaultViewForSheet`.
+- Domyślny profil widoku release jest pusty: `DEFAULT_VIEW_CONFIG = {}`, a `applyDefaultViewForSheet` przywraca Pełen Widok.
 
 ### 10.4 `passesFilters(row, cols)`
 - Łączy wszystkie filtry (globalny + tekstowy + listowy).
@@ -769,7 +769,7 @@ Mechanizm clampu bazuje na liczbie *wizualnych* linii (z uwzględnieniem zawijan
 ### 11.5 Komórki „Słowa Kluczowe”
 - Domyślnie czerwone (`.keyword-red`).
 - W arkuszu `Słowa Kluczowe` kolumna `Nazwa` jest również czerwona.
-- W arkuszach `KEYWORD_SHEETS_COMMA_NEUTRAL` przecinki są neutralne (`.keyword-comma`).
+- W arkuszach `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` przecinki są neutralne (`.keyword-comma`).
 - Wyjątek: `Pakiety Wyniesienia / Słowa Kluczowe` nie używa już globalnego wrappera `.keyword-red`; kolor czerwony pojawia się tylko tam, gdzie parser XLSX wykrył czerwony styl inline (`{{RED}}`).
 - W arkuszu `Słowa Kluczowe Frakcji` kolumna `Słowo Kluczowe` ma czerwony kolor dla wszystkich tokenów poza `-` i słowem `lub`; kursywa z arkusza (np. `lub`) jest zachowana, a `[ŚWIAT-KUŹNIA]` pozostaje w całości czerwone.
 
@@ -809,7 +809,7 @@ Obsługuje trzy przypadki:
 - `formatDataCellHTML(...)` jest używane zarówno przez tabelę główną (`renderRow`), jak i modal porównania, dzięki czemu obie ścieżki mają identyczne reguły:
   - arkusz `Słowa Kluczowe` + kolumna `Nazwa` → `formatKeywordHTML` (całość na czerwono),
   - arkusz `Pakiety Wyniesienia` + kolumna `Słowa Kluczowe` → `getFormattedCellHTML` (bez globalnego wymuszania czerwieni; tylko inline `{{RED}}`),
-  - arkusze z `KEYWORD_SHEETS_COMMA_NEUTRAL` + kolumna `Słowa Kluczowe` → `formatKeywordHTML(..., {commasNeutral:true})`,
+  - arkusze z `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` + kolumna `Słowa Kluczowe` → `formatKeywordHTML(..., {commasNeutral:true})`,
   - arkusz `Słowa Kluczowe Frakcji` + kolumna `Słowo Kluczowe` → `formatFactionKeywordHTML` (wyjątki `-`, `lub`, pełna czerwień dla `[ŚWIAT-KUŹNIA]`),
   - fallback → `getFormattedCellHTML` (`formatRangeHTML` dla `Zasięg`, inaczej `formatTextHTML` z pełnym wsparciem markerów `{{RED}}/{{B}}/{{I}}`, referencji `(str./page/p.)` i `*[n]`).
 - `openModal(...)` nie renderuje już dodatkowego nagłówka `<h3>` w treści modala; tytuł pozostaje tylko w pasku `.modalHeader` (`#modalTitle`), co usuwa wizualny duplikat „PORÓWNANIE”.
@@ -984,7 +984,7 @@ Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / 
 
 ## Uwaga krytyczna: domyślne filtry zależne od nazw zakładek (PL)
 
-Reguły domyślnego widoku i część formatowania działają na podstawie nazw zakładek (`sheetName`) wczytanych z `data.json` (np. zbiory `KEYWORD_SHEETS_COMMA_NEUTRAL`, `ADMIN_ONLY_SHEETS`, konfiguracje `DEFAULT_VIEW_CONFIG`).
+Reguły widoczności i formatowania działają przez kanoniczne aliasy arkuszy i kolumn (`SHEET_ALIASES`, `COLUMN_ALIASES`, `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL`, `ADMIN_ONLY_SHEET_KEYS`); `DEFAULT_VIEW_CONFIG` jest pusty w release.
 
 Przy dodawaniu nowego języka (np. FR/DE) trzeba wykonać **jedną** z dwóch ścieżek:
 1. dodać mapowanie aliasów nazw zakładek do obecnych kluczy kanonicznych, albo
@@ -1008,3 +1008,51 @@ Parser nadal generuje `data.json` oraz root-ready wrapper `firebase-import.json`
 
 
 ## Widoczność przełącznika języka
+
+## Release Default View
+
+In `WnG_Tools`, Default View is intentionally identical to Full View.
+
+It does not apply automatic filters and does not hide categories by default. This prevents language-specific sheet or column names from breaking the initial view when DataVault uses English data files.
+
+To restore automatic default filters, edit `DEFAULT_VIEW_CONFIG` in `DataVault/app.js`. Use canonical sheet and column keys, not raw localized labels. Update `SHEET_ALIASES`, `COLUMN_ALIASES` and this documentation at the same time.
+
+## Widok Domyślny w release
+
+W `WnG_Tools` Widok Domyślny jest celowo tożsamy z Pełnym Widokiem.
+
+Nie zakłada automatycznych filtrów i nie ukrywa kategorii domyślnie. Zapobiega to sytuacji, w której nazwy arkuszy lub kolumn zależne od języka psują widok początkowy.
+
+Aby przywrócić automatyczne filtry domyślne, edytuj `DEFAULT_VIEW_CONFIG` w `DataVault/app.js`. Używaj kanonicznych kluczy arkuszy i kolumn, a nie surowych etykiet językowych. Zaktualizuj jednocześnie `SHEET_ALIASES`, `COLUMN_ALIASES` i dokumentację.
+
+## Sheet and column aliases
+
+The UI language and the XLSX/JSON data language are separate.
+
+Changing the UI language does not automatically change the expected names of sheets and columns. The release data format is English by default, but the code also supports Polish aliases for compatibility.
+
+If you want to translate the XLSX/JSON data structure itself, for example to French or German, update these places in code:
+
+- `DataVault/app.js` → `SHEET_ALIASES`
+- `DataVault/app.js` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
+- `NPCGenerator/index.html` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+
+Do not rename `Equipment` to `Vehicle Wargear`. These are separate sheets. `Equipment` is used by NPCGenerator. `Vehicle Wargear` belongs to the vehicle tab group controlled by `Show tabs related to vehicles?`.
+
+## Aliasy arkuszy i kolumn
+
+Język UI i język danych XLSX/JSON są od siebie niezależne.
+
+Zmiana języka UI nie zmienia automatycznie oczekiwanych nazw arkuszy i kolumn. Domyślnym formatem danych release jest angielski, ale kod obsługuje też polskie aliasy kompatybilności.
+
+Jeżeli chcesz przetłumaczyć samą strukturę XLSX/JSON, np. na francuski albo niemiecki, zaktualizuj w kodzie:
+
+- `DataVault/app.js` → `SHEET_ALIASES`
+- `DataVault/app.js` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
+- `NPCGenerator/index.html` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+
+Nie zmieniaj `Equipment` na `Vehicle Wargear`. To osobne arkusze. `Equipment` jest używany przez NPCGenerator. `Vehicle Wargear` należy do grupy zakładek pojazdów sterowanej checkboxem `Show tabs related to vehicles?`.

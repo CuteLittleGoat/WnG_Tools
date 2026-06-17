@@ -962,3 +962,34 @@ td.center{text-align:center}
 .tableFilters .filterRow .input{padding:8px 8px}
 
 /* --- Bramka dostępu do prywatnych danych / Private data access gate --- */
+
+.checkboxRow--vehicle{
+  color:#b8c7c7;
+}
+.checkboxRow--vehicle .checkboxLabel{
+  color:#d8e4e4;
+  opacity:1;
+}
+.checkboxRow--vehicle input{
+  accent-color:#b8c7c7;
+}
+.checkboxRow--admin{
+  color:var(--muted);
+}
+.checkboxRow--admin .checkboxLabel{
+  color:var(--muted);
+  opacity:1;
+}
+.checkboxRow--admin input{
+  accent-color:var(--muted);
+}
+.tab.tab--vehicle{
+  color:#d8e4e4;
+  border-color:rgba(184,199,199,.35);
+  background:rgba(184,199,199,.06);
+}
+.tab.tab--vehicle.active{
+  color:#ffffff;
+  border-color:rgba(184,199,199,.55);
+  box-shadow:0 0 0 2px rgba(184,199,199,.12);
+}

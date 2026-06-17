@@ -588,3 +588,53 @@ Ikona bramki używa stałego slotu `.accessGate__iconSlot` (`72px × 72px`) z ob
 W `NPCGenerator/style.css` karty danych używają `overflow-x: auto`, a `.data-table` używa `min-width: max-content`.
 
 Dzięki temu szerokie tabele przewijają się wewnątrz kart zamiast rozszerzać cały dokument.
+
+## Required DataVault sheets
+
+`NPCGenerator` loads required DataVault sheets by logical aliases, not by fuzzy keyword search.
+
+Required logical sheets:
+
+- `bestiary`: `Bestiary` / `Bestiariusz`
+- `armor`: `Armor` / `Armour` / `Pancerze`
+- `weapons`: `Weapons` / `Bronie`
+- `augmentations`: `Augmentations` / `Augumentacje`
+- `equipment`: `Equipment` / `Ekwipunek`
+- `talents`: `Talents` / `Talenty`
+- `psionics`: `Psionics` / `Psionika`
+- `prayers`: `Prayers` / `Modlitwy`
+
+`Equipment` is normal personal/NPC equipment and is used by NPCGenerator. `Vehicle Wargear` is not loaded by NPCGenerator.
+
+## Page references and localized data
+
+`NPCGenerator` can highlight page references in text. The supported page-reference pattern is configured in `NPCGenerator/index.html` as `PAGE_REF_PATTERN`.
+
+Default supported forms include `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` and `Seite`.
+
+If your data file uses another language or another page abbreviation, update `PAGE_REF_PATTERN` and the source/page column aliases in `COLUMN_ALIASES`.
+
+## Wymagane arkusze DataVault
+
+`NPCGenerator` ładuje wymagane arkusze DataVault po logicznych aliasach, a nie przez rozmyte wyszukiwanie słów kluczowych.
+
+Wymagane arkusze logiczne:
+
+- `bestiary`: `Bestiary` / `Bestiariusz`
+- `armor`: `Armor` / `Armour` / `Pancerze`
+- `weapons`: `Weapons` / `Bronie`
+- `augmentations`: `Augmentations` / `Augumentacje`
+- `equipment`: `Equipment` / `Ekwipunek`
+- `talents`: `Talents` / `Talenty`
+- `psionics`: `Psionics` / `Psionika`
+- `prayers`: `Prayers` / `Modlitwy`
+
+`Equipment` jest zwykłym ekwipunkiem osobistym/NPC i jest używany przez NPCGenerator. `Vehicle Wargear` nie jest ładowany przez NPCGenerator.
+
+## Odwołania do stron i dane lokalizowane
+
+`NPCGenerator` potrafi wyróżniać odwołania do stron w tekście. Obsługiwany wzorzec jest skonfigurowany w `NPCGenerator/index.html` jako `PAGE_REF_PATTERN`.
+
+Domyślne obsługiwane formy obejmują `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` i `Seite`.
+
+Jeżeli plik danych używa innego języka albo innego skrótu strony, zaktualizuj `PAGE_REF_PATTERN` oraz aliasy kolumn source/page w `COLUMN_ALIASES`.
