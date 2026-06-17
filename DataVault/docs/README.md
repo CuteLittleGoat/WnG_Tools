@@ -1,273 +1,404 @@
-# 🇬🇧 User instructions (EN)
+# User guide — DataVault
 
-## What DataVault is for
-**DataVault** is a Wrath & Glory knowledge browser. It keeps rules, tables, and references in one searchable place.
+DataVault is a searchable Wrath & Glory data browser. It presents rules, references, bestiary records, equipment, weapons, armor, talents, psychic powers, vehicle data, and other repository sheets in one interface.
 
-## How to open
-- Standard view: `DataVault/index.html`
-- Extended admin view: `DataVault/index.html?admin=1`
-
-## What you get on screen
-- **Tabs** – switch between data groups.
-- **Global search** – finds entries in the current area.
-- **Column filters** – narrow results per column; an active filter is marked with a bright red highlight and a dot next to the filter icon.
-- **Full View** – clears filters/sorting and restores full list.
-- **Default View** – restores default data layout.
-- **Compare selected** – opens side-by-side comparison.
-- **DataVault header icon** – the top-left corner shows `Icon.png` inside a fixed 48×48 px green slot (the icon fills the whole slot with no clipping), so the header stays stable while assets load.
-- **Page-reference highlights** – bracketed references such as `str. 123`, `strona 123`, `page 123`, and `p. 123` are automatically highlighted.
-
-## Step-by-step workflow
-1. Open the module and choose a tab related to your topic.
-2. Enter a keyword in search.
-3. If results are too broad, apply filters to specific columns.
-4. Select 2 or more rows.
-5. Click **Compare selected** to inspect entries side by side.
-6. Click **Full View** when done to return to complete data.
-
-## User vs admin differences
-- **User mode**: core session-focused content.
-- **Admin mode**: extra tabs plus maintenance control.
-- Default opening tab:
-  - user: **Bronie**,
-  - admin: **Notatki**.
-
-## “Generate data files” button (admin only)
-Use it when module data needs refreshing after source updates. After clicking it, you select a local **`Repozytorium.xlsx`** file from disk (the file does not need to be stored in the repository), and the app builds refreshed data files.
-
-## XLSX file requirements
-- The selected input file should be named **`Repozytorium.xlsx`**.
-- You choose the file via a system file picker after clicking **Generate data files**; it does not need to permanently exist in the `DataVault` folder and does not need to be committed to the repository.
-- In practice, DataVault uses worksheet tabs that are visible in the UI (for example: `Bronie`, `Archetypy`, `Bestiariusz`, `Skrót Zasad`, `Pakiety Wyniesienia`). If a tab is missing, that table is missing in the app.
-- Each tab should keep stable column names. Key columns reused across many tabs include `Nazwa`, `Opis`, `Podręcznik`, `Strona`, and `Słowa Kluczowe`.
-- Text colors/styles are read from cell formatting (rich text):
-  - red text -> red highlight in the app,
-  - bold/italic/strikethrough -> preserved 1:1 in the app.
-- Page references in parentheses (for example `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) are automatically shown in a lighter color.
-- `Słowa Kluczowe` columns use extra rendering rules (for example neutral commas and the `Pakiety Wyniesienia` exception), documented in detail in `docs/ZasadyFormatowania.md`.
-
-## Sample files
-The `DataVault/SampleFiles/` folder contains ready-to-use DataVault examples:
-- `Repozytorium.xlsx` provides a prepared worksheet and column structure. It also includes sample records that demonstrate formatting rules such as red text and strikethrough.
-- `data.json` is the generated backup example.
-- `firebase-import.json` is the generated Firebase RTDB root-ready import example. Import it from the root of Firebase Realtime Database (`/`); after import, the payload is placed under `/datavault/live`.
-
-You can copy the XLSX structure and replace the sample records with your own data before generating a new pair of JSON files.
-
-## Current data source
-Click **Generate data files** to choose a local `Repozytorium.xlsx` file. The app generates `data.json` (backup/helper artifact) and root-ready `firebase-import.json`. Import `firebase-import.json` from the root of Firebase Realtime Database (`/`); after import, the payload is placed under `/datavault/live`. Do not import this new file while already inside `/datavault/live`, because that creates the wrong nested path `/datavault/live/datavault/live`.
-
-## Data runtime
-Runtime is loaded from Firebase Realtime Database (`/datavault/live`) through Firebase Auth and shared loader `shared/firebase-data-loader.js`; its `DATA_PATH` remains `"datavault/live"`. Public `data.json` is not used as runtime. The payload under `/datavault/live` keeps `schemaVersion: "datavault-firebase-import-v1"`, and `dataJson` remains a JSON string.
-
-
-### Correct Firebase import workflow
-1. Open Firebase Realtime Database.
-2. Go to the database root (`/`).
-3. Import `firebase-import.json`.
-4. Verify that `/datavault/live` exists and contains `schemaVersion`, `createdAt`, `source`, and `dataJson`.
-5. Do not import this file while already inside `/datavault/live`.
-
-## Firebase private data sign-in
-- The login window shows `IkonaPowiadomien2.png` in a fixed 72×72 px slot, so the login card keeps a stable size while assets load.
-- After entering the correct password, the gate closes and data is loaded immediately from the private database.
-- If the sign-in session is not detected after login, you get a precise message saying the issue is with Auth session detection, not necessarily the password itself.
-
-## Current data access
-- DataVault and NPCGenerator share the same Firebase login. Signing in once unlocks the other module in the same browser session.
-- The “LOG OUT / LOCK DATA” button is not available in the interface.
-
-## Shared session with NPCGenerator
-DataVault and NPCGenerator use the same named private-data app (`wg-private-data`), so sign-in in one module is reused in the other.
-
-## K.O.Z.A. access window
-The password gate uses K.O.Z.A./Machine Spirit wording:
-- title: **“Access to K.O.Z.A. Classified Data”**,
-- description: **Rite of Authentication**,
-- field label: **“Litany of Access”**,
-- button: **“Begin Rite”**.
-
-## “Litany of Access” field layout
-In the access window, the **“Litany of Access”** label is on the left and the password field is on the right. The **“Begin Rite”** button is below the password field on the right side. On narrow screens (mobile), the order is explicitly vertical: row 1 label, row 2 password field, row 3 button, while the error message remains below the form.
-
-## Adding a new language version
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
-
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
-
-## Important when copying the module
-This module includes a **Strona Główna / Main Page** button. After copying the app to another location (different domain or folder), **update its hyperlink** so it returns to the launcher correctly.
-
-## Reference generator
-The `DataVault/build_json.py` script is the reference path for generating data files from `Repozytorium.xlsx` using the XLSX ZIP/XML parser. Its output should match the files generated in the app by the **Generate data files** button.
-
-### Access gate and your Firebase project
-The public Firebase placeholders do not connect the module to a private database. To use the password gate, the administrator must configure the group’s own Firebase project. Never store passwords, tokens, service-account files, or private keys in the repository.
-
-# 🇵🇱 Instrukcja dla użytkownika (PL)
-
-## Do czego służy DataVault
-**DataVault** to wyszukiwarka wiedzy do Wrath & Glory. W jednym miejscu przeglądasz tabele, zasady i opisy potrzebne podczas gry.
-
-## Jak otworzyć
-- Widok standardowy: `DataVault/index.html`
-- Widok rozszerzony (admin): `DataVault/index.html?admin=1`
-
-## Co znajdziesz na ekranie
-- **Zakładki** – przełączają między grupami danych.
-- **Szukaj (globalnie)** – szuka wpisów w aktualnym obszarze.
-- **Filtry kolumnowe** – zawężają wyniki w konkretnych kolumnach; aktywny filtr jest oznaczony jasnoczerwonym podświetleniem i kropką przy ikonie filtra.
-- **Pełen Widok** – czyści filtry/sortowanie i pokazuje pełną listę.
-- **Widok Domyślny** – przywraca domyślny układ danych.
-- **Porównaj zaznaczone** – otwiera porównanie wybranych pozycji.
-- **Ikona DataVault w nagłówku** – w lewym górnym rogu widzisz ikonę `Icon.png` osadzoną w stałym zielonym polu 48×48 px (ikona wypełnia całe pole bez ucinania), dzięki czemu nagłówek nie „skacze” podczas ładowania.
-- **Oznaczenia odnośników stron** – zapisy w nawiasach typu `str. 123`, `strona 123`, `page 123` i `p. 123` są automatycznie wyróżniane.
-
-## Jak pracować krok po kroku
-1. Wejdź do modułu i wybierz zakładkę odpowiadającą tematowi, którego szukasz.
-2. Wpisz słowo kluczowe w polu wyszukiwania.
-3. Jeśli wyników jest dużo, ustaw filtry tylko na interesujących kolumnach.
-4. Zaznacz 2 lub więcej wierszy.
-5. Kliknij **Porównaj zaznaczone**, aby zobaczyć dane obok siebie.
-6. Po zakończeniu kliknij **Pełen Widok**, aby wrócić do pełnych danych.
-
-## Różnice: użytkownik vs admin
-- **Użytkownik**: widzi zestaw najczęściej używanych danych na sesji.
-- **Admin**: ma dodatkowe zakładki i przycisk utrzymaniowy.
-- Domyślna zakładka po wejściu:
-  - użytkownik: **Bronie**,
-  - admin: **Notatki**.
-
-## Przycisk „Generuj pliki danych” (tylko admin)
-Używaj go, gdy chcesz odświeżyć dane modułu po aktualizacji pliku źródłowego. Po kliknięciu wybierasz lokalny plik **`Repozytorium.xlsx`** z dysku (plik nie musi być zapisany w repozytorium), a system przygotowuje nowe pliki danych dla aplikacji.
-
-## Wymagania dla pliku XLSX
-- Wskazywany plik wejściowy powinien mieć nazwę **`Repozytorium.xlsx`**.
-- Plik wybierasz w oknie systemowym po kliknięciu **Generuj pliki danych**; nie ma wymogu trzymania go stale w folderze `DataVault` ani commitowania do repozytorium.
-- W praktyce używane są zakładki widoczne w interfejsie DataVault (np. `Bronie`, `Archetypy`, `Bestiariusz`, `Skrót Zasad`, `Pakiety Wyniesienia`). Brak zakładki oznacza brak tej tabeli w aplikacji.
-- Każda zakładka powinna zachować stałe nazwy kolumn. Najważniejsze kolumny wspólne dla wielu zakładek to m.in. `Nazwa`, `Opis`, `Podręcznik`, `Strona`, `Słowa Kluczowe`.
-- Kolorowanie i styl tekstu są czytane z formatowania komórek (rich text):
-  - czerwony tekst -> podświetlenie czerwone w aplikacji,
-  - pogrubienie/kursywa/przekreślenie -> zachowane 1:1 w aplikacji.
-- Odnośniki stron w nawiasach (np. `(str. 123)`, `(strona 45)`, `(page 88)`, `(p. 12)`) są automatycznie wyświetlane jaśniejszym kolorem.
-- W kolumnach `Słowa Kluczowe` obowiązują dodatkowe reguły renderowania (np. neutralny przecinek, wyjątek dla `Pakiety Wyniesienia`), opisane szczegółowo w `docs/ZasadyFormatowania.md`.
-
-## Przykładowe pliki
-Folder `DataVault/SampleFiles/` zawiera gotowe przykładowe pliki DataVault:
-- `Repozytorium.xlsx` ma przygotowaną strukturę zakładek i kolumn. Zawiera też przykładowe rekordy pokazujące zasady formatowania, takie jak czerwony kolor tekstu i przekreślenie.
-- `data.json` jest wygenerowanym przykładem pliku backupowego.
-- `firebase-import.json` jest wygenerowanym przykładem pliku importu do Firebase RTDB w formacie root-ready. Importuj go z poziomu root Firebase Realtime Database (`/`); po imporcie payload trafi pod `/datavault/live`.
-
-Możesz skopiować strukturę XLSX i zastąpić przykładowe dane własnymi przed wygenerowaniem nowej pary plików JSON.
-
-## Aktualne źródło danych
-Kliknij **Generuj pliki danych**, aby wskazać lokalny plik `Repozytorium.xlsx`. Aplikacja wygeneruje `data.json` (backup / artefakt pomocniczy) oraz root-ready `firebase-import.json`. Importuj `firebase-import.json` z poziomu root Firebase Realtime Database (`/`); po imporcie payload trafi pod `/datavault/live`. Nie importuj nowego pliku bezpośrednio będąc już w `/datavault/live`, bo utworzy błędną ścieżkę `/datavault/live/datavault/live`.
-
-## Runtime danych
-Runtime pochodzi z Firebase Realtime Database (ścieżka `/datavault/live`) przez Firebase Auth i wspólny loader `shared/firebase-data-loader.js`; jego `DATA_PATH` pozostaje `"datavault/live"`. Publiczny `data.json` nie jest używany jako runtime. Payload pod `/datavault/live` zachowuje `schemaVersion: "datavault-firebase-import-v1"`, a `dataJson` pozostaje stringiem JSON.
-
-
-### Poprawny workflow importu Firebase
-1. Otwórz Firebase Realtime Database.
-2. Przejdź do root bazy (`/`).
-3. Zaimportuj `firebase-import.json`.
-4. Sprawdź, że istnieje `/datavault/live` i zawiera `schemaVersion`, `createdAt`, `source` oraz `dataJson`.
-5. Nie importuj tego pliku będąc już w `/datavault/live`.
-
-## Logowanie do prywatnych danych Firebase
-- W oknie logowania wyświetla się ikona `IkonaPowiadomien2.png` w stałym polu (72×72 px), więc karta logowania nie zmienia rozmiaru podczas doczytywania zasobów.
-- Po wpisaniu poprawnego hasła bramka zamyka się, a dane ładują się od razu z prywatnej bazy.
-- Jeżeli sesja logowania nie zostanie wykryta po wpisaniu hasła, zobaczysz dokładny komunikat z informacją, że problem dotyczy sesji Auth, a niekoniecznie samego hasła.
-
-## Aktualny dostęp do danych
-- DataVault i NPCGenerator używają wspólnego logowania Firebase. Zalogowanie w jednym module odblokowuje drugi bez ponownego wpisywania hasła w tej samej przeglądarce.
-- Przycisk „WYLOGUJ / ZABLOKUJ DANE” nie jest dostępny w interfejsie.
-
-## Wspólna sesja z NPCGenerator
-DataVault i NPCGenerator korzystają z tej samej nazwanej aplikacji prywatnych danych (`wg-private-data`), więc logowanie wykonane w jednym module działa też w drugim.
-
-## Okno dostępu K.O.Z.A.
-Okno hasła używa narracji K.O.Z.A. i Ducha Maszyny:
-- tytuł: **„Dostęp do danych z klauzulą tajności K.O.Z.A.”**,
-- opis: **Rytuał Uwierzytelnienia**,
-- etykieta pola: **„Litania Dostępu”**,
-- przycisk: **„Rozpocznij Rytuał”**.
-
-## Układ pola „Litania Dostępu”
-W oknie dostępu etykieta **„Litania Dostępu”** jest ustawiona po lewej stronie, a pole hasła po prawej. Przycisk **„Rozpocznij Rytuał”** znajduje się pod polem hasła, po prawej stronie. Na wąskich ekranach (telefon) elementy mają wymuszoną kolejność pionową: wiersz 1 etykieta, wiersz 2 pole hasła, wiersz 3 przycisk, a komunikat błędu pozostaje pod formularzem.
-
-## Dodawanie nowej wersji językowej
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
-
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
-
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
-
-## Ważne przy kopiowaniu modułu
-W module jest przycisk **Strona Główna / Main Page**. Po skopiowaniu aplikacji do innej lokalizacji (inna domena, inny katalog) **zaktualizuj jego hiperłącze**, żeby poprawnie wracał do strony startowej.
-
-## Generator referencyjny
-Skrypt `DataVault/build_json.py` jest referencyjną ścieżką generowania plików danych z `Repozytorium.xlsx` przy użyciu parsera XLSX ZIP/XML. Wynik powinien odpowiadać plikom tworzonym w aplikacji przez przycisk **Generuj pliki danych**.
+This is a user-facing guide. Technical implementation details belong in `DataVault/docs/Documentation.md`. Firebase setup details belong in `DataVault/config/FirebaseREADME.md`.
 
 ---
 
-### Bramka dostępu i własny projekt Firebase
-Publiczne placeholdery Firebase nie łączą modułu z prywatną bazą. Aby używać bramki hasła, administrator musi skonfigurować własny projekt Firebase grupy. Nie zapisuj w repozytorium haseł, tokenów, plików kont usługowych ani prywatnych kluczy.
+## How to open DataVault
 
-## Release Default View
+Open one of these files or URLs:
 
-In `WnG_Tools`, Default View is intentionally identical to Full View.
+| Mode | Entry point | Purpose |
+| --- | --- | --- |
+| Standard user mode | `DataVault/index.html` | Normal table browsing and searching. |
+| Admin mode | `DataVault/index.html?admin=1` | Adds maintenance tools, including data file generation. |
 
-It does not apply automatic filters and does not hide categories by default. This prevents language-specific sheet or column names from breaking the initial view when DataVault uses English data files.
+The release version is English-first. The interface starts in English, and Polish may remain available in the language selector where the code still supports it.
 
-To restore automatic default filters, edit `DEFAULT_VIEW_CONFIG` in `DataVault/app.js`. Use canonical sheet and column keys, not raw localized labels. Update `SHEET_ALIASES`, `COLUMN_ALIASES` and this documentation at the same time.
+---
 
-## Widok Domyślny w release
+## DEMO access password
 
-W `WnG_Tools` Widok Domyślny jest celowo tożsamy z Pełnym Widokiem.
+The DEMO data password is:
 
-Nie zakłada automatycznych filtrów i nie ukrywa kategorii domyślnie. Zapobiega to sytuacji, w której nazwy arkuszy lub kolumn zależne od języka psują widok początkowy.
+```text
+000000
+```
 
-Aby przywrócić automatyczne filtry domyślne, edytuj `DEFAULT_VIEW_CONFIG` w `DataVault/app.js`. Używaj kanonicznych kluczy arkuszy i kolumn, a nie surowych etykiet językowych. Zaktualizuj jednocześnie `SHEET_ALIASES`, `COLUMN_ALIASES` i dokumentację.
+This password is only for the DEMO release data gate. Do not use it as a production password. A real group should configure its own Firebase project, technical user, and private access password.
 
-## Sheet and column aliases
+---
 
-The UI language and the XLSX/JSON data language are separate.
+## What you see after opening DataVault
 
-Changing the UI language does not automatically change the expected names of sheets and columns. The release data format is English by default, but the code also supports Polish aliases for compatibility.
+The screen contains these main areas:
 
-If you want to translate the XLSX/JSON data structure itself, for example to French or German, update these places in code:
+| Area | What it does |
+| --- | --- |
+| Header | Shows the DataVault title, language selector, and navigation actions. |
+| Access gate | Asks for the Access Litany before private data is loaded. |
+| Tabs | Switch between sheets such as Bestiary, Weapons, Armour, Traits, Vehicle Traits, and other data groups. |
+| Global search | Searches inside the current visible table. |
+| Column filters | Narrow the current table by column values. |
+| Data table | Shows records from the currently selected sheet. |
+| Comparison area | Shows selected records side by side when comparison is used. |
+| Admin controls | Available only in admin mode. Used for maintenance actions such as generating JSON files. |
 
-- `DataVault/app.js` → `SHEET_ALIASES`
-- `DataVault/app.js` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
-- `NPCGenerator/index.html` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+The DataVault header icon uses a fixed icon slot so the page layout does not jump while assets load.
 
-Do not rename `Equipment` to `Vehicle Wargear`. These are separate sheets. `Equipment` is used by NPCGenerator. `Vehicle Wargear` belongs to the vehicle tab group controlled by `Show tabs related to vehicles?`.
+---
 
-## Aliasy arkuszy i kolumn
+## Basic workflow
 
-Język UI i język danych XLSX/JSON są od siebie niezależne.
+1. Open DataVault.
+2. Enter the DEMO password `000000`, or the password configured for your own Firebase project.
+3. Wait for the private data status message.
+4. Select a tab.
+5. Use global search to find a term across the current sheet.
+6. Use column filters to narrow the results.
+7. Select records when you want to compare them.
+8. Use **Compare selected** to inspect selected records side by side.
+9. Use **Full View** to clear the current table view.
 
-Zmiana języka UI nie zmienia automatycznie oczekiwanych nazw arkuszy i kolumn. Domyślnym formatem danych release jest angielski, ale kod obsługuje też polskie aliasy kompatybilności.
+---
 
-Jeżeli chcesz przetłumaczyć samą strukturę XLSX/JSON, np. na francuski albo niemiecki, zaktualizuj w kodzie:
+## Buttons and actions
 
-- `DataVault/app.js` → `SHEET_ALIASES`
-- `DataVault/app.js` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
-- `NPCGenerator/index.html` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+| Button / element | What it does |
+| --- | --- |
+| **Begin Rite** | Sends the Access Litany password to Firebase Authentication and unlocks data loading if sign-in succeeds. |
+| **Main Page** | Returns to the application launcher. If the module is copied elsewhere, this link may need to be updated. |
+| **Full View** | Clears the current search/filter/sort view and returns the table to the broadest available visible state. |
+| **Default View** | Applies the release default view preset. In the DEMO release this is not a production default-filter system and may be identical to **Full View**. |
+| **Compare selected** | Opens a side-by-side comparison of selected table rows. |
+| **Generate data files** | Admin-only. Lets the administrator choose `Repository_EN.xlsx` and generates `data.json` plus `firebase-import.json`. |
+| Language selector | Changes available UI labels between supported interface languages. It does not change the required workbook column names. |
 
-Nie zmieniaj `Equipment` na `Vehicle Wargear`. To osobne arkusze. `Equipment` jest używany przez NPCGenerator. `Vehicle Wargear` należy do grupy zakładek pojazdów sterowanej checkboxem `Show tabs related to vehicles?`.
+---
+
+## Full View and Default View
+
+### Full View
+
+**Full View** is the safe reset action for browsing. It is meant to remove the current search/filter/sort state and show the full available table content for the current system mode.
+
+Use it when:
+
+- filters hide records you expected to see,
+- global search is still active,
+- sorting or table state makes the current sheet confusing,
+- you want to return to a broad browsing state.
+
+### Default View
+
+**Default View** is intended to restore a configured default preset for a sheet.
+
+In this DEMO release, the default preset automation is not a production-ready filtering system. It depends on exact worksheet names, exact column names, and language/data aliases. Because the release data format is English-first, older presets created for another data-language structure may not work correctly. For that reason the DEMO Default View may be disabled, empty, or effectively the same as Full View.
+
+When a group later wants a real Default View, the administrator/developer must configure it against the current English sheet and column names from `Repository_EN.xlsx`.
+
+---
+
+## Searching and filtering
+
+Use global search for quick text lookup inside the selected sheet.
+
+Use column filters when you want to narrow data by a specific column such as `Name`, `Type`, `Keywords`, `Book`, `Page`, `Traits`, or other sheet-specific fields.
+
+Active filters are visually marked. If the table looks incomplete, clear filters or use **Full View**.
+
+---
+
+## Table display behavior
+
+DataVault tables use release-specific column layout rules.
+
+Important behavior:
+
+- narrow numeric columns are centered where appropriate,
+- long description/effect columns are given more horizontal space,
+- page/source columns have compact layouts,
+- wide tables can scroll horizontally,
+- long text may be clamped and expanded in the table,
+- some values such as page references and trait tags receive special formatting.
+
+Detailed formatting rules belong in:
+
+```text
+DataVault/docs/FormattingRules.md
+```
+
+Technical column-width, wrapping, clamp, and tooltip dependencies belong in:
+
+```text
+DataVault/docs/Documentation.md
+```
+
+---
+
+## User mode and admin mode
+
+| Mode | Behavior |
+| --- | --- |
+| User mode | Normal browsing mode for table lookup during play. |
+| Admin mode | Adds maintenance actions, especially data file generation from the sample workbook structure. |
+
+The default opening tab may differ between user mode and admin mode.
+
+---
+
+## Data source
+
+The release runtime data source is Firebase Realtime Database.
+
+DataVault loads private data through the shared Firebase loader from:
+
+```text
+/datavault/live
+```
+
+The shared loader expects the DataVault Firebase wrapper at that path. The wrapper contains:
+
+| Field | Meaning |
+| --- | --- |
+| `schemaVersion` | Expected release schema marker, currently `datavault-firebase-import-v1`. |
+| `createdAt` | Generation timestamp. |
+| `source` | Source workbook name, currently `Repository_EN.xlsx`. |
+| `dataJson` | Stringified JSON data object with `sheets` and metadata. |
+
+The public `data.json` file is a backup/helper artifact. It is useful for inspection and recovery, but the release private runtime loads from Firebase.
+
+---
+
+## Sample files
+
+Sample files are located in:
+
+```text
+DataVault/SampleFiles
+```
+
+| File | Purpose |
+| --- | --- |
+| `Repository_EN.xlsx` | Example workbook with the current English worksheet and column layout. Copy this structure when preparing your own data. |
+| `data.json` | Backup/helper JSON generated from the workbook. Useful for inspection, comparison, and recovery. |
+| `firebase-import.json` | Root-ready Firebase Realtime Database import file. Import it from the database root (`/`) to place the payload under `/datavault/live`. |
+
+The current required release workbook name is:
+
+```text
+Repository_EN.xlsx
+```
+
+Do not use the old Polish workbook name as the current release file name.
+
+---
+
+## Generating data files in admin mode
+
+Use **Generate data files** when the data source workbook has been updated.
+
+Workflow:
+
+1. Open `DataVault/index.html?admin=1`.
+2. Unlock the data gate.
+3. Click **Generate data files**.
+4. Select a local `Repository_EN.xlsx` file.
+5. DataVault generates:
+   - `data.json`,
+   - `firebase-import.json`.
+6. Keep `data.json` as a backup/helper file.
+7. Import `firebase-import.json` into Firebase Realtime Database from the root path (`/`).
+8. Verify that `/datavault/live` exists after import.
+
+Do not import `firebase-import.json` while already inside `/datavault/live`, because that creates the wrong nested path:
+
+```text
+/datavault/live/datavault/live
+```
+
+---
+
+## Firebase behavior
+
+DataVault uses Firebase for private data access.
+
+| Firebase service | Role |
+| --- | --- |
+| Firebase Authentication | Signs in the technical access user through the password gate. |
+| Realtime Database | Stores the private DataVault runtime payload under `/datavault/live`. |
+
+DataVault and NPCGenerator use the same private data sign-in session through the shared Firebase loader. Signing in once may unlock the other module in the same browser session.
+
+Full setup instructions belong in:
+
+```text
+DataVault/config/FirebaseREADME.md
+```
+
+The public DEMO can use password `000000`. A real deployment must use its own Firebase project and own password.
+
+---
+
+## Firebase import summary
+
+To update DEMO/private data after generating a fresh `firebase-import.json`:
+
+1. Open Firebase Console.
+2. Open the correct project.
+3. Open **Realtime Database**.
+4. Open the **Data** tab.
+5. Select the database root (`/`).
+6. Use **Import JSON**.
+7. Select `firebase-import.json`.
+8. Confirm import.
+9. Verify that `/datavault/live` contains `schemaVersion`, `createdAt`, `source`, and `dataJson`.
+
+Realtime Database creates child nodes when JSON is imported or written. You do not need to manually create empty `datavault` or `live` nodes first. The Realtime Database service itself must still be created and enabled in Firebase Console, and the Firebase config must contain the correct `databaseURL`.
+
+---
+
+## English workbook names are required
+
+The release format is English-first.
+
+DataVault currently expects the English workbook structure from `Repository_EN.xlsx`. The most important rule is that worksheet and column names are not merely visual labels. Several mechanisms depend on them, including:
+
+- sheet detection,
+- column filtering,
+- table rendering,
+- trait tag rendering,
+- tooltip lookup,
+- generated metadata,
+- Full View / Default View behavior,
+- NPCGenerator data loading.
+
+Changing sheet names or column names requires code and documentation updates. Do not rename workbook sheets or columns unless you also update the alias maps and dependent mechanisms described in `DataVault/docs/Documentation.md`.
+
+---
+
+## Current English workbook structure
+
+The current sample workbook includes sheets such as:
+
+```text
+Notes
+Bestiary
+Special Enemy Bonuses
+Mobs
+Size Table
+Species
+Archetypes
+Ascension Packages
+Faction Bonuses
+Faction Keywords
+Special Faction Bonuses
+Astartes Implants
+First Founding Chapters
+Traits
+Conditions
+Keywords
+Talents
+Prayers
+Psychic Powers
+Augmentics
+Equipment
+Armour
+Weapons
+Critical Hits
+Warp Perils
+Quick Reference Guide
+Fire Modes
+DN Penalties
+Vehicle Roles
+Vehicle Actions
+Vehicle Conditions
+Vehicle Traits
+Vehicles
+Vehicle Weapons
+Vehicle Wargear
+```
+
+Common important columns include:
+
+```text
+ID
+State
+Type
+Kind
+Name
+Description
+Effect
+Keywords
+Traits
+Range
+Book
+Page
+```
+
+Sheet-specific columns are documented in the technical documentation and in the sample workbook itself.
+
+---
+
+## K.O.Z.A. access window
+
+The private-data gate uses K.O.Z.A. / Machine Spirit wording:
+
+| Element | DEMO wording |
+| --- | --- |
+| Title | `Access to K.O.Z.A. classified data` |
+| Description | Explains that the data is sealed by Machine Spirit protocols. |
+| Password label | `Access Litany` |
+| Button | `Begin Rite` |
+| DEMO password | `000000` |
+
+The password field is not a general application password field. It signs into the configured Firebase technical user.
+
+---
+
+## Adding another language version
+
+Adding interface translations is not enough.
+
+If another language version is added, the developer must review and update:
+
+- UI translation dictionaries,
+- language selector options,
+- static text not controlled by translations,
+- sheet aliases,
+- column aliases,
+- formatting rules,
+- tooltip metadata generation,
+- Full View / Default View presets,
+- sample workbook structure,
+- generated JSON files,
+- NPCGenerator data extraction.
+
+The release data format remains English-first until these mechanisms are explicitly updated.
+
+---
+
+## Common problems
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| The password is rejected. | Wrong password or Firebase Authentication is not configured. | For DEMO use `000000`. For a real deployment, check the technical Firebase user and password. |
+| Data does not load after sign-in. | Realtime Database is missing, `/datavault/live` is missing, rules block access, or config lacks `databaseURL`. | Check `DataVault/config/FirebaseREADME.md` and verify `/datavault/live`. |
+| Tables are empty. | Data was not imported, required sheets are missing, or filters are active. | Import `firebase-import.json` from root and use **Full View**. |
+| Some expected records are hidden. | Search, filters, system view, or outdated-row visibility rules are active. | Clear filters or use **Full View**. |
+| Default View does not apply useful filters. | DEMO release does not include a production default-filter preset. | Treat **Default View** as limited in DEMO; configure a release-specific preset later. |
+| Tooltips or trait tags do not resolve. | Trait names, sheet names, column names, or generated metadata do not match. | Regenerate JSON from `Repository_EN.xlsx` and verify aliases/metadata in technical documentation. |
+| Generated Firebase data appears under a nested path. | `firebase-import.json` was imported while already inside `/datavault/live`. | Re-import from the Realtime Database root (`/`). |
+
+---
+
+## Related documentation
+
+| File | Purpose |
+| --- | --- |
+| `DataVault/docs/Documentation.md` | Technical architecture and maintenance guide. |
+| `DataVault/docs/FormattingRules.md` | Text formatting, marker, keyword, range, trait, and page-reference rules. |
+| `DataVault/config/FirebaseREADME.md` | Firebase setup guide for DataVault. |
+| `docs-standard.md` | Repository-wide documentation standard. |
