@@ -15,6 +15,148 @@ let currentAuthUser = null;
 function getFirebaseConfig(){ return window.WG_FIREBASE_CONFIG || {}; }
 function getDataAccessEmail(){ return window.WG_DATA_ACCESS_EMAIL || ""; }
 function isReleasePlaceholder(value){ return typeof value === "string" && value.startsWith("INSERT_YOUR_"); }
+function isNpcGeneratorRuntime(){ return /\/NPCGenerator(?:\/|$)/i.test(window.location.pathname || ""); }
+
+// DATA LANGUAGE EXTENSION POINT / MIEJSCE ROZSZERZENIA JĘZYKA DANYCH:
+// WnG_Tools uses English XLSX/JSON names as the canonical release format.
+// Polish names below are legacy fallback aliases. To add another data language later,
+// extend these alias groups and the sheet alias groups in collectMetaFromSheets().
+const RECORD_ALIAS_GROUPS = {
+  id: ["ID", "LP", "Lp"],
+  state: ["State", "Stan"],
+  type: ["Type", "Typ", "Kind", "Rodzaj"],
+  name: ["Name", "Nazwa"],
+  threat: ["Threat", "Zagrożenie"],
+  keywords: ["Keywords", "Słowa Kluczowe", "Słowo Kluczowe"],
+  traits: ["Traits", "Cechy"],
+  range: ["Range", "Zasięg"],
+  damage: ["Damage", "Obrażenia"],
+  dn: ["DN", "DK", "ST"],
+  ap: ["AP", "PP"],
+  rateOfFire: ["Rate of fire", "Rate Of Fire", "Salvo", "Szybkostrzelność"],
+  armorValue: ["AV", "AR", "Armor Rating", "Armour Rating", "Wartość Pancerza", "WP"],
+  resilience: ["Resilience", "Resilience (AR included)", "Resilience (AR includer)", "Odporność (w tym WP)", "Obrona (w tym WP)"],
+  defense: ["Defence", "Defense", "Obrona"],
+  wounds: ["Wounds", "Żywotność"],
+  shock: ["Shock", "Mental Resistance", "Odporność Psychiczna", "Odporność psychiczna"],
+  skills: ["Skills", "Umiejętności"],
+  bonuses: ["Bonuses", "Premie"],
+  abilities: ["Abilities", "Zdolności"],
+  attacks: ["Attacks", "Attack", "Atak"],
+  mobAbilities: ["Mob Abilities", "Horde Abilities", "Zdolności Hordy"],
+  mobOptions: ["Mob Options", "Horde Options", "Opcje Hordy"],
+  resolve: ["Resolve", "Upór"],
+  courage: ["Courage", "Odwaga"],
+  speed: ["Speed", "Szybkość"],
+  size: ["Size", "Rozmiar"],
+  source: ["Source", "Book", "Podręcznik"],
+  page: ["Page", "Strona"],
+  description: ["Description", "Opis"],
+  effect: ["Effect", "Efekt"],
+  activation: ["Activation", "Aktywacja"],
+  duration: ["Duration", "Czas trwania"],
+  targets: ["Targets", "Multi Target", "Wiele Celów"],
+  boost: ["Boost", "Wzmocnienie"],
+};
+
+function norm(value){ return String(value ?? "").replace(/\s+/g, " ").trim(); }
+function canonKey(value){ return norm(value).toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/\s+\(/g, "("); }
+function cloneJson(value){ return value && typeof value === "object" ? JSON.parse(JSON.stringify(value)) : value; }
+function hasMeaningfulValue(value){ const text = norm(value); return text && text !== "-" && text !== "—"; }
+
+function findFirstAliasKey(record, aliases){
+  const keys = Object.keys(record || {});
+  return keys.find((key) => aliases.some((alias) => canonKey(alias) === canonKey(key))) || null;
+}
+
+function copyAliasGroup(record, aliases){
+  const key = findFirstAliasKey(record, aliases);
+  if (!key) return;
+  const value = record[key];
+  for (const alias of aliases){
+    if (!(alias in record)) record[alias] = value;
+  }
+}
+
+function ensureKeywordMarkers(record){
+  const key = findFirstAliasKey(record, RECORD_ALIAS_GROUPS.keywords);
+  if (!key) return;
+  const value = norm(record[key]);
+  if (!value || value.includes("{{RED}}")) return;
+  record[key] = `{{RED}}${value}{{/RED}}`;
+}
+
+function enrichRecordAliasesForNpc(record){
+  if (!record || typeof record !== "object" || Array.isArray(record)) return record;
+  for (const aliases of Object.values(RECORD_ALIAS_GROUPS)) copyAliasGroup(record, aliases);
+  ensureKeywordMarkers(record);
+  return record;
+}
+
+function sheetNameMatches(name, aliases){ return aliases.some((alias) => canonKey(alias) === canonKey(name)); }
+function getRecordValue(record, aliases){
+  const key = findFirstAliasKey(record, aliases);
+  return key ? record[key] : "";
+}
+function collectDescriptionMap(rows){
+  const map = {};
+  for (const row of rows || []){
+    const name = norm(getRecordValue(row, RECORD_ALIAS_GROUPS.name));
+    const desc = norm(getRecordValue(row, RECORD_ALIAS_GROUPS.description) || getRecordValue(row, RECORD_ALIAS_GROUPS.effect));
+    if (name && desc) map[name] = desc;
+  }
+  return map;
+}
+
+function collectMetaFromSheets(data){
+  const sheets = data?.sheets;
+  if (!sheets || typeof sheets !== "object") return data;
+  const meta = data._meta && typeof data._meta === "object" ? data._meta : {};
+  const traits = { ...(meta.traits || {}) };
+  const states = { ...(meta.states || {}) };
+  const vehicleTraits = { ...(meta.vehicleTraits || {}) };
+  const vehicleWeaponTraits = { ...(meta.vehicleWeaponTraits || {}) };
+  const vehicleStates = { ...(meta.vehicleStates || {}) };
+
+  for (const [sheetName, rows] of Object.entries(sheets)){
+    if (!Array.isArray(rows)) continue;
+    if (sheetNameMatches(sheetName, ["Traits", "Cechy"])) Object.assign(traits, collectDescriptionMap(rows));
+    if (sheetNameMatches(sheetName, ["Conditions", "States", "Stany"])) Object.assign(states, collectDescriptionMap(rows));
+    if (sheetNameMatches(sheetName, ["Vehicle Conditions", "Vehicle States", "Stany Pojazdów"])) Object.assign(vehicleStates, collectDescriptionMap(rows));
+    if (sheetNameMatches(sheetName, ["Vehicle Traits", "Cechy Pojazdów"])){
+      Object.assign(vehicleTraits, collectDescriptionMap(rows));
+      for (const row of rows){
+        const type = canonKey(getRecordValue(row, RECORD_ALIAS_GROUPS.type));
+        const name = norm(getRecordValue(row, RECORD_ALIAS_GROUPS.name));
+        const desc = norm(getRecordValue(row, RECORD_ALIAS_GROUPS.description) || getRecordValue(row, RECORD_ALIAS_GROUPS.effect));
+        if (name && desc && (type.includes("weapon") || type.includes("bron"))) vehicleWeaponTraits[name] = desc;
+      }
+    }
+  }
+
+  data._meta = {
+    ...meta,
+    traits,
+    states,
+    vehicleTraits,
+    vehicleWeaponTraits,
+    vehicleStates,
+  };
+  return data;
+}
+
+function normalizeReleaseData(data){
+  const out = cloneJson(data);
+  if (!out || typeof out !== "object") return out;
+  collectMetaFromSheets(out);
+  if (isNpcGeneratorRuntime() && out.sheets && typeof out.sheets === "object"){
+    for (const rows of Object.values(out.sheets)){
+      if (Array.isArray(rows)) rows.forEach(enrichRecordAliasesForNpc);
+    }
+  }
+  return out;
+}
+
 // --- Pobranie lub utworzenie nazwanej aplikacji prywatnych danych / Get or create named Firebase app for private data ---
 function getPrivateDataApp(){
   const firebaseConfig = getFirebaseConfig();
@@ -113,7 +255,12 @@ async function logoutDataAccess(){
   authReadyPromise = Promise.resolve(null);
 }
 
-function unwrapDataVaultPayload(v){ if(v&&v.schemaVersion===FIREBASE_IMPORT_SCHEMA_VERSION&&typeof v.dataJson==='string'){ try{return JSON.parse(v.dataJson);}catch(e){const w=new Error('FIREBASE_IMPORT_DATAJSON_PARSE_FAILED');w.cause=e;throw w;} } return v; }
+function unwrapDataVaultPayload(v){
+  const payload = v&&v.schemaVersion===FIREBASE_IMPORT_SCHEMA_VERSION&&typeof v.dataJson==='string'
+    ? (()=>{ try{return JSON.parse(v.dataJson);}catch(e){const w=new Error('FIREBASE_IMPORT_DATAJSON_PARSE_FAILED');w.cause=e;throw w;} })()
+    : v;
+  return normalizeReleaseData(payload);
+}
 
 async function loadDataVaultLive(){
   initFirebaseDataAccess();
