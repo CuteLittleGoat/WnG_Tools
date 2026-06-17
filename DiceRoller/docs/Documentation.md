@@ -1,215 +1,275 @@
-# 🇬🇧 Technical documentation (EN)
+# Technical documentation — DiceRoller
 
-## 1. Purpose and architecture
-`DiceRoller` is a client-side Wrath & Glory dice-test simulator. It has no backend dependency: `index.html` defines the page, `style.css` defines presentation, and `script.js` performs random rolls and renders the result.
+DiceRoller is a client-side Wrath & Glory dice-test simulator. It has no backend dependency and does not use Firebase.
 
-## 2. Files and interface
-- `index.html` contains numeric fields, action buttons, result panels, and the English-first language selector.
-- `style.css` defines the dark card layout, dice presentation, success/failure states, and narrow-screen adjustments.
-- `script.js` validates inputs, rolls d6 values, separates normal and Wrath dice, counts icons and exalted icons, determines pass/fail status, resets the form, and switches translated labels.
+This document is English-only and describes the current release architecture.
 
-## 3. Mechanics
-The user enters the dice pool, difficulty, and Wrath-dice count accepted by the form. Clicking the roll action generates values from 1 to 6 and calculates icons according to the embedded game rules. The result view explains the rolled dice and final status. Reset clears the current result and restores input defaults. Invalid input produces a readable validation message.
+---
 
-## 4. Styling and reconstruction
-The page uses responsive panels, prominent buttons, status colors, and individual dice result elements. To rebuild it, restore the three files, preserve element IDs referenced by `script.js`, reconnect event handlers, and verify valid rolls, validation errors, reset, responsive layout, and EN → PL → EN switching.
+## 1. Module purpose
 
-# 🇵🇱 Dokumentacja techniczna (PL)
+DiceRoller is responsible for:
 
-# DiceRoller — dokumentacja techniczna
+- reading three numeric inputs,
+- validating the inputs,
+- rolling d6 values,
+- separating normal dice and Wrath dice,
+- calculating icons and exalted icons,
+- determining success or failure,
+- detecting Wrath Complication and Wrath Critical,
+- calculating possible shifts,
+- rendering individual dice results,
+- rendering a result summary,
+- supporting language switching.
 
-## 1. Cel modułu
-`DiceRoller` to frontendowy moduł do symulowania testów kości w systemie Wrath & Glory. Aplikacja:
-- pobiera trzy wartości wejściowe od użytkownika,
-- wykonuje losowanie wyników kości (1–6),
-- przelicza punkty sukcesu,
-- wyznacza status testu (sukces/porażka),
-- oblicza możliwe przeniesienie (shift),
-- wyświetla podsumowanie w języku PL lub EN.
+---
 
-## 2. Zakres technologiczny
-- HTML + CSS + JavaScript (bez frameworków).
-- Brak backendu.
-- Brak integracji z Firebase/Firestore/Auth.
-- Brak lokalnej bazy danych (brak `localStorage`/`sessionStorage` dla wyników).
+## 2. File structure
 
-> Odtworzenie 1:1 wymaga wyłącznie odtworzenia trzech plików modułu i ich wzajemnych odwołań.
+| File | Role |
+| --- | --- |
+| `DiceRoller/index.html` | View structure, form inputs, action buttons, result containers, language selector, Main Page link. |
+| `DiceRoller/style.css` | Layout, dark terminal theme, dice visuals, responsive behavior, result states. |
+| `DiceRoller/script.js` | Validation, dice rolling, scoring, rendering, reset, and translation logic. |
+| `DiceRoller/docs/README.md` | User guide. |
+| `DiceRoller/docs/Documentation.md` | This technical guide. |
 
-## 3. Struktura plików
-- `DiceRoller/index.html` — struktura widoku i kontenery na dane.
-- `DiceRoller/style.css` — layout, motyw, style pól/przycisków, kości i animacje.
-- `DiceRoller/script.js` — logika walidacji, tłumaczeń, rzutu i podsumowania.
-- `DiceRoller/docs/README.md` — instrukcja użytkownika (PL/EN).
-- `DiceRoller/docs/Documentation.md` — niniejsza dokumentacja techniczna.
+---
 
-## 4. HTML — architektura widoku (`index.html`)
-### 4.1 Kluczowe sekcje
-- `main.app` — główny kontener modułu.
-- `.language-switcher` — przełącznik języka + przycisk powrotu do modułu Main.
-- `header.app__header` — tytuł i podtytuł.
-- `section.panel` — trzy pola liczbowe + przycisk rzutu.
-- `section.results` — kontener kości i panel podsumowania.
+## 3. No backend / no Firebase
 
-### 4.2 Wejścia użytkownika
-Pola typu `number`:
-- `#difficulty` — stopień trudności,
-- `#pool` — pula kości,
-- `#wrath` — liczba kości furii.
+DiceRoller is fully local.
 
-Wszystkie pola mają ograniczenia 1–99 i są dodatkowo walidowane w JS.
+It does not use:
 
-## 5. CSS — layout i styl (`style.css`)
-### 5.1 Motyw
-Moduł używa zielonego motywu terminalowego spójnego z resztą projektu:
-- ciemne tło,
-- zielone obramowania i akcenty,
-- monospace’owe fonty,
-- glow na aktywnych elementach.
+- Firebase Authentication,
+- Realtime Database,
+- Cloud Firestore,
+- Firebase Storage,
+- a backend API,
+- local database files.
 
-### 5.2 Układ
-- Kontener `.app` ma centralne pozycjonowanie i stałą maksymalną szerokość.
-- Panel `.panel` działa jako responsywny grid.
-- Na ekranach mobilnych przełącznik języka przechodzi do układu statycznego.
+The module can be reconstructed from its frontend files.
 
-### 5.3 Kości i animacja
-- Kość (`.die`) ma wariant biały i czerwony.
-- Każda kość renderuje 7 punktów (`.pip`) + znak zapytania (`.die__question`).
-- Klasy `face-1` … `face-6` sterują widocznymi punktami.
-- W trakcie `rolling` punkty są ukryte, a widoczny jest znak zapytania.
+---
 
-## 6. JavaScript — logika aplikacji (`script.js`)
-### 6.1 Stałe i stan
-Najważniejsze stałe:
-- zakres wejść: 1–99,
-- domyślne wartości: `difficulty=3`, `pool=2`, `wrath=1`,
-- czas animacji rzutu: ~900 ms.
+## 4. HTML structure
 
-Stan obejmuje:
-- aktualny język,
-- bieżące wartości pól,
-- wynik ostatniego rzutu (prezentowany w DOM).
+Important elements:
 
-### 6.2 Warstwa i18n
-Obiekt tłumaczeń zawiera etykiety i komunikaty dla PL/EN.
-Zmiana języka:
-1. aktualizuje teksty interfejsu,
-2. ustawia `lang` dokumentu,
-3. resetuje pola i panel wyników.
+| Element | Purpose |
+| --- | --- |
+| `main.app` | Main module container. |
+| `.language-switcher` | Language selector and Main Page navigation. |
+| `header.app__header` | Title and subtitle. |
+| `section.panel` | Numeric inputs and roll button. |
+| `section.results` | Dice container and summary panel. |
+| `#difficulty` | Difficulty Number input. |
+| `#pool` | Dice Pool input. |
+| `#wrath` | Number of Wrath Dice input. |
 
-### 6.3 Walidacja danych wejściowych
-- Funkcje pomocnicze „clamp/sanitize” wymuszają zakres 1–99.
-- Reguła relacyjna: `wrath <= pool`.
-- Walidacja wywoływana przy zmianie pól oraz przed wykonaniem rzutu.
+All numeric inputs are validated in JavaScript.
 
-### 6.4 Algorytm rzutu
-1. Tworzenie `pool` elementów kości w DOM.
-2. Oznaczenie pierwszych `wrath` kości jako czerwone.
-3. Start animacji.
-4. Po zakończeniu animacji losowanie wartości 1–6 dla każdej kości.
-5. Obliczenie punktów:
-   - 1–3 => 0 pkt,
-   - 4–5 => 1 pkt,
-   - 6 => 2 pkt.
-6. Obliczenie sukcesu: `totalPoints >= difficulty`.
-7. Obliczenie przeniesienia:
-   - `margin = totalPoints - difficulty`,
-   - `totalSixes = liczba wyrzuconych 6`,
-   - `possibleShift = min(totalSixes, floor(margin / 2))`, ale nie mniej niż 0.
-8. Render podsumowania tekstowego.
+---
 
-### 6.5 Logika kości furii
-- **Komplikacja Furii**: występuje, gdy przynajmniej jedna czerwona kość ma wynik 1.
-- **Krytyczna Furia**: występuje, gdy wszystkie czerwone kości mają wynik 6.
-- Jeśli czerwonych kości brak, komunikaty furii nie są wyświetlane.
+## 5. Input validation
 
-## 7. Integracje zewnętrzne
-- Brak komunikacji HTTP do API biznesowego.
-- Brak Firebase.
-- Brak plików konfiguracyjnych środowiska.
+Numeric fields are limited to:
 
-## 8. Odtworzenie modułu 1:1 (checklista)
-1. Odtwórz strukturę katalogu `DiceRoller/`.
-2. Wstaw pliki `index.html`, `style.css`, `script.js` z tymi samymi selektorami i identyfikatorami.
-3. Zachowaj:
-   - trzy pola wejściowe (difficulty/pool/wrath),
-   - przycisk rzutu,
-   - kontener kości,
-   - kontener podsumowania,
-   - przełącznik języka i przycisk powrotu.
-4. Odwzoruj mapowanie punktów i wzór przeniesienia.
-5. Odwzoruj animację z ukryciem punktów i widocznym `?`.
-6. Zweryfikuj działanie w PL i EN.
+```text
+1..99
+```
 
-## 9. Test funkcjonalny
-Minimalny zestaw testów manualnych:
-1. Ustaw `difficulty=3`, `pool=2`, `wrath=1`, wykonaj rzut — brak błędów w konsoli.
-2. Ustaw `pool=2`, wpisz `wrath=5` — wartość furii zostaje skorygowana do 2.
-3. Zmień język PL -> EN — etykiety zmieniają się i formularz resetuje.
-4. Sprawdź mobilnie (<600 px) — układ pozostaje czytelny i responsywny.
+Relational rule:
 
-## 10. Firebase / Node.js bootstrap
-Dla tego modułu **nie dotyczy**:
-- brak Firebase,
-- brak wymaganej struktury kolekcji,
-- brak skryptu Node.js do bootstrapu danych.
-## 11. Specyfikacja wizualna 1:1 (dokładne wartości, bez skrótów)
-Poniższa sekcja zastępuje ogólne opisy typu „ciemne tło / zielone akcenty” konkretnymi parametrami:
+```text
+wrath <= pool
+```
 
-### 11.1. Kolory i efekty
-- Tło strony (`--bg`) to 3 warstwy:
-  `radial-gradient(circle at 20% 20%, rgba(0, 255, 128, 0.06), transparent 25%),`
-  `radial-gradient(circle at 80% 0%, rgba(0, 255, 128, 0.08), transparent 35%),`
-  `#031605`.
-- Tło panelu: `#000`.
-- Główna ramka i akcent: `#16c60c`.
-- Ciemniejszy akcent focus/active: `#0d7a07`.
-- Tekst podstawowy: `#9cf09c`.
-- Tekst pomocniczy (`--muted`): `rgba(156, 240, 156, 0.7)`.
-- Glow panelu: `0 0 25px rgba(22, 198, 12, 0.45)`.
-- Focus ring pól/selectów: `0 0 0 2px rgba(22, 198, 12, 0.25)`.
-- Hover przycisku rzutu: `background: rgba(22, 198, 12, 0.14)`, cień `0 0 18px rgba(22, 198, 12, 0.3)`.
-- Active przycisku rzutu: `background: rgba(22, 198, 12, 0.22)`.
+If Wrath Dice is greater than Dice Pool, the module must correct or reject the value according to current UI behavior.
 
-### 11.2. Kolory kości
-- Kość zwykła: tło `#f6f6f6`, oczka `#111111`, obramowanie `#1c1c1c`.
-- Kość furii: tło `#c01717`, oczka `#ffffff`, obramowanie `#650909`.
-- Cień kości: `inset 0 0 10px rgba(0, 0, 0, 0.2), 0 6px 14px rgba(0, 0, 0, 0.35)`.
+Default values:
 
-### 11.3. Typografia i rozmiary
-- Globalny stos fontów: `"Consolas", "Fira Code", "Source Code Pro", monospace`.
-- `h1`: `30px`, uppercase, `letter-spacing: 0.05em`.
-- Label pól: `13px`, `font-weight: 600`, uppercase.
-- Wejścia liczbowe: `16px`.
-- Przycisk rzutu: `15px`, `font-weight: 600`, uppercase.
+```text
+difficulty = 3
+pool = 2
+wrath = 1
+```
 
-## 12. Mapa funkcji JS (pełna lista odpowiedzialności)
-- `clampValue(value, min, max)` – ogranicza liczby do zakresu 1..99.
-- `sanitizeField(input)` – normalizuje pojedyncze pole (`parseInt` + clamp + zapis do DOM).
-- `syncPoolAndWrath()` – pilnuje reguły `wrath <= pool`.
-- `createDieElement(isWrath)` – buduje strukturę DOM pojedynczej kości (7 oczek + znak `?`).
-- `setDieFace(die, value)` – przełącza klasę `face-1..face-6`.
-- `rollDie()` – zwraca liczbę losową 1..6.
-- `scoreValue(value)` – mapuje wynik kości na punkty (1-3=0, 4-5=1, 6=2).
-- `buildSummary(payload)` – renderuje pełne podsumowanie testu (nagłówek, furia, shift, lista kości).
-- `resetState()` – resetuje formularz i panel wyników do wartości domyślnych.
-- `updateLanguage(lang)` – podmienia wszystkie etykiety PL/EN i resetuje stan.
-- `handleRoll()` – orkiestracja całego rzutu: walidacja, animacja, losowanie, obliczenia, render.
+---
 
+## 6. Dice algorithm
 
-## 13. Nawigacja „Strona Główna”
-- Przycisk `#mainPageButton` zawiera hiperłącze do `../Main/index.html`.
-- Przy zmianie struktury katalogów lub hosta trzeba zaktualizować `href`, aby zachować poprawny powrót do launchera.
+Roll flow:
 
+1. Read and validate `difficulty`, `pool`, and `wrath`.
+2. Create `pool` dice elements.
+3. Mark the first `wrath` dice as Wrath dice.
+4. Start roll animation.
+5. Generate a random value from 1 to 6 for each die.
+6. Score each die:
 
+```text
+1-3 => 0 icons
+4-5 => 1 icon
+6   => 2 icons
+```
 
-## Dodawanie nowej wersji językowej (PL)
+7. Sum icons.
+8. Determine success:
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+```text
+totalIcons >= difficulty
+```
 
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+9. Calculate possible shift:
 
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+```text
+margin = totalIcons - difficulty
+possibleShift = min(numberOfSixes, floor(margin / 2))
+```
+
+Possible shift must not be below zero.
+
+---
+
+## 7. Wrath dice logic
+
+Wrath dice use separate red visual styling.
+
+Current result flags:
+
+| Flag | Rule |
+| --- | --- |
+| Wrath Complication | At least one Wrath die rolled 1. |
+| Wrath Critical | All Wrath dice rolled 6. |
+
+If there are no Wrath dice, Wrath-specific messages should not be shown.
+
+---
+
+## 8. Styling and visuals
+
+The module uses a dark terminal style consistent with the rest of `WnG_Tools`.
+
+Important visual rules:
+
+- dark green/black background,
+- green text and borders,
+- monospace font stack,
+- responsive panel layout,
+- normal dice are light with dark pips,
+- Wrath dice are red with light pips,
+- dice animation hides pips and shows a question mark while rolling.
+
+Important dice classes:
+
+```text
+.die
+.face-1
+.face-2
+.face-3
+.face-4
+.face-5
+.face-6
+```
+
+---
+
+## 9. JavaScript responsibility map
+
+Important function responsibilities:
+
+| Function / mechanism | Responsibility |
+| --- | --- |
+| `clampValue()` | Keep numeric values inside the accepted range. |
+| `sanitizeField()` | Normalize one input field. |
+| `syncPoolAndWrath()` | Enforce `wrath <= pool`. |
+| `createDieElement()` | Build the DOM structure for one die. |
+| `setDieFace()` | Apply the visible face class. |
+| `rollDie()` | Generate a random result from 1 to 6. |
+| `scoreValue()` | Convert a die result into icons. |
+| `buildSummary()` | Render the result summary. |
+| `resetState()` | Reset form and result panel. |
+| `updateLanguage()` | Apply UI translations and reset state. |
+| `handleRoll()` | Orchestrate validation, animation, rolling, scoring, and rendering. |
+
+Function names should be kept synchronized with the actual `script.js` implementation.
+
+---
+
+## 10. Language support
+
+The module supports language switching.
+
+Changing language should:
+
+- update labels,
+- update result text,
+- update validation messages,
+- set document language,
+- reset the current result state.
+
+When adding another language, update:
+
+- translation dictionary,
+- language selector options,
+- static HTML text,
+- summary labels,
+- validation messages,
+- user documentation,
+- technical documentation.
+
+---
+
+## 11. Main Page navigation
+
+The Main Page button points to:
+
+```text
+../Main/index.html
+```
+
+If the folder structure or hosting path changes, update the link.
+
+---
+
+## 12. Control tests
+
+| Test | Steps | Expected result |
+| --- | --- | --- |
+| Default roll | Use DN 3, Pool 2, Wrath 1 and roll. | No console errors; result renders. |
+| Input clamp | Enter values below 1 or above 99. | Values are corrected or rejected according to UI behavior. |
+| Wrath limit | Set Pool 2 and Wrath 5. | Wrath is corrected or blocked so it does not exceed Pool. |
+| Success calculation | Force or inspect rolls where icons meet DN. | Result shows Success. |
+| Failure calculation | Force or inspect rolls where icons are below DN. | Result shows Failure. |
+| Wrath Complication | Wrath die result includes 1. | Complication message appears. |
+| Wrath Critical | All Wrath dice are 6. | Critical message appears. |
+| Shift | Extra successes and sixes exist. | Possible Shift is calculated correctly. |
+| Reset | Change language or reset state. | Result panel returns to default. |
+| Mobile layout | Test below 600 px width. | UI remains readable. |
+| Main Page | Click Main Page. | Navigation returns to launcher. |
+
+---
+
+## 13. Rebuild checklist
+
+To rebuild the module:
+
+1. Restore `DiceRoller/index.html`.
+2. Restore `DiceRoller/style.css`.
+3. Restore `DiceRoller/script.js`.
+4. Preserve the input IDs used by JavaScript.
+5. Preserve the dice result container and summary container.
+6. Preserve language selector and Main Page navigation.
+7. Re-test validation, rolls, Wrath logic, shift logic, reset, language switching, and responsive layout.
+
+---
+
+## 14. Known release notes
+
+- DiceRoller is fully client-side.
+- It does not use Firebase.
+- It does not persist roll history.
+- Language switching resets the current result.
+- The Main Page link must be checked after copying the module to a new path.
