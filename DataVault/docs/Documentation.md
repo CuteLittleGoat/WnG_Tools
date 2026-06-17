@@ -1,1058 +1,890 @@
-# 🇬🇧 Technical documentation (EN)
+# Technical documentation — DataVault
 
-## 1. Purpose and architecture
-`DataVault` is a browser data repository. `index.html`, `style.css`, and `app.js` render searchable and filterable records. Runtime data is obtained through the shared Firebase data loader from the administrator-configured database. The spreadsheet parser and Python helper preserve the canonical import shape.
+DataVault is the browser-based data repository used by `WnG_Tools`. It loads private release data from Firebase Realtime Database, renders searchable/filterable tables, supports admin-side data generation from `Repository_EN.xlsx`, and exposes formatted records to related modules such as `NPCGenerator`.
 
-## 2. Files and dependencies
-- `index.html` defines the access gate and repository workspace.
-- `style.css` defines the dark Administratum visual system, table layout, state styling, and responsive behavior.
-- `app.js` controls authentication state, data loading, filters, tables, detail views, localization, and navigation.
-- `xlsxCanonicalParser.js` converts XLSX XML structures into the canonical browser-side data format.
-- `build_json.py` is the Python generation helper for compatible JSON artifacts.
-- `docs/ZasadyFormatowania.md` describes source formatting conventions.
-- `../shared/firebase-data-loader.js` and `../shared/firebase-config.js` provide shared configured runtime access.
-
-## 3. Interface and data flow
-The public gate starts in English and can switch to Polish. After successful authentication against the administrator’s own Firebase project, the loader retrieves the configured DataVault dataset. The workspace exposes category navigation, filters, search, tables, record details, formatting helpers, and readable empty/error states. Public placeholders alone cannot authenticate or load private records.
-
-## 4. Canonical data maintenance
-Keep spreadsheet parsing, generated JSON structure, and fallback behavior compatible with consumers such as `NPCGenerator`. Do not simplify parser behavior without validating the output shape. Repository secrets, passwords, tokens, and service-account files must never be committed.
-
-## 5. Rebuild checklist
-Restore all frontend files, parser scripts, shared Firebase loader/config templates, and formatting documentation. Configure a separate Firebase project, prepare neutral compatible data, compare parser outputs, verify gate EN → PL → EN switching, login errors, categories, search, filters, details, empty states, and dependent-module compatibility.
-
-# 🇵🇱 Dokumentacja techniczna (PL)
-
-# Administratum Data Vault — dokumentacja techniczna (super dokładna)
-
-Dokument opisuje **mechanizmy aplikacji i wygląd 1:1**, tak aby ktoś mógł odtworzyć identyczne zachowanie w innej implementacji. Aplikacja to frontend (HTML/CSS/JS) pracujący na danych runtime pobieranych z Firebase Realtime Database (`/datavault/live`) przez wspólny loader `shared/firebase-data-loader.js`, z kanonicznym generowaniem plików importowych po stronie przeglądarki (parser XML XLSX).
-
-## 0. Aktualny stan danych i konfiguracji
-
-Moduł DataVault korzysta z prywatnego runtime Firebase RTDB `/datavault/live`. Lokalny `data.json` pełni rolę backupu i artefaktu pomocniczego, natomiast do Firebase importowany jest root-ready `firebase-import.json` wygenerowany z lokalnego pliku `Repozytorium.xlsx`. Plik `firebase-import.json` należy importować z poziomu root Firebase Realtime Database (`/`), co tworzy payload pod `/datavault/live`; nie należy importować go bezpośrednio do `/datavault/live`, bo powstanie podwójne zagnieżdżenie `/datavault/live/datavault/live`. Wspólny loader `shared/firebase-data-loader.js` nadal czyta `DATA_PATH = "datavault/live"`.
-
----
-Zakładka `Kary do ST` należy do zbioru zakładek zasad walki (`COMBAT_RULES_SHEETS`), dzięki czemu jest ukrywana/pokazywana przez checkbox `#toggleCombatTabs` i dziedziczy czerwony styl `.tab--combat` zarówno w trybie admina, jak i użytkownika.
-
----
-Bieżąca logika pierwszej aktywnej zakładki po `initUI()`:
-- jeżeli bieżąca zakładka (`currentSheet`) nadal jest widoczna, pozostaje aktywna (bez zmian zachowania),
-- jeżeli trzeba wybrać nową zakładkę startową:
-  - w trybie admina preferowana jest `Notatki`,
-  - w trybie użytkownika preferowana jest `Bronie`,
-- jeśli preferowana zakładka nie jest aktualnie widoczna (np. przez filtry widoczności zakładek), używany jest fallback `visibleOrder[0] || visibleSheets[0]`.
-- Zmiana dotyczy wyłącznie etapu wyznaczania `nextSheet` i **nie zmienia** logiki `applyDefaultViewForSheet`, `applyViewModeToAllSheets` ani przycisku `Widok Domyślny`.
-
-
-## 0) Wymagania dla pliku wsadowego `Repozytorium.xlsx`
-
-### 0.1 Nazwa i lokalizacja pliku
-- Wymagana nazwa wejścia: **`Repozytorium.xlsx`**.
-- Wymagana lokalizacja: folder modułu `DataVault` (ten sam poziom co `index.html`, `app.js`, `xlsxCanonicalParser.js`).
-- UI i parsery zakładają pracę na tym pliku; zmiana nazwy lub ścieżki wymagałaby zmian w kodzie.
-
-### 0.2 Wymagane zakładki (arkusze)
-- Z perspektywy działania modułu wymagane są wszystkie zakładki, które mają być widoczne i filtrowalne w DataVault.
-- Zakładki używane przez logikę widoków i checkboxów obejmują m.in.:
-  - tworzenie postaci: `Tabela Rozmiarów`, `Gatunki`, `Archetypy`, `Premie Frakcji`, `Słowa Kluczowe Frakcji`, `Pakiety Wyniesienia`, `Specjalne Bonusy Frakcji`, `Implanty Astartes`, `Zakony Pierwszego Powołania`,
-  - zasady walki: `Trafienia Krytyczne`, `Groza Osnowy`, `Skrót Zasad`, `Tryby Ognia`, `Kary do ST`.
-- Brak danej zakładki skutkuje brakiem odpowiadającej tabeli w UI.
-
-### 0.3 Wymagane kolumny
-- Kolumny muszą mieć stabilne nazwy dokładnie takie, jakich używa konfiguracja tabel i reguły formatowania.
-- Szczególnie istotne są kolumny wykorzystywane globalnie lub przez reguły specjalne: `Nazwa`, `Opis`, `Podręcznik`, `Strona`, `Słowa Kluczowe`, `Słowo Kluczowe`, `Efekt`, `Wymagania`, `Koszt PD`.
-- Zmiana nazwy kolumny bez aktualizacji kodu powoduje utratę części funkcji (filtrowanie, szerokości, style semantyczne).
-
-### 0.4 Wymagane reguły formatowania w XLSX
-- Czerwony tekst w XLSX jest mapowany na markery `{{RED}}...{{/RED}}` i renderowany na czerwono w UI.
-- Pogrubienie/kursywa/przekreślenie są mapowane odpowiednio na `{{B}}`, `{{I}}`, `{{S}}`.
-- Referencje stron w nawiasach z tokenami `str`, `str.`, `strona`, `page`, `p.` są automatycznie oznaczane jaśniejszym kolorem (`.ref`).
-- Linie pomocnicze `*[n]` są oznaczane stylem `.caretref` (jaśniejszy ton).
-- Dodatkowe wyjątki semantyczne (np. neutralne przecinki i wyjątek `Pakiety Wyniesienia / Słowa Kluczowe`) są obowiązkowo opisane i utrzymywane w `docs/ZasadyFormatowania.md`.
-
-## 1) Struktura projektu i pliki
-
-- `index.html` — szkielet UI: pasek górny, panel filtrów, obszar tabeli, popover, modal porównania, kontener menu filtrów, skrypty `xlsxCanonicalParser.js` i `app.js` oraz style `style.css`.
-- `style.css` — pełne style (kolory, fonty, layout, tabela, popover, modal, menu filtrów listowych).
-- `app.js` — główna logika UI: wczytywanie danych, normalizacja, filtrowanie, sortowanie, renderowanie, porównywanie i obsługa przycisku generacji.
-- `data.json` — plik pomocniczy/backup generowany lokalnie przez narzędzia DataVault; zawiera `_meta.traits`, `_meta.states`, `_meta.sheetOrder` i `_meta.columnOrder` i służy do walidacji, porównań oraz eksportu podczas utrzymania danych (nie jest runtime produkcyjnym).
-- `Repozytorium.xlsx` — źródło wsadowe do generowania plików importowych (`data.json` backup + root-ready `firebase-import.json`) w trybie admina; administrator wskazuje lokalny plik przez okno wyboru pliku.
-- `xlsxCanonicalParser.js` — kanoniczny parser XLSX po stronie przeglądarki: czyta bezpośrednio `xl/styles.xml`, `xl/sharedStrings.xml`, `xl/workbook.xml` i `xl/worksheets/sheet*.xml`, aby odwzorować logikę `build_json.py` (w tym detekcję `{{RED}}`).
-- `build_json.py` — kanoniczny generator referencyjny `data.json` z XLSX (AI/CLI/backend). Normalizuje białe znaki i zamienia polskie cudzysłowy „ ” na standardowy znak `"`.
-- Niniejszy dokument jest głównym, samowystarczalnym źródłem opisu fontów, kolorów, wyjątków formatowania, clamp i szerokości kolumn 1:1.
+This document is English-only and describes the current release architecture.
 
 ---
 
-## 2) HTML: układ i elementy (index.html)
+## 1. Module purpose
 
-### 2.1 Nagłówek i akcje
+DataVault provides a table browser for Wrath & Glory reference data.
 
-- Logika JS ukrywa `#btnMainPage` wyłącznie w trybie admina (`ADMIN_MODE === true`).
-- Główny kontener aplikacji: `.app` (flex kolumnowy).
-- Górny pasek: `.topbar`.
-- Branding:
-  - `.sigil` — stały kontener 48×48 px w górnym lewym rogu brandingu.
-  - `.sigilIcon` — obraz `Icon.png` (`width:100%`, `height:100%`, `object-fit: contain`, `loading="eager"`) renderowany wewnątrz `.sigil`, aby zapobiegać skokom layoutu (CLS).
-  - `.title` — „ADMINISTRATUM DATA VAULT”.
-- Akcje (przyciski):
-  - `#btnUpdateData` w grupie `#updateDataGroup` (etykieta przycisku: **„Generuj pliki danych”** w PL / **„Generate data files”** w EN).
-  - `#btnReset` — **Pełen Widok** (odsłania wszystkie dane i czyści filtry/sortowanie).
-  - `#btnDefaultView` — **Widok Domyślny** (przywraca predefiniowane ukrycia i domyślne sortowanie).
-  - `#btnCompare` — porównanie zaznaczonych wierszy.
-- Pod przyciskami `#btnReset` i `#btnDefaultView` widoczny jest podpis i18n (`viewButtonsNote`): „Widok Domyślny jest taki sam jak Pełen Widok w tej wersji release.” / „Default View is identical to Full View in this release.”.
-- Przełącznik języka:
-  - `.language-switcher select#languageSelect` z opcjami `en` i `pl`.
-  - Ciemne tło selecta (`#0b0b0b`) utrzymuje spójność z motywem konsolowym.
+It is responsible for:
 
-**Ważne:** `#updateDataGroup` jest ukrywany w trybie gracza (JS ustawia `display:none`). W trybie admina grupa pokazuje komunikat, że użytkownik ma wskazać lokalny plik `Repozytorium.xlsx`; następnie aplikacja generuje `data.json` (backup) oraz root-ready `firebase-import.json` do importu z poziomu root Firebase Realtime Database (`/`). Po imporcie dane trafiają pod `/datavault/live`.
-
-### 2.2 Panel filtrów
-- `aside.panel` z nagłówkiem `.panelHeader`.
-- Pole globalne: `#globalSearch` w `.panelBody`.
-- Checkbox `#toggleCharacterTabs` — pytanie „Czy wyświetlić zakładki dotyczące tworzenia postaci?”; domyślnie odznaczony. Zaznaczenie pokazuje zakładki: `Tabela Rozmiarów`, `Gatunki`, `Archetypy`, `Premie Frakcji`, `Słowa Kluczowe Frakcji`, `Pakiety Wyniesienia`, `Specjalne Bonusy Frakcji`, `Implanty Astartes`, `Zakony Pierwszego Powołania` (gdy checkbox nie jest zaznaczony, te zakładki są ukryte).
-- Checkbox `#toggleCombatTabs` — pytanie „Czy wyświetlić zakładki dotyczące zasad walki?”; domyślnie odznaczony. Zaznaczenie pokazuje zakładki: `Trafienia Krytyczne`, `Groza Osnowy`, `Skrót Zasad`, `Tryby Ognia`, `Kary do ST` (z czego `Trafienia Krytyczne` i `Groza Osnowy` pozostają widoczne tylko w trybie admina).
-- Podpowiedź sortowania informuje, że kliknięcie nagłówka kolumny sortuje dane, a kolejne kliknięcie zmienia kierunek sortowania.
-
-### 2.3 Obszar tabeli
-- Zakładki: `#tabs` (przyciski `.tab` generowane w JS).
-- `#tableWrap` — kontener na tabelę.
-
-### 2.4 Popover i modal
-- Popover: `#popover` z `#popoverTitle`, `#popoverBody`, `#popoverClose`.
-- Modal porównania: `#modal` z `#modalBody`, `#modalClose`.
-
-### 2.5 Menu filtra listowego
-- Kontener: `#filterMenu` (JS tworzy zawartość przy otwarciu filtra listowego).
-
-### 2.6 Skrypty i fonty
-- Fonty: lokalny stos konsolowy (bez Google Fonts):
-  - `Consolas`, `Fira Code`, `Source Code Pro`, `monospace`.
-- Script `app.js` wczytywany na końcu dokumentu.
-- Script CDN dla `xlsx.full.min.js` (`0.19.3`) jest dołączony w HTML.
-  - Jeśli z jakiegoś powodu go brak, `app.js` doładowuje XLSX w wersji `0.18.5` (patrz `ensureSheetJS`).
+- loading private DataVault data after authentication,
+- rendering workbook sheets as tabs and tables,
+- supporting global search and per-column filters,
+- preserving sheet and column order from generated metadata,
+- rendering special text formatting from generated markers,
+- rendering trait tags and state/trait tooltips,
+- hiding/showing sheet groups such as character creation, combat, vehicles, and outdated bestiary entries,
+- generating `data.json` and root-ready `firebase-import.json` in admin mode,
+- providing a stable data source for `NPCGenerator` through the shared Firebase runtime.
 
 ---
 
-## 3) CSS: typografia, kolory, layout, komponenty
+## 2. Entry points
 
-### 3.1 Fonty
-- Cały interfejs używa jednego stosu fontów (ustawionego globalnie na `*`):
-  - `"Consolas", "Fira Code", "Source Code Pro", monospace`.
-- Zmienna `--head` powiela ten sam stos i jest używana w tytułach menu filtrów.
-
-### 3.2 Paleta kolorów (CSS variables)
-- `--bg`: `#031605`
-- `--bg-grad`: radialne gradienty + `#031605`
-- `--panel`: `#000`
-- `--panel2`: `#000`
-- `--text`: `#9cf09c`
-- `--text2`: `#4FAF4F`
-- `--muted`: `#4a8b4a`
-- `--code`: `#D2FAD2`
-- `--red`: `#d74b4b`
-- `--border`: `#16c60c`
-- `--accent`: `#16c60c`
-- `--accent-dark`: `#0d7a07`
-
-Efekty i obwódki:
--- `--b: rgba(22,198,12,.35)`
--- `--b2: rgba(22,198,12,.2)`
--- `--div: rgba(22,198,12,.18)`
--- `--hbg: rgba(22,198,12,.06)`
-- `--zebra-odd: rgba(22,198,12,.02)` (ciemniejszy pas dla wierszy nieparzystych)
-- `--hover: rgba(22,198,12,.16)` (podświetlenie po najechaniu kursorem; takie samo jak zaznaczenie)
-- `--row-selected: rgba(22,198,12,.16)` (podświetlenie zaznaczonego wiersza)
--- `--glow: 0 0 25px rgba(22, 198, 12, 0.45)`
--- `--glowH: 0 0 18px rgba(22, 198, 12, 0.35)`
-
-### 3.3 Layout główny
-- `.app` — flex, min-height 100%.
-- `.topbar` — górny pasek z gradientem, borderem i flex-wrap.
-- Slot ikony `.sigil` ma `48px × 48px`; sama ikona `.sigilIcon` korzysta z `width:100%` i `height:100%` z `object-fit:contain`, więc wypełnia cały slot bez przycinania i utrzymuje stabilny layout przy doczytywaniu zasobów.
-- `.main` — układ grid: **180px** panel + reszta workspace.
-  - Media query `@media (max-width: 980px)` przełącza na jedną kolumnę.
-
-### 3.4 Przyciski i pola
-- `.btn` (podstawowy), `.btn.primary`, `.btn.secondary`.
-- `.actionsGroup` — kontener przycisku i notatki administracyjnej, ustawiony na `max-width: 640px` i `width: min(640px, calc(100vw - 40px))`, aby pomieścić dłuższy tekst instrukcji aktualizacji danych.
-- Nazwy plików `index.html`, `Repozytorium.xlsx` i `data.json` w podpowiedzi są renderowane jako `<code>...</code>`, dzięki czemu mają jaśniejszy kolor (`--code`) i wyróżniają się wizualnie.
-- `.input` — styl pól tekstowych (tło `--bg`, focus glow).
-- `.checkboxRow` — wiersz z checkboxem, uppercase, kolor `--text2`, `accent-color: var(--accent)`.
-- `.checkboxLabel` — jaśniejszy opis checkboxa, kolor `--code` z `opacity: .9` (taki sam ton jak referencje `str.`).
-- `.checkboxRow--combat` — wariant wiersza z czerwonym tekstem `--red` i `accent-color: var(--red)` dla checkboxa zasad walki.
-
-### 3.5 Zakładki
-- `.tabs` — flex z zawijaniem.
-- `.tab` — uppercase i ten sam font co reszta UI, aktywna z innym tłem i borderem.
-- `.tab--character` — zakładki powiązane z checkboxem tworzenia postaci (arkusze: `Tabela Rozmiarów`, `Gatunki`, `Archetypy`, `Premie Frakcji`, `Słowa Kluczowe Frakcji`, `Pakiety Wyniesienia`, `Specjalne Bonusy Frakcji`, `Implanty Astartes`, `Zakony Pierwszego Powołania`) mają jaśniejszy kolor tekstu `var(--code)` i `opacity: .9`, spójny z etykietą checkboxa.
-- `.tab--combat` — zakładki zasad walki (`Trafienia Krytyczne`, `Groza Osnowy`, `Skrót Zasad`, `Tryby Ognia`, `Kary do ST`) mają czerwony tekst `var(--red)` niezależnie od stanu aktywnego.
-
-### 3.6 Tabela
-- `.tableWrap`, `.tableFrame`, `.tableViewport` — kontenery dla tabeli.
-- `.dataTable` — `border-collapse`, `box-shadow`, sticky headers.
-- Kolumny `Podręcznik` i `Strona` są globalnie ujednolicone we wszystkich zakładkach: `Podręcznik` ma `min-width: 17ch`, wyrównanie do lewej i standardowe łamanie; `Strona` ma `min-width: 6ch`, `max-width: auto`, wyrównanie do lewej i standardowe łamanie. `Podręcznik` pozostaje bez limitu `max-width`.
-- Komórki `Strona` (`td[data-col="Strona"]`) używają koloru `var(--code)`, czyli dokładnie tego samego tonu co referencje `(str./page/p.)` renderowane klasą `.ref`.
-- Nagłówki:
-  - `thead th` — sticky, uppercase, background gradient.
-  - Drugi wiersz nagłówka (`tr:nth-child(2)`) ma niższe tło i `top: var(--header-row-height)`.
-  - W drugim wierszu pierwsza komórka (`th.noFilterCell`) jest celowo pusta — kolumna wyboru `✓` nie ma filtra, więc nie renderuje placeholdera „filtr...”.
-  - Aktywny filtr kolumny dodaje klasę `.filter-active` do nagłówka z pierwszego wiersza, co daje jasnoczerwone podświetlenie (`box-shadow: inset 0 -2px 0 rgba(255,85,85,.40)` + czerwony gradient tła).
-- Zebra striping: `tbody tr:nth-child(odd)` + `tbody tr:nth-child(even)` (dwa odcienie zieleni).
-- Hover: `tbody tr:hover`.
-- Zaznaczony wiersz: `tbody tr.row-selected`.
-
-### 3.7 Tag cechy
-- `.tag` — kapsułka z borderem, uppercase, hover.
-
-### 3.8 Popover
-- `.popover` — kontener w rogu, flex kolumnowy, stały `max-height`.
-- `.popoverHeader`, `.popoverTitle`, `.popoverBody`.
-- `.popoverTitle` ma `flex: 1` i `word-break`, aby długie tytuły mieściły się obok przycisku zamknięcia.
-- `.popoverBody` jest flex-grow i posiada scroll (z `min-height: 0`).
-- `.popoverBlock`, `.popoverLabel` — bloki sekcji (CECHA / STAN) z kontrolowanym odstępem.
-- Wersja aktywna: `[aria-hidden="false"]`.
-
-### 3.9 Modal porównania
-- `.modal`, `.modalCard`, `.modalHeader`, `.modalBody`.
-- Porównanie wykorzystuje tabelę `.compareTable`, która ma tę samą logikę zebra striping i hover co tabela główna.
-
-### 3.10 Menu filtra listowego
-- `.filterMenu` — fixed, z max-height, scroll i shadow.
-- `.fmTitle`, `.fmSearch`, `.fmActions`, `.fmList`, `.fmItem`.
-- `.filterBtn.filter-active`:
-  - mocniejsza ramka (`border-color: rgba(255,85,85,.40)`),
-  - jasnoczerwone tło (`rgba(255,70,70,.20)`) i czerwony glow (`0 0 10px rgba(255,85,85,.40)`),
-  - pseudo-element `::after` z kropką `●` w kolorze `rgb(255,120,120)` jako jednoznaczny znacznik aktywnego filtra.
-
-### 3.11 Formatowanie inline
-- `.inline-red`, `.keyword-red`, `.keyword-comma`, `.inline-bold`, `.inline-italic`.
-- `.ref`, `.caretref` — jaśniejszy kolor dla referencji.
-- `.slash` — separator zasięgu.
-
-### 3.12 Clamp i treść komórek
-- `.celltext` — `white-space: pre-wrap` i standardowe łamanie.
-- `.clampable` — zmienia kursor.
-- `.clampHint` — hint z kolorem `--text2`.
-
-### 3.13 Szerokości kolumn (min-width)
-Kolumny ustawiane 1:1 według selektorów `table[data-sheet=...]`:
-
-- **Reguła globalna (nadpisująca lokalne wyjątki):**
-  - `Podręcznik`: `min-width: 17ch`, `max-width: none`, `text-align: left`, `white-space: normal`.
-  - `Strona`: `min-width: 6ch`, `max-width: auto`, `text-align: left`, `white-space: normal`, kolor komórek `td` = `var(--code)`.
-
-- **Bestiariusz**
-  - `Nazwa`: 26ch
-  - `Zagrożenie`: 5ch
-  - `Słowa Kluczowe`: 28ch
-  - `S`, `Wt`, `Zr`, `I`, `SW`, `Int`, `Ogd`: 3ch
-  - `Odporność (w tym WP)`: 3ch
-  - `Wartość Pancerza`: 3ch
-  - `Obrona`: 3ch
-  - `Żywotność`: 3ch
-  - `Odporność Psychiczna`: 3ch
-  - `Umiejętności`: 28ch
-  - `Premie`: 60ch
-  - `Zdolności`: 60ch
-  - `Atak`: 50ch
-  - `Zdolności Hordy`: 60ch
-  - `Opcje Hordy`: 60ch
-  - `Upór`: 3ch
-  - `Odwaga`: 3ch
-  - `Szybkość`: 3ch
-  - `Rozmiar`: 7ch
-  - `Podręcznik`: 17ch
-  - `Strona`: 6ch
-
-- **Tabela Rozmiarów**
-  - `Rozmiar`: 8ch
-  - `Modyfikator Testu Ataku`: 26ch
-  - `Zmniejszenie Poziomu Ukrycia`: 26ch
-  - `Przykłady`: 85ch
-
-- **Archetypy**
-  - `Poziom`: 2ch
-  - `Frakcja`: 26ch
-  - `Nazwa`: 26ch
-  - `Gatunek`: 26ch (dokładnie te same parametry jak `Nazwa`)
-  - `Koszt PD`: 4ch
-  - `Słowa Kluczowe`: 28ch
-  - `Atrybuty Archetypu`: 26ch
-  - `Umiejętności Archetypu`: 26ch
-  - `Zdolność Archetypu`: 46ch
-  - `Ekwipunek`: 46ch
-  - `Inne`: 10ch
-  - `Podręcznik`: 17ch
-  - `Strona`: 6ch
-
-- **Pakiety Wyniesienia**
-  - `Nazwa`: 26ch (jak `Stany / Nazwa`)
-  - `Opis`: 56ch (jak `Słowa Kluczowe Frakcji / Opis`)
-  - `Koszt PD`: 26ch (taka sama szerokość jak `Premia Wpływu`)
-  - `Wymagania`: 26ch (jak `Archetypy / Umiejętności Archetypu`)
-  - `Słowa Kluczowe`: 26ch (jak `Archetypy / Umiejętności Archetypu`)
-  - `Premia Wpływu`: 26ch (jak `Archetypy / Umiejętności Archetypu`)
-  - `Pamiętna historia`: 46ch (jak `Archetypy / Zdolność Archetypu`)
-  - `Ekwipunek`: 46ch (jak `Archetypy / Zdolność Archetypu`)
-  - `Podręcznik`: 17ch (jak `Archetypy / Podręcznik`)
-  - `Strona`: 6ch (jak `Archetypy / Strona`, wycentrowana)
-
-- **Premie Frakcji**
-  - `Frakcja`: 26ch
-  - `Premia 1`: 56ch
-  - `Premia 2`: 56ch
-  - `Premia 3`: 56ch
-
-- **Gatunki**
-  - `Gatunek`: 26ch
-  - `Koszt PD`: 4ch
-  - `Atrybuty`: 26ch
-  - `Umiejętności`: 26ch
-  - `Zdolności gatunkowe`: 46ch
-  - `Rozmiar`: 10ch
-  - `Szybkość`: 4ch
-
-- **Słowa Kluczowe Frakcji**
-  - `Frakcja`: 26ch
-  - `Słowo Kluczowe`: 28ch
-  - `Efekt`: 56ch
-  - `Opis`: 26ch
-
-- **Implanty Astartes**
-  - `Numer`: 4ch
-  - `Nazwa`: 26ch
-  - `Opis`: 26ch
-
-- **Zakony Pierwszego Powołania**
-  - `Nazwa`: 26ch
-  - `Opis`: 56ch
-  - `Zaleta`: 26ch
-  - `Wada`: 26ch
-
-- **Specjalne Bonusy Frakcji**
-  - `Frakcja`: 26ch
-  - `Rodzaj`: 26ch
-  - `Nazwa`: 26ch
-  - `Efekt`: 26ch
-  - `Opis`: 56ch
-
-- **Specjalne Bonusy Wrogów**
-  - `Frakcja`: 26ch
-  - `Rodzaj`: 26ch
-  - `Nazwa`: 26ch
-  - `Efekt`: 26ch
-  - `Opis`: 56ch
-
-- **Trafienia Krytyczne**
-  - `Rzut k66`: 6ch (wycentrowane, bez zawijania)
-  - `Opis`: 56ch
-  - `Efekt`: 26ch
-  - `Chwała`: 26ch
-
-- **Groza Osnowy**
-  - `Rzut k66`: 6ch (wycentrowane, bez zawijania)
-  - `Efekt`: 56ch
-
-- **Skrót Zasad**
-  - `Typ`: 32ch
-  - `Nazwa`: 20ch
-  - `Opis`: 56ch
-  - `Strona`: 6ch (wycentrowane, standardowe łamanie; kolor `var(--code)`)
-
-- **Tryby Ognia**
-  - `Nazwa`: 20ch
-  - `Opis`: 56ch
-
-- **Hordy**
-  - `Nazwa zasady`: 26ch
-  - `Opis zasady`: 60ch
-  - `Przykład`: 60ch
-
-- **Notatki**
-  - `LP`: kolumna ukryta (używana do sortowania domyślnego)
-  - `Co`: min-width 20ch, max-width auto, wyrównanie do lewej, standardowe łamanie
-  - `Podręcznik`: min-width auto, max-width bez limitu, wyrównanie do lewej, standardowe łamanie
-  - `Strona`: min-width 6ch, max-width auto, wyrównanie do lewej, standardowe łamanie
-
-- **Kary do ST**
-  - tabela ma `table-layout: fixed` i `width: max-content`, aby nie rozciągać kolumn na szerokość okna.
-  - kolumna wyboru (pierwsza, z ✓) ma 8ch (min/max/width) i jest wycentrowana — identycznie jak w pozostałych zakładkach.
-  - `Ile celów/akcji`: 20ch (min/max/width, wycentrowane)
-  - `Kara do ST`: 20ch (min/max/width, wycentrowane)
-
-## Uwaga: szerokości i kolejność kolumn (Specjalne Bonusy Frakcji / Specjalne Bonusy Wrogów)
-W CSS modułu DataVault dla obu tych zakładek ustawione są **`min-width`**, a nie stałe `width`. Tabela ma `width: 100%` i nie używa `table-layout: fixed`, więc przeglądarka może **rozciągać** kolumny, aby wypełnić dostępne miejsce. Wizualnie może to wyglądać na nierówne szerokości mimo zgodnych wartości minimalnych.
-
-Kolumna wyboru (pierwsza, z ✓) jest wyjątkiem globalnym: ma stałą szerokość 8ch (min/max/width) i nie rozszerza się w żadnej zakładce. Arkusz **Kary do ST** dodatkowo ma stały układ (`table-layout: fixed`) i szerokość `max-content`, więc **wszystkie** jego kolumny pozostają zablokowane.
-
-Kolejność kolumn jest pobierana z `data.json` (`_meta.columnOrder`) i ma pierwszeństwo przed samą listą pól w wierszach. W aktualnym `data.json` kolejność dla **Specjalnych Bonusów Frakcji** i **Specjalnych Bonusów Wrogów** to `Frakcja → Rodzaj → Nazwa → Opis → Efekt`. Jeśli kolejność ma być stała, należy pilnować jej w arkuszu źródłowym lub w `_meta.columnOrder`.
-
-- **Cechy / Stany / Słowa Kluczowe**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Opis`: 56ch
-
-- **Talenty**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Koszt PD`: 4ch
-  - `Wymagania`: 26ch
-  - `Opis`: 26ch
-  - `Efekt`: 56ch
-
-- **Modlitwy**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Koszt PD`: 4ch
-  - `Wymagania`: 26ch
-  - `Efekt`: 56ch
-
-- **Psionika**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Koszt PD`: 4ch
-  - `ST`: 10ch
-  - `Aktywacja`: 10ch
-  - `Czas Trwania`: 15ch
-  - `Zasięg`: 8ch
-  - `Wiele Celów`: 4ch
-  - `Słowa Kluczowe`: 28ch
-  - `Efekt`: 56ch
-  - `Opis`: 26ch
-  - `Wzmocnienie`: 26ch
-
-- **Augumentacje / Ekwipunek**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Opis`: 56ch
-  - `Efekt`: 26ch
-  - `Koszt`: 3ch
-  - `Dostępność`: 3ch
-  - `Słowa Kluczowe`: 28ch
-  - `Koszt IM`: 8ch
-
-- **Pancerze**
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `WP`: 4ch
-  - `Cechy`: 32ch
-  - `Koszt`: 4ch
-  - `Dostępność`: 4ch
-  - `Słowa Kluczowe`: 28ch
-  - `Koszt IM`: 8ch
-  - `Podręcznik`: 17ch
-  - `Strona`: 6ch
-
-- **Bronie**
-  - `Rodzaj`: 14ch
-  - `Typ`: 14ch
-  - `Nazwa`: 26ch
-  - `Obrażenia`: auto (bez min-width)
-  - `DK`: auto (bez min-width)
-  - `PP`: auto (bez min-width)
-  - `Zasięg`: 18ch (brak zawijania)
-  - `Szybkostrzelność`: 8ch
-  - `Cechy`: 32ch
-  - `Koszt`: 4ch
-  - `Dostępność`: 4ch
-  - `Słowa Kluczowe`: 28ch
-  - `Koszt IM`: 8ch
-  - `Podręcznik`: 17ch
-  - `Strona`: 6ch
+| File / URL | Role |
+| --- | --- |
+| `DataVault/index.html` | Standard user entry point. |
+| `DataVault/index.html?admin=1` | Admin entry point with data generation controls. |
+| `DataVault/app.js` | Main UI, rendering, filtering, table state, Firebase loading, and admin logic. |
+| `DataVault/release-admin-overrides.js` | Official release override for EN-first XLSX/JSON generation and runtime trait tooltip compatibility. |
+| `DataVault/column-layout.css` | English DataVault column layout rules mapped to current EN sheet/column names. |
+| `DataVault/xlsxCanonicalParser.js` | Browser-side XLSX parser used by the admin generation flow. |
+| `DataVault/build_json.py` | Python reference generator for `data.json`. |
+| `../shared/firebase-config.js` | Shared Firebase public Web SDK config and technical access email. |
+| `../shared/firebase-data-loader.js` | Shared authentication and Realtime Database loader. |
 
 ---
 
-### 3.14 Wyrównanie treści w kolumnach
-W `style.css` część kolumn z wartościami liczbowymi jest **wyrównana do środka** (`text-align: center`) zarówno w nagłówkach, jak i komórkach:
+## 3. Operating modes
 
-- **Bestiariusz**: `Zagrożenie`, `S`, `Wt`, `Zr`, `I`, `SW`, `Int`, `Ogd`, `Odporność (w tym WP)`, `Wartość Pancerza`, `Obrona`, `Żywotność`, `Odporność Psychiczna`, `Upór`, `Odwaga`, `Szybkość`, `Rozmiar`, `Strona`.
-- **Tabela Rozmiarów**: `Modyfikator Testu Ataku`, `Zmniejszenie Poziomu Ukrycia`.
-- **Gatunki**: `Koszt PD`, `Rozmiar`, `Szybkość`.
-- **Archetypy**: `Poziom`, `Koszt PD`, `Strona`.
-- **Talenty**: `Koszt PD`.
-- **Modlitwy**: `Koszt PD`.
-- **Psionika**: `Koszt PD`, `ST`, `Zasięg`, `Wiele Celów`.
-- **Augumentacje**: `Koszt`, `Dostępność`, `Koszt IM`.
-- **Ekwipunek**: `Koszt`, `Dostępność`, `Koszt IM`.
-- **Implanty Astartes**: `Numer`.
-- **Pancerze**: `WP`, `Koszt`, `Dostępność`, `Koszt IM`, `Strona`.
-- **Bronie**: `Obrażenia`, `DK`, `PP`, `Zasięg`, `Szybkostrzelność`, `Koszt`, `Dostępność`, `Koszt IM`, `Strona`.
-- **Kary do ST**: `Ile celów/akcji`, `Kara do ST`.
+### 3.1 User mode
 
-Dodatkowo kolumna `Zasięg` w **Broniach** ma `white-space: nowrap`, aby nie łamać zapisu z ukośnikami.
-Kolumna `Przykłady` w **Tabela Rozmiarów** ma jawne `text-align: left`.
+User mode is opened through:
 
-## 4) JS: stałe, stan aplikacji i helpery
+```text
+DataVault/index.html
+```
 
-### 4.1 Stałe
-- `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` — arkusze, gdzie przecinki w „Słowa Kluczowe” są neutralne (kolor podstawowy): `Bestiariusz`, `Archetypy`, `Psionika`, `Augumentacje`, `Ekwipunek`, `Pancerze`, `Bronie`, `Pakiety Wyniesienia`.
-  Uwaga implementacyjna: dla `Pakiety Wyniesienia / Słowa Kluczowe` działa dodatkowy wyjątek w `formatDataCellHTML`, który pomija globalne wymuszanie czerwieni i oddaje renderowanie do zwykłego `getFormattedCellHTML` (czyli tylko style inline z XLSX).
-- `KEYWORD_SHEET_ALL_RED` — arkusz `Słowa Kluczowe`, gdzie kolumna `Nazwa` zawsze jest czerwona.
-- `ADMIN_ONLY_SHEET_KEYS` — zestaw arkuszy widocznych tylko w trybie admina (`Bestiariusz`, `Trafienia Krytyczne`, `Groza Osnowy`, `Hordy`, `Specjalne Bonusy Wrogów`, `Notatki`).
-- `CHARACTER_CREATION_SHEETS` — zestaw zakładek sterowanych przez checkbox tworzenia postaci (`Tabela Rozmiarów`, `Gatunki`, `Archetypy`, `Premie Frakcji`, `Słowa Kluczowe Frakcji`, `Pakiety Wyniesienia`, `Specjalne Bonusy Frakcji`, `Implanty Astartes`, `Zakony Pierwszego Powołania`).
-- `COMBAT_RULES_SHEETS` — zestaw zakładek sterowanych przez checkbox zasad walki (`Trafienia Krytyczne`, `Groza Osnowy`, `Skrót Zasad`, `Tryby Ognia`, `Kary do ST`).
-- `CHARACTER_CREATION_SHEET_KEYS` i `COMBAT_RULES_SHEET_KEYS` — kanoniczne (znormalizowane) wersje nazw arkuszy używane do odpornego dopasowania nazw zakładek niezależnie od drobnych różnic zapisu.
-- `RENDER_CHUNK_SIZE = 80` — ile wierszy renderuje się w jednym kroku (progressive rendering).
-- `ADMIN_MODE` — `?admin=1` w URL.
-- `SESSION_VIEW_KEY = "datavault_session_view_v2"` — klucz zapisu stanu widoku w `sessionStorage`.
-- `DEFAULT_VIEW_CONFIG` — w release pusty obiekt; `Widok Domyślny` jest identyczny z `Pełnym Widokiem`.
-- Kolejność zakładek i kolumn **nie jest hardcode** — pochodzi z `_meta.sheetOrder` i `_meta.columnOrder` w `data.json` (a w razie braku jest odzyskiwana z bieżącego układu danych).
+It is intended for browsing and searching the private data repository during play.
 
-### 4.2 Elementy DOM (`els`)
-Mapowanie na `getElementById`:
-- `tabs`, `tableWrap`, `globalSearch`, `btnUpdateData`, `updateDataGroup`, `btnCompare`, `btnReset`, `btnDefaultView`.
-- `popover`, `popoverTitle`, `popoverBody`, `popoverClose`.
-- `modal`, `modalBody`, `modalClose`.
-- `filterMenu`.
-- `toggleCharacterTabs`, `toggleCombatTabs`, `toggleVehicleTabs`, `toggleOldBestiaryEntries`, `languageSelect`.
+User mode hides admin-only maintenance controls.
 
-### 4.3 Stan widoku (per zakładka + globalny UI)
-- `uiState`:
-  - `showCharacterTabs`,
-  - `showCombatTabs`.
-- `viewBySheet` — obiekt stanu per zakładka (serializowany do `sessionStorage`).
-- `view` — aktywny stan aktualnie wybranej zakładki:
-  - `sort` — `{col, dir, secondary?}` lub `null`,
-  - `global` — tekst globalnego filtra,
-  - `filtersText` — per kolumna tekstowy filtr,
-  - `filtersSet` — per kolumna `Set` wartości z menu listowego lub `null`,
-  - `selected` — `Set` zaznaczonych `__id`,
-  - `expandedCells` — `Set` komórek rozwiniętych w clampie.
-- `expandedCells` — `Set` dla rozwiniętych komórek (key: `sheet|rowid|col`).
-- `showCharacterTabs` — `true` gdy checkbox tworzenia postaci jest zaznaczony (pokazuje zestaw zakładek z `CHARACTER_CREATION_SHEETS`).
-- `showCombatTabs` — `true` gdy checkbox zasad walki jest zaznaczony (pokazuje zestaw zakładek z `COMBAT_RULES_SHEETS`, z uwzględnieniem admin-only).
+### 3.2 Admin mode
 
-### 4.4 Helpery tekstowe
-- `norm(s)` — normalizacja spacji i dwukropków.
-- `deriveColumnOrderFromHeader(header)` — mapuje nagłówki z XLSX na kolejność kolumn w tabeli, z uwzględnieniem scalania `Cecha 1..N` → `Cechy` oraz `Zasięg 1..3` → `Zasięg` (pomija techniczne `LP`).
-- `getSheetOrder(available)` — bierze `_meta.sheetOrder` i filtruje do arkuszy dostępnych w danych (dokleja brakujące).
-- `getColumnOrder(rows, sheetName)` — bierze `_meta.columnOrder[sheetName]`, filtruje do kolumn obecnych w danych i dokleja brakujące alfabetycznie (kolumna `LP` jest pomijana, aby nie pojawiała się w UI).
-- `escapeHtml(s)` — encje HTML.
-- `stripMarkers(s)` — usuwa markery `{{RED}}`, `{{B}}`, `{{I}}`, `{{S}}` z tekstu (używane w filtrze listowym).
-- `parseInlineSegments(raw)` — dzieli tekst na segmenty z aktywnymi stylami na podstawie markerów `{{RED}}`, `{{B}}`, `{{I}}`, `{{S}}` (zwraca tablicę `{text, styles}`).
-- `setStatus(msg)` i `logLine(msg, isErr)` — logi (console).
-- `canonKey(s)` — klucz kanoniczny: lowercase, normalizacja spacji, usuwa spację przed `(`.
-- `isCharacterCreationSheet(name)` — sprawdza (po kluczu kanonicznym), czy zakładka należy do grupy tworzenia postaci.
-- `isCombatRulesSheet(name)` — sprawdza (po kluczu kanonicznym), czy zakładka należy do grupy zasad walki.
+Admin mode is opened through:
+
+```text
+DataVault/index.html?admin=1
+```
+
+Admin mode exposes the data-generation workflow. The administrator can choose a local `Repository_EN.xlsx` workbook and generate:
+
+- `data.json`,
+- `firebase-import.json`.
+
+The generated `firebase-import.json` must be imported into Firebase Realtime Database from the database root (`/`).
+
+### 3.3 DEMO mode
+
+The DEMO release uses this access password:
+
+```text
+000000
+```
+
+This value is a DEMO password only. It must be documented for release testing, but it must not be treated as a production password.
 
 ---
 
-## 5) JS: formatowanie treści
+## 4. File structure and responsibilities
 
-### 5.1 `formatInlineHTML(raw)`
-- Wspiera markery: `{{RED}}`, `{{B}}`, `{{I}}`, `{{S}}` z zamknięciem `{{/RED}}`, `{{/B}}`, `{{/I}}`, `{{/S}}`.
-- Zawiera wykrywanie referencji w nawiasach z `str`, `str.`, `strona`, `page`, `p.` → klasa `.ref`.
-- Segmenty renderowane są do `<span>` z klasami:
-  - `inline-red`, `inline-bold`, `inline-italic`, `inline-strike`.
-- Referencje są nakładane nawet wewnątrz stylów.
-- Segmenty ze stylami są wyznaczane przez `parseInlineSegments`.
-
-### 5.2 `formatTextHTML(raw, opts)`
-- Rozbija tekst na linie (`\n`).
-- Rozpoznaje linie zaczynające się od `*[n]` → klasa `.caretref`.
-- `opts.maxLines` — ograniczenie liczby linii.
-- `opts.appendHint` — dopięcie tekstu hintu do końca (klasa `.clampHint`).
-
-### 5.3 `formatRangeHTML(raw)`
-- Rozdziela wartości `Zasięg` po `/`.
-- Separator `/` renderowany jako `<span class="slash">/</span>`.
-
-### 5.4 `formatKeywordHTML(row, col, opts)`
-- Stosuje czerwony font (`.keyword-red`).
-- Opcja `commasNeutral` zamienia przecinki na `<span class="keyword-comma">,</span>`.
-- Pamięta cache w `row.__fmt` (per wariant).
-
-### 5.5 `formatFactionKeywordHTML(raw, opts)`
-- Stosowana tylko dla arkusza `Słowa Kluczowe Frakcji` i kolumny `Słowo Kluczowe`.
-- Zachowuje markery `{{B}}` i `{{I}}` (np. kursywa `lub`) dzięki `parseInlineSegments`.
-- Koloruje na czerwono wszystko poza tokenami `-` i `lub`.
-- Wyróżnia `[ŚWIAT-KUŹNIA]` jako w pełni czerwony token (myślnik pozostaje czerwony).
-- Obsługuje `maxLines` i `appendHint` analogicznie do `formatTextHTML`.
-
-### 5.6 `getFormattedCellHTML(row, col)`
-- Cache HTML w `row.__fmt[col]`.
-- Dla `Zasięg` używa `formatRangeHTML`, inaczej `formatTextHTML`.
-
-### 5.7 Pełne reguły formatowania (mapa 1:1)
-- Kanoniczny wycinek reguł renderowania znajduje się w `DataVault/docs/ZasadyFormatowania.md`.
-- Dokument ten jest nadrzędną „ściągą” do samego formatowania (kolory, markery, tokeny, wyjątki arkuszy i kolejność nakładania styli).
-- Najważniejsze reguły, które muszą być odtworzone 1:1:
-  - pipeline: markery inline → referencje `(str./page/p.)` → reguły per-kolumna/per-arkusz → clamp/podpowiedzi,
-  - obsługa markerów `RED/B/I/S` i ich łączenia na jednym segmencie,
-  - `Słowa Kluczowe` (`Nazwa`) = pełna czerwień,
-  - `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` = czerwone słowa + neutralne przecinki,
-  - wyjątek `Pakiety Wyniesienia / Słowa Kluczowe` = brak globalnego wrappera `.keyword-red`, tylko style inline z XLSX,
-  - `Słowa Kluczowe Frakcji / Słowo Kluczowe` = neutralne `-` i `lub`, czerwone `[ŚWIAT-KUŹNIA]`,
-  - `Zasięg` = separator `/` renderowany jako `.slash`,
-  - `row-old` i `inline-strike` = archiwalny kolor z wyjątkiem kombinacji `.inline-strike.inline-red` (czerwień zachowana).
+| File | Responsibility |
+| --- | --- |
+| `DataVault/index.html` | Defines the access gate, header, controls, filters, tab container, table wrapper, popover, comparison modal, filter menu, and script/style includes. |
+| `DataVault/style.css` | Main DataVault visual system: dark theme, layout, panels, tables, popovers, modal, tags, clamp state, and responsive behavior. |
+| `DataVault/column-layout.css` | Release-specific table column sizing and wrapping rules for English sheet/column names. |
+| `DataVault/app.js` | Main application logic: translations, state, Firebase sign-in, data loading, sheet rendering, filters, view modes, tag rendering, tooltips, comparison, admin generation status. |
+| `DataVault/release-admin-overrides.js` | Official EN-first release override for generation and runtime compatibility. See section 13. |
+| `DataVault/xlsxCanonicalParser.js` | Reads workbook internals and rich text so browser generation can preserve formatting markers. |
+| `DataVault/build_json.py` | CLI/reference generation path. Converts `Repository_EN.xlsx` to `data.json`. |
+| `DataVault/SampleFiles/Repository_EN.xlsx` | Current canonical release workbook sample. |
+| `DataVault/SampleFiles/data.json` | Backup/helper generated JSON sample. |
+| `DataVault/SampleFiles/firebase-import.json` | Root-ready Firebase Realtime Database import sample. |
+| `DataVault/docs/README.md` | User guide. |
+| `DataVault/docs/FormattingRules.md` | Formatting rules guide. |
+| `DataVault/config/FirebaseREADME.md` | Firebase setup guide for this module. |
 
 ---
 
-## 6) JS: transformacje danych
+## 5. Runtime data flow
 
-### 6.1 `mergeTraits(row)`
-- Łączy kolumny `Cecha 1..N` w jedną `Cechy` z separatorem `; `.
-- Usuwa stare pola `Cecha N`.
+The release runtime does not primarily read `data.json` from the public folder. It loads private data from Firebase.
 
-### 6.2 `mergeRange(row)`
-- Łączy `Zasięg 1..3` w `Zasięg` w formacie `v1 / v2 / v3`.
-- Usuwa stare pola `Zasięg N`.
+Runtime flow:
 
-### 6.3 `stripPrivateFields(row)`
-- Usuwa pola zaczynające się od `__` (poza `__id`).
+1. `index.html` loads shared Firebase config and shared data loader.
+2. The access gate asks for the Access Litany password.
+3. The shared loader signs in to Firebase Authentication.
+4. The shared loader reads Realtime Database path:
 
-### 6.4 `transformSheet(name, rows)`
-- Dla `Bronie`: `mergeRange` + `mergeTraits`.
-- Dla `Pancerze`: `mergeTraits`.
-- Każdy rekord dostaje `__id` (`${name}:${idx+1}` jeśli brak).
+```text
+datavault/live
+```
 
-### 6.5 `inferColumns(rows, sheetName)`
-- Buduje listę kolumn z danych.
-- Najpierw korzysta z `_meta.columnOrder[sheetName]`, jeśli istnieje.
-- W przypadku braku metadanych używa kolejności kluczy z pierwszego wiersza.
-- Brakujące/nowe pola dopina alfabetycznie (`pl`, `numeric: true`).
+5. The loader expects the wrapper schema:
 
----
+```text
+datavault-firebase-import-v1
+```
 
-## 7) JS: ładowanie danych
+6. The wrapper stores the actual DataVault object as a JSON string in `dataJson`.
+7. DataVault parses the data object and renders `sheets`.
+8. DataVault uses `_meta` when available for sheet order, column order, traits, states, vehicle traits, vehicle weapon traits, and vehicle states.
 
-### 7.1 `loadJsonFromRepo()`
-- Odczyt danych runtime przez `loadDataVaultLive()` (wspólny loader Firebase Auth + RTDB `/datavault/live`).
-- `normaliseDB()` → `initUI()`.
+Expected Firebase wrapper shape:
 
-### 7.2 `buildDataJsonFromSheets(rawSheets)`
-- Buduje obiekt `sheets`.
-- Generuje `_meta.traits` z arkusza `Cechy`.
-- Generuje `_meta.states` z arkusza `Stany`.
-- `Bronie` i `Pancerze` przechodzą transformacje (cechy, zasięg).
-- Dołącza `_meta.sheetOrder` i `_meta.columnOrder`, jeśli przekazano je z XLSX.
+```json
+{
+  "schemaVersion": "datavault-firebase-import-v1",
+  "createdAt": "2026-...",
+  "source": "Repository_EN.xlsx",
+  "dataJson": "{...stringified DataVault JSON...}"
+}
+```
 
-### 7.3 `ensureSheetJS(cb)`
-- Jeśli `window.XLSX` nie istnieje, doładowuje SheetJS z CDN (`0.18.5`).
+Expected parsed data shape:
 
-### 7.4 `downloadDataJson(data)`
-- Generuje blob i wymusza pobranie `data.json` oraz root-ready `firebase-import.json`.
-- `data.json` pozostaje backupem / artefaktem pomocniczym.
-- `firebase-import.json` zawiera zewnętrzne drzewo `datavault.live`, więc jest przeznaczony do importu z poziomu root Firebase Realtime Database.
-
-### 7.5 `loadXlsxFromRepo()`
-- Funkcja uruchamia kanoniczną generację w przeglądarce:
-  1. Doładowuje `JSZip` (jeśli nie jest dostępny).
-  2. Pobiera `Repozytorium.xlsx` (`cache:"no-store"`).
-  3. Wywołuje `XlsxCanonicalParser.loadXlsxMinimal(arrayBuffer)`.
-  4. Buduje finalny JSON przez `buildDataJsonFromSheets(rawSheets, {sheetOrder, columnOrder})`.
-  5. Buduje root-ready wrapper `firebase-import.json` w strukturze `datavault.live`, waliduje round-trip `JSON.parse(dataJson)` dla payloadu pod `/datavault/live` i pobiera `data.json`; następnie po krótkim opóźnieniu pobiera `firebase-import.json`, normalizuje dane i odświeża UI.
-- Dzięki bezpośredniemu parsowaniu `styles.xml`/`sharedStrings.xml` wynik przycisku jest zgodny semantycznie z `build_json.py` (w tym markery `{{RED}}`).
-- Gdy parser kanoniczny nie jest dostępny (np. błąd CDN), funkcja ustawia status błędu i loguje komendę CLI (`python build_json.py Repozytorium.xlsx data.json`).
-
-### 7.6 `normaliseDB(data)`
-- Ignoruje arkusze zaczynające się od `_`.
-- Normalizuje rekordy, dodaje `__id`.
-- Buduje `traitIndex` i `stateIndex` (klucze kanoniczne).
-- Przenosi do `_meta` `sheetOrder` i `columnOrder` (z fallbackiem do kolejności w `data.json`).
+```json
+{
+  "sheets": {
+    "Bestiary": [],
+    "Weapons": [],
+    "Traits": []
+  },
+  "_meta": {
+    "sheetOrder": [],
+    "columnOrder": {},
+    "traits": {},
+    "states": {},
+    "vehicleTraits": {},
+    "vehicleWeaponTraits": {},
+    "vehicleStates": {}
+  }
+}
+```
 
 ---
 
-## 8) JS: inicjalizacja UI
+## 6. Firebase dependencies
 
-### 8.1 `initUI()`
-- Czyści `#tabs` i tworzy przyciski `.tab` wg `_meta.sheetOrder` (z fallbackiem do kolejności w `data.json`).
-- Ustawia aktywną pierwszą zakładkę (lub zachowuje obecną, jeśli wciąż jest widoczna).
-- Ukrywa `#updateDataGroup`, gdy nie `ADMIN_MODE`.
-- W trybie gracza usuwa z listy zakładek arkusze `Bestiariusz`, `Trafienia Krytyczne`, `Groza Osnowy`, więc są widoczne tylko dla admina.
-- Gdy checkbox `#toggleCharacterTabs` jest niezaznaczony, usuwa z listy zakładek elementy grupy tworzenia postaci (sprawdzane kanonicznie przez `isCharacterCreationSheet`, więc obejmuje też `Premie Frakcji` i `Specjalne Bonusy Frakcji` przy drobnych różnicach zapisu).
-- Gdy checkbox `#toggleCombatTabs` jest niezaznaczony, usuwa z listy zakładek elementy `COMBAT_RULES_SHEETS` (zaznaczenie przywraca te zakładki, ale z zachowaniem ograniczeń admin-only).
+DataVault uses these Firebase services:
 
-### 8.2 `selectSheet(name)`
-- Ustawia `currentSheet`.
-- Zapisuje stan bieżącej zakładki do bufora per-zakładka (`viewBySheet`) i odtwarza stan docelowej zakładki.
-- Stan zakładki obejmuje: `sort`, `global`, `filtersText`, `filtersSet`, `selected`, `expandedCells`.
-- Jeżeli zakładka nie ma jeszcze stanu, tworzony jest nowy stan z domyślnym sortem (po `LP`, jeśli istnieje) i pustymi filtrami.
-- Buduje tabelę i renderuje wiersze.
-- Stan jest synchronizowany do `sessionStorage` (klucz `datavault_session_view_v2`).
+| Service | Purpose |
+| --- | --- |
+| Firebase Authentication | Access gate sign-in with the technical user email and password. |
+| Realtime Database | Private DataVault payload at `/datavault/live`. |
 
-### 8.3 `buildTableSkeleton()`
-- Tworzy `<table>` z dwoma wierszami nagłówka:
-  - wiersz 1: nazwy kolumn + `sortMark`.
-  - wiersz 2: `input` filtrów + przycisk `▾` (filtr listowy).
-- Dodaje kolumnę checkboxów `✓` na początku.
-- Komórka filtra dla kolumny `✓` ma klasę `noFilterCell` i pozostaje pusta, ponieważ ta kolumna nie ma logiki filtrowania.
-- Tooltip przycisku filtru listowego to „Filtr listy”.
-- Po zbudowaniu nagłówka uruchamiane jest `updateFilterIndicators()`, które synchronizuje klasy aktywnego filtra z aktualnym stanem `view`.
+Firebase setup instructions must be maintained in:
+
+```text
+DataVault/config/FirebaseREADME.md
+```
+
+The documentation must clearly distinguish two facts:
+
+1. Realtime Database child nodes such as `datavault` and `live` are created when JSON is imported or written to that path.
+2. The Firebase project, Web App, Authentication provider, Realtime Database instance, database URL, and rules must still be configured manually first.
 
 ---
 
-## 9) JS: sortowanie
+## 7. Current sample data standard
 
-- `toggleSort(col)` — 3-stany: `asc` → `desc` → `null` i czyści ewentualny sort wtórny.
-- `updateSortMarks()` — aktualizuje `▲`/`▼` w nagłówku (tylko dla sortu głównego).
-- `sortRows(rows)`:
-  - sortuje po `view.sort.col`, a gdy wartości są równe i istnieje `secondary`, stosuje drugi klucz sortowania,
-  - jeśli obie wartości są liczbami (`numVal()`), sortuje numerycznie,
-  - w innym przypadku `localeCompare("pl", numeric: true)`.
+The current required release workbook is:
 
-`numVal(x)` — wyciąga pierwszą liczbę z tekstu (regex `-?\d+(\.\d+)?`).
+```text
+Repository_EN.xlsx
+```
 
----
+Sample files are located in:
 
-## 10) JS: filtrowanie
+```text
+DataVault/SampleFiles
+```
 
-### 10.1 Globalne
-- `view.global` z `#globalSearch`.
-- Filtruje po concat wszystkich kolumn.
+| File | Role |
+| --- | --- |
+| `Repository_EN.xlsx` | Canonical English release workbook structure. |
+| `data.json` | Backup/helper generated data object. |
+| `firebase-import.json` | Root-ready Realtime Database import file that places data under `/datavault/live`. |
 
-### 10.2 Per-kolumna (tekst)
-- `view.filtersText[col]` ustawiane na `input` w nagłówku.
-
-### 10.3 Filtr listowy
-- `uniqueValuesForColumn(col)` — zbiór wartości, puste → `"-"`.
-- `isColumnFilterActive(col)`:
-  - zwraca `true`, gdy istnieje niepusty filtr tekstowy (`filtersText[col].trim()`),
-  - albo gdy filtr listowy `filtersSet[col]` jest typu `Set` i zawiera mniej wartości niż pełna lista unikalnych wartości kolumny.
-- `updateFilterIndicators()`:
-  - dla każdej kolumny ustawia `.filter-active` na nagłówku (`thead tr:first-child th[data-col]`) oraz na przycisku `.filterBtn`,
-  - ustawia `aria-pressed` przycisku filtra (`true`/`false`),
-  - jest wołane po budowie nagłówka (`buildTableSkeleton()`) i na każdym renderze (`renderBody()`), więc wskaźnik zawsze odzwierciedla aktualny stan filtrów.
-- `openFilterMenu(col, anchorBtn)`:
-  - Obsługuje **toggle** dla tego samego przycisku (`activeFilterCol`, `activeFilterBtn`): drugi klik w tę samą strzałkę `▾` wywołuje `closeFilterMenu()` i zamyka panel.
-  - Przy kliknięciu `▾` w innej kolumnie najpierw zamyka poprzedni panel (`closeFilterMenu()`), potem buduje nowy dla wskazanej kolumny.
-  - Buduje listę checkboxów i wyszukiwarkę.
-  - Przyciski **Zaznacz wszystko** i **Wyczyść**.
-  - Pozycjonuje menu obok przycisku `▾`.
-  - Podczas otwarcia przypina `filterMenuDocHandler` do `document.mousedown`; klik poza menu/podpiętym przyciskiem zamyka panel.
-- `isFilterMenuOpen()` — helper sprawdzający stan `aria-hidden` menu.
-- `closeFilterMenu()`:
-  - Odpina `filterMenuDocHandler` z `document`.
-  - Czyści `activeFilterCol` i `activeFilterBtn`.
-  - Ustawia `aria-hidden="true"` i czyści HTML menu.
-- Etykiety w menu są wyświetlane bez markerów `{{RED}}`, `{{B}}`, `{{I}}`, ale filtrowanie działa na surowych wartościach (nie zmienia logiki danych).
-- `view.filtersSet[col] = null` oznacza brak filtra (wszystko zaznaczone).
-- Domyślny profil widoku release jest pusty: `DEFAULT_VIEW_CONFIG = {}`, a `applyDefaultViewForSheet` przywraca Pełen Widok.
-
-### 10.4 `passesFilters(row, cols)`
-- Łączy wszystkie filtry (globalny + tekstowy + listowy).
-- Wiersz musi spełnić wszystkie aktywne warunki.
+`Repozytorium.xlsx` is a legacy Polish name. It may remain in old comments, old UI strings, or compatibility code, but it is not the current release file name.
 
 ---
 
-## 11) JS: renderowanie tabeli
+## 8. Current workbook sheets
 
-### 11.1 Renderowanie progresywne
-- `renderBody()` filtruje i sortuje dane, a następnie renderuje w chunkach (`RENDER_CHUNK_SIZE = 80`) z `requestAnimationFrame`.
+The current English release sample uses these sheet names:
 
-### 11.2 `renderRow(r, cols)` — generowanie wiersza
-- Kolumna 0: checkbox (zaznaczenia do porównywania).
-- `Cechy` → `renderTraitsCell()` (tagi klikane).
-- `Zasięg` → `getFormattedCellHTML`.
-- `Słowa Kluczowe Frakcji` / `Słowo Kluczowe` → `formatFactionKeywordHTML` (czerwone słowa poza `-` i `lub`, zachowana kursywa `lub`, `[ŚWIAT-KUŹNIA]` w całości na czerwono).
-- Inne kolumny → `formatTextHTML`, a clamp działa dopiero po renderze na podstawie liczby *wizualnych* linii (opis poniżej).
+```text
+Notes
+Bestiary
+Special Enemy Bonuses
+Mobs
+Size Table
+Species
+Archetypes
+Ascension Packages
+Faction Bonuses
+Faction Keywords
+Special Faction Bonuses
+Astartes Implants
+First Founding Chapters
+Traits
+Conditions
+Keywords
+Talents
+Prayers
+Psychic Powers
+Augmentics
+Equipment
+Armour
+Weapons
+Critical Hits
+Warp Perils
+Quick Reference Guide
+Fire Modes
+DN Penalties
+Vehicle Roles
+Vehicle Actions
+Vehicle Conditions
+Vehicle Traits
+Vehicles
+Vehicle Weapons
+Vehicle Wargear
+```
 
-### 11.3 Renderowanie tagów cech
-- `renderTraitsCell(v)` tworzy `.tag` dla każdej cechy (podział po `;`).
-- Kliknięcie tagu otwiera popover z opisem cechy.
-
-### 11.4 Clamp (rozwijanie długich komórek)
-Mechanizm clampu bazuje na liczbie *wizualnych* linii (z uwzględnieniem zawijania):
-
-1. Po renderze komórki `requestAnimationFrame` uruchamia pomiar wysokości (`scrollHeight / lineHeight`).
-2. Jeśli liczba linii > 9:
-   - `td` dostaje klasę `.clampable` i `title` („Kliknij aby rozwinąć/zwinąć”),
-   - `div.celltext` ma ustawione `max-height: lineHeight * 9` oraz `overflow: hidden`,
-   - do komórki dokładany jest element `.clampHint` z tekstem „Kliknij aby rozwinąć”.
-3. Kliknięcie komórki przełącza `view.expandedCells` i:
-   - usuwa `max-height/overflow` dla stanu rozwiniętego,
-   - przywraca clamp dla stanu zwiniętego,
-   - aktualizuje tekst hintu na „Kliknij aby zwinąć/rozwinąć”.
-
-**Stan rozwinięcia** jest przechowywany w `view.expandedCells`.
-
-### 11.5 Komórki „Słowa Kluczowe”
-- Domyślnie czerwone (`.keyword-red`).
-- W arkuszu `Słowa Kluczowe` kolumna `Nazwa` jest również czerwona.
-- W arkuszach `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` przecinki są neutralne (`.keyword-comma`).
-- Wyjątek: `Pakiety Wyniesienia / Słowa Kluczowe` nie używa już globalnego wrappera `.keyword-red`; kolor czerwony pojawia się tylko tam, gdzie parser XLSX wykrył czerwony styl inline (`{{RED}}`).
-- W arkuszu `Słowa Kluczowe Frakcji` kolumna `Słowo Kluczowe` ma czerwony kolor dla wszystkich tokenów poza `-` i słowem `lub`; kursywa z arkusza (np. `lub`) jest zachowana, a `[ŚWIAT-KUŹNIA]` pozostaje w całości czerwone.
-
----
-
-## 12) JS: popover cech i stany
-
-### 12.1 `resolveTrait(traitText)`
-Obsługuje trzy przypadki:
-1. **Wywołanie (Stan)** — np. `Wywołanie (Zatrucie (5))` oraz `Wywołanie: Oślepienie (1)`. Wariant z nawiasem po słowie „Wywołanie” usuwa końcowy nawias, aby poprawnie zachować wewnętrzne parametry (np. `(5)`), a wariant z dwukropkiem pozostawia je bez zmian.
-2. **Cechy parametryzowane** — np. `Nieporęczny (2)` dopasowuje się do `Nieporęczny (X)`.
-3. **Dokładne dopasowanie** — po kluczu kanonicznym.
-
-Źródła opisów:
-- `_meta.traits` — arkusz `Cechy`.
-- `_meta.states` — arkusz `Stany`.
-
-### 12.2 `openTraitPopover(traitText)`
-- Tytuł: wersaliki z nazwą cechy.
-- Treść: bloki `.popoverBlock` z labelami `.popoverLabel` (CECHA / STAN) i `formatTextHTML`.
-- Popover otwierany przez `aria-hidden="false"`.
-
-### 12.3 Zamknięcie
-- Kliknięcie `#popoverClose`.
-- Klawisz `Escape`.
+These names are not only labels. They are used by code paths that map sheet behavior, tab groups, tooltip metadata, and release generation.
 
 ---
 
-## 13) JS: modal porównania
+## 9. Important column names
 
-### 13.1 `openCompareModal(rows)`
-- Tworzy tabelę porównawczą w modalu (`<table><thead>...`).
-- Dla każdej kolumny:
-  - Porównuje wartości, jeśli różne → wiersz z klasą `diff`.
-  - `Cechy` renderuje jako zwykły tekst.
-  - Pozostałe kolumny renderuje przez wspólną funkcję `formatDataCellHTML(row, col, sheetName)`.
-- `formatDataCellHTML(...)` jest używane zarówno przez tabelę główną (`renderRow`), jak i modal porównania, dzięki czemu obie ścieżki mają identyczne reguły:
-  - arkusz `Słowa Kluczowe` + kolumna `Nazwa` → `formatKeywordHTML` (całość na czerwono),
-  - arkusz `Pakiety Wyniesienia` + kolumna `Słowa Kluczowe` → `getFormattedCellHTML` (bez globalnego wymuszania czerwieni; tylko inline `{{RED}}`),
-  - arkusze z `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL` + kolumna `Słowa Kluczowe` → `formatKeywordHTML(..., {commasNeutral:true})`,
-  - arkusz `Słowa Kluczowe Frakcji` + kolumna `Słowo Kluczowe` → `formatFactionKeywordHTML` (wyjątki `-`, `lub`, pełna czerwień dla `[ŚWIAT-KUŹNIA]`),
-  - fallback → `getFormattedCellHTML` (`formatRangeHTML` dla `Zasięg`, inaczej `formatTextHTML` z pełnym wsparciem markerów `{{RED}}/{{B}}/{{I}}`, referencji `(str./page/p.)` i `*[n]`).
-- `openModal(...)` nie renderuje już dodatkowego nagłówka `<h3>` w treści modala; tytuł pozostaje tylko w pasku `.modalHeader` (`#modalTitle`), co usuwa wizualny duplikat „PORÓWNANIE”.
+Common canonical English columns include:
 
-### 13.2 Zamknięcie
-- Kliknięcie `#modalClose`.
-- Klawisz `Escape`.
+```text
+ID
+State
+Type
+Kind
+Name
+Description
+Effect
+Example
+Keywords
+Traits
+Range
+Damage
+ED
+AP
+Salvo
+Book
+Page
+Cost
+Availability
+Cost (IM)
+```
 
----
+Important Bestiary columns include:
 
-## 14) JS: profile widoku, persistencja, wyszukiwanie i zdarzenia globalne
+```text
+ID
+State
+Type
+Name
+Threat
+Keywords
+S
+T
+A
+I
+Will
+Int
+Fell
+Resilience (AR includer)
+Armour Rating
+Defence
+Wounds
+Shock
+Skills
+Bonuses
+Abilities
+Attacks
+Mob Abilities
+Mob Options
+Conviction
+Resolve
+Speed
+Size
+Book
+Page
+```
 
-- `#btnReset` (Pełen Widok) uruchamia `applyViewModeToAllSheets("full")`:
-  - czyści globalne wyszukiwanie, filtry tekstowe, filtry listowe i zaznaczenia dla **wszystkich** zakładek,
-  - ustawia `sort = null`,
-  - zapisuje wynik do `sessionStorage`.
-- `#btnDefaultView` uruchamia `applyViewModeToAllSheets("default")`:
-  - przywraca domyślne filtry checkboxowe wg `DEFAULT_VIEW_CONFIG` dla wszystkich zakładek,
-  - resetuje pozostałe filtry i zaznaczenia,
-  - przywraca domyślny sort (`getDefaultSort(sheet)`),
-  - zapisuje wynik do `sessionStorage`.
-- Aplikacja po starcie:
-  - najpierw próbuje odczytać stan z `sessionStorage` (`loadSessionState()`),
-  - jeśli brak stanu sesji, inicjalizuje wszystkie zakładki profilem domyślnym (`applyDefaultViewForSheet`).
-- Konfiguracja widoku domyślnego (dokładnie):
-  - **Archetypy / Gatunek:** Człowiek (czyli w widoku domyślnym zaznaczona jest wyłącznie wartość `Człowiek`).
-  - **Premie Frakcji / Frakcja:** Adepta Sororitas, Adeptus Astartes, Adeptus Astra Telepathica, Adeptus Mechanicus, Adeptus Ministorum, Astra Militarum, Chaos, Dynastie Wolnych Kupców, Inkwizycja, Ogryn, Szczurak, Szumowiny.
-  - **Psionika / Typ:** Uniwersalne Zdolności Psioniczne, Pomniejsze Moce Psioniczne, Uniwersalna Dyscyplina Psioniczna, Dyscyplina Biomancji, Dyscyplina Dywinacji, Dyscyplina Piromancji, Dyscyplina Telekinezy, Dyscyplina Telepatii.
-  - **Augumentacje / Typ:** Ulepszenia, Wszczepy, Mechadendryt.
-  - **Ekwipunek / Typ:** Ulepszenia Broni, Amunicja, Ekwipunek Imperium.
-  - **Pancerze / Typ:** Zwykłe, Wspomagane, Energetyczne (czyli domyślnie odznaczone: Astartes, Auxilla).
-  - **Bronie / Typ:** Adeptus Mechanicus, Boltowa, Broń biała, Broń biała Adeptus Mechanicus, Broń dystansowa, Broń dystansowa Adeptus Mechnicus, Broń dystansowa Milczących Sióstr, Broń energetyczna, Broń łańcuchowa, Broń łańcuchowa Astartes, Broń psioniczna, Egzotyczna broń biała, Granaty i Wyrzutnie, Imperialna broń biała, Laserowa, Ogniowa, Palna, Plazmowa, Termiczna (czyli domyślnie odznaczone: Broń biała Ogrynów, Broń dystansowa Militarum Auxilla).
-  - **Talenty / Typ:** Człowiek, Imperium, Inkwizycja, Mechanicus, Militarum, Ogólne, Sororitas (czyli domyślnie odznaczone: Aeldari, Astartes, Chaos, Ork).
-  - Pozostałe zakładki: brak ograniczeń (`filtersSet = {}` lub `null` per kolumna).
-- `#globalSearch` aktualizuje `view.global` na `input`.
-- `Escape` zamyka popover, modal i menu filtra listowego.
+Important weapon and vehicle weapon columns include:
 
----
+```text
+ID
+Kind
+Type
+Name
+Damage
+ED
+AP
+Range 1
+Range 2
+Range 3
+Salvo
+Trait 1
+Trait 2
+Trait 3
+Trait 4
+Trait 5
+Trait 6
+Trait 7
+Cost
+Availability
+Keywords
+Cost (IM)
+Book
+Page
+```
 
-## 15) JS: start aplikacji
+The generated release data may merge numbered columns into canonical fields:
 
-- `boot()` loguje tryb (ADMIN/GRACZ) i wywołuje `loadJsonFromRepo()`.
-- Po wczytaniu `data.json` wywoływany jest `initUI()` i render tabeli.
-
----
-
-## 16) Zasady działania danych i formatów
-
-- `__id` generowane jako `${name}:${idx+1}`, jeśli nie istnieje.
-- Kolumny prywatne `__*` są usuwane podczas normalizacji.
-- `Cecha 1..N` → scalane do `Cechy`.
-- `Zasięg 1..3` → scalane do `Zasięg`.
-- Markery formatowania w danych:
-  - `{{RED}}...{{/RED}}`
-  - `{{B}}...{{/B}}`
-  - `{{I}}...{{/I}}`
-- Linia `*[n]` jest renderowana jaśniejszym tekstem.
-- Fragmenty w nawiasach zawierające `str`, `str.`, `strona`, `page`, `p.` są oznaczane klasą `.ref`.
-
----
-
-## 17) Uwagi o zgodności 1:1
-
-- Kolejność zakładek i kolumn jest kluczowa i pochodzi bezpośrednio z `_meta.sheetOrder` oraz `_meta.columnOrder` w `data.json` (aktualizowanych z `Repozytorium.xlsx`).
-- Każda interakcja w UI (filtry, sortowanie, porównanie, clamp) jest wykonywana w JS — bez zewnętrznych bibliotek UI.
-- Wszystkie style i efekty (glow, kolory, uppercase, letter-spacing) są definiowane w `style.css` i powinny być odtworzone dokładnie.
-- **Zakony Pierwszego Powołania**
-  - `Nazwa`: 26ch
-  - `Opis`: 56ch
-  - `Zaleta`: 46ch
-  - `Wada`: 46ch
-
-## 14) `Stan=old` i marker `{{S}}`
-
-### 14.1 Pipeline danych (Python + parser kanoniczny JS)
-- `build_json.py`
-  - `_wrap_with_markers()` obsługuje czwarty marker: `S`.
-  - `_rich_text_to_string()` mapuje `<strike/>` z `rPr` na `{{S}}...{{/S}}`.
-- `xlsxCanonicalParser.js`
-  - `wrapWithMarkers()` obsługuje `strike`.
-  - `richTextToString()` wykrywa `rPr/strike` i serializuje marker `S`.
-- Obie ścieżki (CLI i parser kanoniczny) używają identycznego porządku markerów, więc wygenerowany `data.json` pozostaje spójny semantycznie.
-
-### 14.2 Parser/renderer UI
-- `stripMarkers(s)` usuwa także `{{S}}`.
-- `parseInlineSegments(raw)` rozpoznaje zestaw markerów: `RED`, `B`, `I`, `S`.
-- `formatInlineHTML(raw)` dodaje klasę `.inline-strike` dla segmentów ze stylem `S`.
-- `htmlToStyleMarkers(html)` mapuje strike z:
-  - tagów `<s>`, `<strike>`, `<del>`,
-  - stylu inline `text-decoration` / `text-decoration-line: line-through`.
-
-### 14.3 Stan `old`
-- `HIDDEN_COLUMNS` zawiera `stan`, więc kolumna nie jest renderowana.
-- `isOldStatusRow(row)` wykrywa rekordy `Stan=old` (`trim + lowercase`).
-- `renderRow()` ustawia klasę `row-old` dla rekordów archiwalnych.
-
-### 14.4 CSS i priorytet kolorów
-- `.dataTable tbody tr.row-old` wymusza kolor bazowy archiwalny.
-- `.inline-strike`:
-  - `text-decoration: line-through`,
-  - kolor domyślny `var(--text-old)`.
-- `.inline-strike.inline-red` przywraca czerwony (`var(--red)`), co realizuje priorytet RED > OLD.
-- Dla `row-old` doprecyzowano kolory: `.keyword-comma`, `.ref`, `.caretref`, `.slash` dziedziczą kolor archiwalny.
-
-### 14.5 Reguły kolumn
-  - `min-width: 14ch`,
-  - `text-align: left`.
-### 14.6 Alias kolumny statusu
-- Wykrywanie archiwalności i ukrywania kolumny działa dla `Stan` (case-insensitive).
-- Funkcja `isOldStatusRow(row)` wyszukuje klucz `Stan` i normalizuje wartość przez `stripMarkers(...).trim().toLowerCase()`.
+| Numbered source columns | Generated field |
+| --- | --- |
+| `Range 1`, `Range 2`, `Range 3` | `Range` |
+| `Trait 1`, `Trait 2`, ..., `Trait N` | `Traits` |
 
 ---
 
-## detale techniczne przeniesione z README
-Po uproszczeniu `docs/README.md` (wersja użytkowa) przeniesiono i utrwalono tutaj szczegóły implementacyjne:
+## 10. Language and data-name dependencies
 
-1. **Szerokości i układ kolumn**
-   - `Talenty/Typ` i `Modlitwy/Typ` mają te same parametry jak `Bronie/Typ` (w tym `min-width: 14ch`, wyrównanie do lewej).
-   - W zakładce `Kary do ST` kolumny `Ile celów/akcji` i `Kara do ST` mają stały rozmiar (`20ch`), a tabela działa w układzie stałym (`table-layout: fixed`, `width: max-content`).
-   - Dla zakładki `Notatki` (admin) utrzymano opis technicznych reguł szerokości i wyrównań kolumn (`Co`, `Podręcznik`, `Strona`).
+DataVault is English-first in the release format.
 
-2. **Stan UI i pamięć sesji**
-   - Filtry oraz sortowanie są przechowywane per sesja przeglądarki (`sessionStorage`), aby przełączanie zakładek nie zerowało bieżącej pracy.
+Several mechanisms depend on sheet and column names:
 
-3. **Formatowanie treści i markery inline**
-   - Widok główny i modal porównania korzystają z tej samej ścieżki renderowania formatowania.
-   - W `Pakiety Wyniesienia` czerwony kolor pochodzi wyłącznie z markerów `{{RED}}...{{/RED}}` wygenerowanych z XLSX.
-   - Etykiety w filtrach listowych usuwają markery techniczne (`{{RED}}`, `{{B}}`, `{{I}}`) tylko na potrzeby prezentacji etykiety; logika filtrowania pozostaje oparta o surowe dane.
+| Mechanism | Dependency |
+| --- | --- |
+| Sheet tab grouping | Canonical sheet keys from `SHEET_ALIASES`. |
+| Character creation tabs | `CHARACTER_CREATION_SHEET_KEYS`. |
+| Combat rules tabs | `COMBAT_RULES_SHEET_KEYS`. |
+| Vehicle tabs | `VEHICLE_SHEET_KEYS`. |
+| Outdated Bestiary rows | `State` / legacy `Stan` and value `old`. |
+| Hidden columns | `ID`, `LP`, `Lp`, `State`, `Stan`. |
+| Keyword rendering | Sheet key and `Keywords` column. |
+| Trait tag rendering | `Traits` / legacy `Cechy` column. |
+| Tooltip lookup | `_meta.traits`, `_meta.states`, `_meta.vehicleTraits`, `_meta.vehicleWeaponTraits`, `_meta.vehicleStates`, and generated indexes. |
+| Column layout | CSS selectors using `[data-sheet="..."]` and `[data-col="..."]`. |
+| Full View / Default View | Stored view state, filters, and any future default filter config tied to sheet/column names. |
+| NPCGenerator | Shared runtime data and canonical alias maps. |
 
-4. **Spójność generatora danych**
-   - Przycisk administracyjny generujący `data.json` zachowuje spójność z kanoniczną logiką parsera/generatora (w tym markerów inline i normalizacji formatowania).
+Changing sheet names or column names requires coordinated updates. A UI translation alone is not enough.
 
-Ta sekcja jest utrzymywana jako techniczne uzupełnienie po odchudzeniu README do instrukcji nietechnicznej.
-## 22) Pełna specyfikacja „ciemne tło / zielone akcenty”
-Aby uniknąć opisów skrótowych, poniżej literalne wartości:
-- Tło bazowe: `#031605`.
-- Gradient tła: `rgba(0,255,128,0.06)` + `rgba(0,255,128,0.08)` + `#031605`.
-- Tła paneli: `#000`.
-- Tekst bazowy: `#9cf09c`; tekst wtórny: `#4FAF4F`; tekst przygaszony: `#4a8b4a`; tekst jasny kodu: `#D2FAD2`.
-- Czerwony ostrzegawczy: `#d74b4b`.
-- Ramki i akcent: `#16c60c`; ciemny akcent: `#0d7a07`.
-- Delikatne obramowania: `rgba(22,198,12,.2)` i `rgba(22,198,12,.35)`.
-- Linie podziału: `rgba(22,198,12,.18)`.
-- Zebra: `rgba(22,198,12,.02)` i `rgba(22,198,12,.12)`.
-- Hover i zaznaczenie: `rgba(22,198,12,.16)`.
-- Glow: `0 0 25px rgba(22, 198, 12, 0.45)`; glow nagłówków: `0 0 18px rgba(22, 198, 12, 0.35)`.
+---
 
-## 23) Katalog funkcji krytycznych
-W `app.js` funkcje kluczowe dla rekonstrukcji 1:1 to m.in.: normalizacja (`norm`, `normaliseDB`), budowa konfiguracji widoku (`createSheetViewState`, `applyDefaultViewForSheet`, `applyFullViewForSheet`), formatowanie inline (`formatInlineHTML`, `formatTextHTML`, `formatKeywordHTML`), render (`buildTableSkeleton`, `renderBody`, `renderRow`), clamp (`measureRenderedLines`, `updateClampableHints`), filtrowanie/sortowanie (`passesFilters`, `sortRows`, `compareByColumn`), parsowanie XLSX (`getCellTextWithMarkers`, `extractSheetRowsWithFormatting`, `buildDataJsonFromSheets`).
+## 11. Alias maps that must be maintained
 
-## 18) Hiperłącze `Strona Główna`
-- `#btnMainPage` jest przyciskiem nawigującym do modułu Main.
-- Po migracji aplikacji do innej lokalizacji należy zweryfikować i w razie potrzeby zaktualizować docelowy adres odnośnika.
+Alias-aware logic exists in multiple files.
 
+### 11.1 `DataVault/app.js`
 
+Important structures:
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+```text
+SHEET_ALIASES
+COLUMN_ALIASES
+CHARACTER_CREATION_SHEET_KEYS
+COMBAT_RULES_SHEET_KEYS
+VEHICLE_SHEET_KEYS
+KEYWORD_SHEET_KEYS_COMMA_NEUTRAL
+```
 
-## Dodawanie nowej wersji językowej (PL)
+These structures let the runtime recognize English release names and selected legacy Polish names.
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+### 11.2 `DataVault/release-admin-overrides.js`
 
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+Important structures:
 
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+```text
+SHEET_ALIASES
+COLUMN_ALIASES
+RANGE_NUMBERED_RE
+TRAIT_NUMBERED_RE
+TRAIT_PARAMETER_RE
+```
 
+This file handles admin generation and runtime tooltip compatibility.
 
+### 11.3 `DataVault/build_json.py`
 
-## Uwaga krytyczna: domyślne filtry zależne od nazw zakładek (PL)
+Important structures:
 
-Reguły widoczności i formatowania działają przez kanoniczne aliasy arkuszy i kolumn (`SHEET_ALIASES`, `COLUMN_ALIASES`, `KEYWORD_SHEET_KEYS_COMMA_NEUTRAL`, `ADMIN_ONLY_SHEET_KEYS`); `DEFAULT_VIEW_CONFIG` jest pusty w release.
+```text
+SHEET_ALIASES
+COLUMN_ALIASES
+RANGE_NUMBERED_RE
+TRAIT_NUMBERED_RE
+```
 
-Przy dodawaniu nowego języka (np. FR/DE) trzeba wykonać **jedną** z dwóch ścieżek:
-1. dodać mapowanie aliasów nazw zakładek do obecnych kluczy kanonicznych, albo
-2. zaktualizować wszystkie zbiory/warunki zależne od nazw zakładek.
+This is the Python/reference generation path.
 
-Bez tej aktualizacji część domyślnych filtrów, sortowania i formatowania nie zadziała poprawnie.
+### 11.4 `shared/firebase-data-loader.js`
 
-## Runtime data security update
-Generator danych nie pobiera już `Repozytorium.xlsx` przez `fetch`. Zamiast tego używa systemowego okna `input type=file` i czyta lokalny plik przez `arrayBuffer()`. Dzięki temu źródłowy XLSX nie musi istnieć jako publiczny zasób hostingu.
+Important structures:
 
-Parser nadal generuje `data.json` oraz root-ready wrapper `firebase-import.json` w strukturze `{ datavault: { live: { schemaVersion, createdAt, source, dataJson } } }` z walidacją round-trip `JSON.parse(dataJson)`. Payload pod `datavault.live` zachowuje `schemaVersion: "datavault-firebase-import-v1"`, a `dataJson` pozostaje stringiem JSON.
+```text
+RECORD_ALIAS_GROUPS
+normalizeReleaseData()
+```
 
+This affects how shared private data is normalized for dependent modules such as `NPCGenerator`.
 
-## Firebase runtime
-- Data source runtime: RTDB `/datavault/live` + Firebase Auth.
-- `shared/firebase-data-loader.js` keeps `DATA_PATH = "datavault/live"`; runtime loading was not moved.
-- Generated `firebase-import.json` is root-ready and must be imported from the Realtime Database root (`/`). After import, Firebase contains `/datavault/live/schemaVersion`, `/datavault/live/createdAt`, `/datavault/live/source`, and `/datavault/live/dataJson`.
-- Do not import the root-ready file directly into `/datavault/live`; that creates the invalid nested path `/datavault/live/datavault/live`.
-- Wrapper `datavault-firebase-import-v1` is unwrapped by `shared/firebase-data-loader.js` via `JSON.parse(dataJson)`.
-- Service worker must not cache private payloads.
+### 11.5 `NPCGenerator/index.html`
 
+NPCGenerator extracts data from the same runtime payload. Any sheet/column rename can affect its collection builders, selectors, old-entry filtering, table rendering, and generated cards.
 
-## Widoczność przełącznika języka
+---
 
-## Release Default View
+## 12. What to update when sheet or column names change
 
-In `WnG_Tools`, Default View is intentionally identical to Full View.
+When changing a worksheet name or column name, update all relevant items in this order:
 
-It does not apply automatic filters and does not hide categories by default. This prevents language-specific sheet or column names from breaking the initial view when DataVault uses English data files.
+1. `DataVault/SampleFiles/Repository_EN.xlsx`.
+2. `DataVault/app.js`:
+   - `SHEET_ALIASES`,
+   - `COLUMN_ALIASES`,
+   - sheet group sets,
+   - hidden column logic,
+   - keyword rules,
+   - trait/state tooltip detection,
+   - default view config if it is re-enabled.
+3. `DataVault/release-admin-overrides.js`:
+   - sheet aliases,
+   - column aliases,
+   - numbered range/trait regexes,
+   - metadata collection logic.
+4. `DataVault/build_json.py`:
+   - same aliases and merge regexes as the browser release override.
+5. `DataVault/column-layout.css`:
+   - every `[data-sheet="..."]` selector,
+   - every `[data-col="..."]` selector,
+   - global column rules such as `Book`, `Page`, `Name`, `Type`, `Description`, `Keywords`, `Traits`, `Range`.
+6. `DataVault/docs/FormattingRules.md`.
+7. `DataVault/docs/Documentation.md`.
+8. `DataVault/docs/README.md`.
+9. `shared/firebase-data-loader.js` alias groups if dependent modules consume the renamed fields.
+10. `NPCGenerator/index.html` data extraction and table rendering.
+11. Regenerate `data.json` and `firebase-import.json`.
+12. Import the new `firebase-import.json` into Firebase Realtime Database from root (`/`).
+13. Run the control tests listed in this document.
 
-To restore automatic default filters, edit `DEFAULT_VIEW_CONFIG` in `DataVault/app.js`. Use canonical sheet and column keys, not raw localized labels. Update `SHEET_ALIASES`, `COLUMN_ALIASES` and this documentation at the same time.
+---
 
-## Widok Domyślny w release
+## 13. Official release override: `release-admin-overrides.js`
 
-W `WnG_Tools` Widok Domyślny jest celowo tożsamy z Pełnym Widokiem.
+`DataVault/release-admin-overrides.js` is the official release override for the current EN-first release flow.
 
-Nie zakłada automatycznych filtrów i nie ukrywa kategorii domyślnie. Zapobiega to sytuacji, w której nazwy arkuszy lub kolumn zależne od języka psują widok początkowy.
+### 13.1 Why it exists
 
-Aby przywrócić automatyczne filtry domyślne, edytuj `DEFAULT_VIEW_CONFIG` w `DataVault/app.js`. Używaj kanonicznych kluczy arkuszy i kolumn, a nie surowych etykiet językowych. Zaktualizuj jednocześnie `SHEET_ALIASES`, `COLUMN_ALIASES` i dokumentację.
+The original application was created with Polish data names and Polish workbook assumptions. The public release uses English workbook sheet and column names. The override bridges that difference without turning `app.js` into a release-only migration file.
 
-## Sheet and column aliases
+It keeps release-specific data-language policy in one dedicated place.
 
-The UI language and the XLSX/JSON data language are separate.
+### 13.2 What it does
 
-Changing the UI language does not automatically change the expected names of sheets and columns. The release data format is English by default, but the code also supports Polish aliases for compatibility.
+The file currently:
 
-If you want to translate the XLSX/JSON data structure itself, for example to French or German, update these places in code:
+- installs release-specific admin generation behavior,
+- treats English sheet/column names as canonical,
+- keeps Polish names as legacy fallback aliases,
+- normalizes sheet identity through `SHEET_ALIASES`,
+- normalizes column identity through `COLUMN_ALIASES`,
+- merges `Range 1..3` into `Range` for weapons and vehicle weapons,
+- merges `Trait 1..N` into `Traits` for armor, weapons, vehicles, and vehicle weapons,
+- strips private/internal `__` fields where needed,
+- builds extended metadata:
+  - `traits`,
+  - `states`,
+  - `vehicleTraits`,
+  - `vehicleWeaponTraits`,
+  - `vehicleStates`,
+- folds vehicle trait dictionaries into `traitIndex`,
+- builds `stateIndex`, `vehicleTraitIndex`, `vehicleWeaponTraitIndex`, and `vehicleStateIndex`,
+- maps parameterized trait references such as `Mounted (Large)` / `Mounted (Duży)` to a template such as `Mounted (X)` when available,
+- patches runtime trait rendering so a `Traits` column is treated like legacy `Cechy`,
+- makes trait values clickable tags,
+- sends clicked trait tags to the existing trait popover mechanism,
+- generates `data.json`,
+- generates root-ready `firebase-import.json`,
+- wraps Firebase import under:
 
-- `DataVault/app.js` → `SHEET_ALIASES`
-- `DataVault/app.js` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
-- `NPCGenerator/index.html` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+```json
+{
+  "datavault": {
+    "live": {
+      "schemaVersion": "datavault-firebase-import-v1",
+      "createdAt": "...",
+      "source": "Repository_EN.xlsx",
+      "dataJson": "..."
+    }
+  }
+}
+```
 
-Do not rename `Equipment` to `Vehicle Wargear`. These are separate sheets. `Equipment` is used by NPCGenerator. `Vehicle Wargear` belongs to the vehicle tab group controlled by `Show tabs related to vehicles?`.
+### 13.3 What it must not do
 
-## Aliasy arkuszy i kolumn
+Do not use `release-admin-overrides.js` to:
 
-Język UI i język danych XLSX/JSON są od siebie niezależne.
+- store private Firebase configuration,
+- store passwords,
+- translate UI labels,
+- replace `FormattingRules.md`,
+- hide incompatible workbook changes,
+- bypass required updates in `app.js`, `build_json.py`, `shared/firebase-data-loader.js`, or `NPCGenerator`.
 
-Zmiana języka UI nie zmienia automatycznie oczekiwanych nazw arkuszy i kolumn. Domyślnym formatem danych release jest angielski, ale kod obsługuje też polskie aliasy kompatybilności.
+### 13.4 Maintenance warning
 
-Jeżeli chcesz przetłumaczyć samą strukturę XLSX/JSON, np. na francuski albo niemiecki, zaktualizuj w kodzie:
+If a new data language is added, or if worksheet/column names change, update `release-admin-overrides.js` together with the main DataVault alias maps, the shared Firebase data loader aliases, NPCGenerator data extraction, `FormattingRules.md`, `column-layout.css`, and the sample workbook.
 
-- `DataVault/app.js` → `SHEET_ALIASES`
-- `DataVault/app.js` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
-- `NPCGenerator/index.html` → `COLUMN_ALIASES`
-- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+---
 
-Nie zmieniaj `Equipment` na `Vehicle Wargear`. To osobne arkusze. `Equipment` jest używany przez NPCGenerator. `Vehicle Wargear` należy do grupy zakładek pojazdów sterowanej checkboxem `Show tabs related to vehicles?`.
+## 14. Python generator: `build_json.py`
+
+`DataVault/build_json.py` is the reference CLI generator.
+
+Current behavior:
+
+- default input: `Repository_EN.xlsx`,
+- default output: `data.json`,
+- English sheet/column names are canonical,
+- Polish sheet/column names remain legacy fallback aliases,
+- rich text from XLSX is converted to inline markers,
+- numbered `Range` and `Trait` columns are merged,
+- `_meta.sheetOrder` and `_meta.columnOrder` are created from the workbook,
+- tooltip metadata is generated for traits, states, vehicle traits, vehicle weapon traits, and vehicle states.
+
+Default command:
+
+```bash
+python build_json.py
+```
+
+Explicit command:
+
+```bash
+python build_json.py Repository_EN.xlsx data.json
+```
+
+After generating `data.json`, the admin/browser generation path must still be used or matched to produce root-ready `firebase-import.json` for Firebase import.
+
+---
+
+## 15. Column layout: `column-layout.css`
+
+`DataVault/column-layout.css` is a dedicated CSS layer for English DataVault table layouts.
+
+It was copied from the Polish DataVault column-width rules and remapped to English sheet/column names.
+
+It controls:
+
+- first column width,
+- common columns such as `Book`, `Page`, `Name`, `Type`, `Kind`, `Description`, `Keywords`, `XP Cost`, `Cost`, `Availability`, `Cost (IM)`,
+- Bestiary stats and long text fields,
+- Mobs descriptions and examples,
+- Size Table examples,
+- Species abilities,
+- Archetype abilities and equipment,
+- Ascension Package story/equipment columns,
+- Faction and Talent/Prayer/Psychic Power text columns,
+- Psychic Power `ST`, `Activation`, `Duration`, `Range`, `Multi Target`,
+- Augmentics/Equipment/Critical Hits effect columns,
+- Weapons and Armour `Range`, `Traits`, damage and armor columns,
+- Quick Reference Guide and Fire Modes columns,
+- DN Penalties fixed layout,
+- Vehicle Roles, Vehicle Traits, Vehicles, Vehicle Weapons, and Vehicle Wargear columns.
+
+This file depends directly on exact `data-sheet` and `data-col` values. When sheet or column names change, this file must be updated.
+
+---
+
+## 16. Table rendering and state
+
+Main state structures:
+
+| Structure | Purpose |
+| --- | --- |
+| `DB` | Normalized DataVault data object with `sheets` and `_meta`. |
+| `currentSheet` | Currently selected sheet name. |
+| `uiState` | Visibility toggles for character, combat, vehicle, and old bestiary entries. |
+| `viewBySheet` | Stored per-sheet view state. |
+| `view` | Active view state for current sheet. |
+| `SESSION_VIEW_KEY` | Session storage key for view state. |
+
+A sheet view state contains:
+
+```text
+sort
+global
+filtersText
+filtersSet
+selected
+expandedCells
+```
+
+Session storage keeps sheet views, tab visibility toggles, and language. It does not persist the old-bestiary toggle.
+
+---
+
+## 17. Full View and Default View
+
+### 17.1 Full View
+
+`applyFullViewForSheet(sheetName)` resets the sheet view:
+
+- `sort` becomes `null`,
+- `global` becomes empty,
+- `filtersText` becomes `{}`,
+- `filtersSet` becomes `{}`,
+- `selected` becomes `[]`,
+- `expandedCells` becomes `[]`.
+
+### 17.2 Default View
+
+`applyDefaultViewForSheet(sheetName)` currently calls `applyFullViewForSheet(sheetName)`.
+
+`DEFAULT_VIEW_CONFIG` is intentionally empty in the release:
+
+```js
+const DEFAULT_VIEW_CONFIG = {};
+```
+
+This means Default View is identical to Full View in the DEMO release.
+
+### 17.3 Re-enabling real Default View filters
+
+To make Default View apply a real filter preset later:
+
+1. Use canonical sheet and column keys, not visible localized labels.
+2. Fill `DEFAULT_VIEW_CONFIG` with current release sheet/column names.
+3. Verify that `getDefaultConfigForSheet()` resolves the intended sheet.
+4. Verify that column filters map to existing values in the current data.
+5. Update this document and the user README.
+6. Test after switching UI language.
+
+---
+
+## 18. Sheet visibility groups
+
+DataVault has release sheet groups controlled by checkboxes.
+
+| Group | Key set | UI control |
+| --- | --- | --- |
+| Character creation | `CHARACTER_CREATION_SHEET_KEYS` | `#toggleCharacterTabs` |
+| Combat rules | `COMBAT_RULES_SHEET_KEYS` | `#toggleCombatTabs` |
+| Vehicles | `VEHICLE_SHEET_KEYS` | `#toggleVehicleTabs` |
+| Outdated Bestiary entries | Bestiary `State = old` | `#toggleOldBestiaryEntries` |
+
+Admin-only sheets are controlled through `ADMIN_ONLY_SHEET_KEYS`.
+
+Important outdated Bestiary behavior:
+
+- `State` and legacy `Stan` are hidden columns,
+- rows with `State = old` are hidden unless the toggle is enabled,
+- filter menu values should be based on currently system-visible rows,
+- old-entry visibility is not stored permanently.
+
+---
+
+## 19. Formatting pipeline
+
+The formatting pipeline starts in the workbook and ends in rendered HTML.
+
+Current marker model:
+
+| Source formatting | Marker | Rendered behavior |
+| --- | --- | --- |
+| red text | `{{RED}}...{{/RED}}` | red-styled text |
+| bold | `{{B}}...{{/B}}` | bold text |
+| italic | `{{I}}...{{/I}}` | italic text |
+| strikethrough | `{{S}}...{{/S}}` | struck text |
+
+Page reference detection currently accepts multilingual variants such as:
+
+```text
+str
+str.
+strona
+page
+pages
+p.
+pp.
+s.
+seite
+```
+
+The detailed authoring rules belong in:
+
+```text
+DataVault/docs/FormattingRules.md
+```
+
+---
+
+## 20. Trait and state tooltips
+
+Tooltips depend on generated metadata.
+
+Important metadata objects:
+
+```text
+_meta.traits
+_meta.states
+_meta.vehicleTraits
+_meta.vehicleWeaponTraits
+_meta.vehicleStates
+_meta.traitIndex
+_meta.stateIndex
+_meta.vehicleTraitIndex
+_meta.vehicleWeaponTraitIndex
+_meta.vehicleStateIndex
+```
+
+Current lookup behavior:
+
+- regular trait descriptions come from the `Traits` sheet,
+- state descriptions come from `Conditions` / `States`,
+- vehicle condition descriptions come from `Vehicle Conditions` / `Vehicle States`,
+- vehicle trait descriptions come from `Vehicle Traits`,
+- vehicle weapon trait descriptions are derived from `Vehicle Traits` rows whose type marks a weapon trait,
+- vehicle trait dictionaries are folded into `traitIndex` so existing tooltip code can find demo entries such as `Shield` and `Mounted`,
+- parameterized references such as `Mounted (Large)` can resolve through `Mounted (X)` if the template exists.
+
+If a trait tag is visible but the tooltip is missing, check:
+
+1. The value in the rendered `Traits` column.
+2. The exact trait name in `Traits` or `Vehicle Traits`.
+3. Whether the generated metadata contains the expected description.
+4. Whether `data.json` and `firebase-import.json` were regenerated after workbook changes.
+5. Whether the latest `firebase-import.json` was imported into Firebase.
+
+---
+
+## 21. Admin data generation workflow
+
+Admin generation path:
+
+1. Open `DataVault/index.html?admin=1`.
+2. Sign in through the access gate.
+3. Click **Generate data files**.
+4. Select `Repository_EN.xlsx`.
+5. The browser parser reads workbook sheets and styles.
+6. `release-admin-overrides.js` normalizes release data and builds metadata.
+7. The browser downloads:
+   - `data.json`,
+   - `firebase-import.json`.
+8. Import `firebase-import.json` into Realtime Database from root (`/`).
+9. Reload DataVault and confirm data loads from Firebase.
+
+The generated Firebase import file must place payload under:
+
+```text
+/datavault/live
+```
+
+Do not import it while already inside `/datavault/live`.
+
+---
+
+## 22. Required documentation links
+
+Every DataVault documentation set must include:
+
+| File | Status / purpose |
+| --- | --- |
+| `DataVault/docs/README.md` | User guide. |
+| `DataVault/docs/Documentation.md` | This technical guide. |
+| `DataVault/docs/FormattingRules.md` | Formatting and marker rules. |
+| `DataVault/config/FirebaseREADME.md` | Firebase setup guide. |
+| `docs-standard.md` | Repository documentation standard. |
+
+---
+
+## 23. Adding a new language version
+
+Adding a UI language requires more than translating labels.
+
+Update all of these areas:
+
+1. `translations` in `DataVault/app.js`.
+2. `<select id="languageSelect">` options in `DataVault/index.html`.
+3. Static text in HTML not controlled by `data-i18n`.
+4. Error/status messages.
+5. Empty states.
+6. Tooltip labels.
+7. Page-reference patterns if the new language uses different abbreviations.
+8. `SHEET_ALIASES` in `DataVault/app.js`.
+9. `COLUMN_ALIASES` in `DataVault/app.js`.
+10. `SHEET_ALIASES` in `DataVault/release-admin-overrides.js`.
+11. `COLUMN_ALIASES` in `DataVault/release-admin-overrides.js`.
+12. `SHEET_ALIASES` and `COLUMN_ALIASES` in `DataVault/build_json.py`.
+13. `DataVault/column-layout.css` selectors.
+14. `shared/firebase-data-loader.js` alias groups.
+15. `NPCGenerator` data extraction and UI labels if it consumes the same data.
+16. `Repository_EN.xlsx` or the new sample workbook.
+17. `data.json` and `firebase-import.json` generation.
+18. User and technical documentation.
+
+---
+
+## 24. Control tests
+
+Run these tests after documentation-related or data-language-related changes.
+
+| Test | Steps | Expected result |
+| --- | --- | --- |
+| DEMO sign-in | Open DataVault and enter `000000`. | Access gate closes and private data loading starts. |
+| Firebase load | Load the module after importing `firebase-import.json`. | Status reports private data loaded. |
+| Sheet order | Open several tabs. | Sheet order follows `_meta.sheetOrder` where available. |
+| Column order | Open Bestiary, Weapons, Vehicle Weapons. | Columns follow `_meta.columnOrder` where available. |
+| Full View | Apply search/filter/sort, then click Full View. | Search/filter/sort/selection/expanded cells reset. |
+| Default View | Click Default View. | In DEMO it behaves like Full View. |
+| Old Bestiary toggle | Toggle outdated entries. | Rows with `State = old` appear/disappear as expected. |
+| Vehicle tabs | Toggle vehicle tabs. | Vehicle-related sheets appear/disappear. |
+| Character tabs | Toggle character creation tabs. | Character-creation sheets appear/disappear. |
+| Combat tabs | Toggle combat rules tabs. | Combat sheets appear/disappear. |
+| Column layout | Open Bestiary, Weapons, Psychic Powers, Vehicles, Vehicle Weapons. | Column widths and wrapping match `column-layout.css`. |
+| Trait tooltip | Click a standard trait tag such as `Parry`. | Tooltip shows the trait description if metadata exists. |
+| Vehicle trait tooltip | Click a vehicle/vehicle weapon trait such as `Shield` or `Mounted`. | Tooltip resolves through vehicle trait metadata or `traitIndex`. |
+| Parameterized trait | Click a trait such as `Mounted (Large)` if present. | Tooltip resolves through `Mounted (X)` if the template exists. |
+| Regenerated import | Generate files from `Repository_EN.xlsx` and import root-ready JSON. | `/datavault/live` contains the updated wrapper. |
+| NPCGenerator dependency | Open NPCGenerator after DataVault import. | NPCGenerator loads source collections from the same runtime. |
+
+---
+
+## 25. Known release notes
+
+- The release is English-first, but selected legacy Polish aliases remain for compatibility.
+- Some older UI strings or comments may still mention `Repozytorium.xlsx`; the current release workbook name is `Repository_EN.xlsx`.
+- Default View is intentionally identical to Full View in the DEMO release.
+- `column-layout.css` is tied to English `data-sheet` and `data-col` names.
+- Tooltip metadata depends on regenerated JSON. Changing workbook data without regenerating/importing JSON can leave tooltips stale.
+
+---
+
+## 26. Rebuild procedure
+
+To rebuild DataVault release data from the sample workbook:
+
+1. Prepare `Repository_EN.xlsx` using the current sheet and column structure.
+2. Open DataVault in admin mode.
+3. Unlock the DEMO gate with `000000` or the configured private password.
+4. Generate `data.json` and `firebase-import.json`.
+5. Keep `data.json` as a backup/helper artifact.
+6. Import `firebase-import.json` into Firebase Realtime Database from root (`/`).
+7. Reload DataVault.
+8. Run the control tests.
+9. Open NPCGenerator and confirm it still loads data.
+
+For CLI comparison, run:
+
+```bash
+cd DataVault
+python build_json.py Repository_EN.xlsx data.json
+```
+
+Compare the generated structure and metadata with the browser-generated result.
