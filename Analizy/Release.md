@@ -4199,3 +4199,25 @@ Wykonano polecenia z `Analizy/PolecenieCodex.md` w zakresie modułów `DataVault
 - Należy w osobnym zadaniu wrócić do czyszczenia `shared/firebase-config.js` i `shared/FirebaseREADME.md`, bo statyczny skan nadal wykazuje prywatne wartości infrastruktury.
 - Warto wykonać pełny test przeglądarkowy `DataVault` i `NPCGenerator` na hostowanym środowisku z realnie załadowanym sample data/Firebase, ponieważ w środowisku terminalowym wykonano głównie walidację składni i statyczną walidację danych.
 - Stare fragmenty dokumentacji DataVault zostały skorygowane w najważniejszych miejscach, ale przy dalszym finalnym czyszczeniu release warto wykonać dodatkowy przegląd całej dokumentacji pod kątem historycznych polskich nazw.
+
+## Aktualizacja — Firebase DEMO/PREVIEW
+
+W toku przygotowania publicznej wersji aplikacji zmieniono założenia dotyczące Firebase. Obecnie repozytorium `WnG_Tools` może zawierać aktywne podpięcie do Firebase w trybie **DEMO/PREVIEW**, o ile służy ono wyłącznie demonstracji działania aplikacji i nie udostępnia prywatnych danych właściciela.
+
+W związku z tym obecne podpięcie Firebase nie jest już traktowane jako blocker release, pod warunkiem że spełnia poniższe warunki:
+
+1. Firebase DEMO/PREVIEW zawiera wyłącznie dane demonstracyjne, testowe albo placeholderowe.
+2. Konfiguracja nie daje dostępu do prywatnych danych kampanii, prywatnych arkuszy, prywatnych manifestów audio ani innych zasobów właściciela.
+3. Dokumentacja jasno rozróżnia:
+   - konfigurację demonstracyjną używaną w publicznym demo,
+   - konfigurację własną, którą docelowa grupa powinna przygotować samodzielnie.
+4. Pliki konfiguracyjne powinny nadal wskazywać, gdzie użytkownik może podmienić wartości Firebase na własne.
+5. Jeżeli dana grupa chce korzystać z własnych danych, powinna utworzyć własny projekt Firebase, własną bazę oraz własne reguły dostępu zgodnie z dokumentacją modułów.
+
+Poprzednie zalecenie „usunąć wszystkie istniejące połączenia Firebase i pozostawić wyłącznie puste placeholdery” należy interpretować jako nieaktualne w zakresie wersji DEMO/PREVIEW. Aktualne wymaganie brzmi: **aplikacja publiczna może być podpięta do Firebase DEMO/PREVIEW, ale nie może zawierać prywatnych danych ani konfiguracji dającej dostęp do prywatnych zasobów właściciela**.
+
+W dalszych pracach należy więc:
+- nie usuwać automatycznie obecnego podpięcia Firebase DEMO/PREVIEW;
+- nie oznaczać samego faktu aktywnego Firebase jako błędu release;
+- sprawdzać wyłącznie, czy dane, reguły i dokumentacja są zgodne z trybem demonstracyjnym;
+- utrzymać instrukcję podmiany konfiguracji na własny projekt Firebase dla innych grup.
