@@ -4129,3 +4129,73 @@ Użytkownik polecił pracę w repozytorium `WnG_Tools` i wdrożenie w module `Ca
 
 - Nie wykonano testu przeglądarkowego ani zrzutu ekranu, ponieważ zmiana jest statyczna i dotyczy istniejącego modalu bez uruchamiania aplikacji w środowisku przeglądarkowym.
 - Przy kolejnych zmianach należy nadal pilnować, aby wartość `14` dla Vespidów nie została potraktowana jako rozszerzenie mechaniki PD ani limitu inputów.
+
+## Aktualizacja — 2026-06-17 — Church of Steel Update dla DataVault i NPCGenerator
+
+### Oryginalny pełny prompt użytkownika
+
+```text
+Wykonaj polecenia opisane w Analizy/PolecenieCodex.md
+```
+
+### Zakres prac
+
+Wykonano polecenia z `Analizy/PolecenieCodex.md` w zakresie modułów `DataVault` i `NPCGenerator`: widoczność przełączników języka, release'owy Default View równy Full View, aliasy arkuszy i kolumn dla angielskich oraz polskich danych, rozdzielenie `Equipment` od `Vehicle Wargear`, obsługa zakładek pojazdów, ukrywanie zdezaktualizowanych wpisów Bestiary oraz aktualizacja dokumentacji i sample data.
+
+### Ustalenia i wnioski
+
+- `DataVault` wymagał przejścia z polskich nazw arkuszy w logice widoczności/formatowania na kanoniczne klucze i aliasy PL/EN.
+- `NPCGenerator` wymagał deterministycznego ładowania wymaganych arkuszy DataVault przez aliasy, aby `Equipment` nie było mylone z `Vehicle Wargear`.
+- `Default View` w wersji release został ustawiony jako pusty profil filtrów i działa tak samo jak `Full View`.
+- Sample data zawiera już minimalne angielskie arkusze wymagane przez `NPCGenerator` oraz arkusze pojazdów.
+- W statycznym skanie nadal wykryto istniejące prywatne wartości Firebase/e-mail w `shared/firebase-config.js` i `shared/FirebaseREADME.md`; nie zmieniono ich w tym zadaniu, ponieważ `Analizy/PolecenieCodex.md` w sekcji zakazu zmian nieobjętych zadaniem wskazuje, aby nie zmieniać prywatnych konfiguracji Firebase.
+
+### Decyzje i wymagania
+
+- Zachowano nazwę folderu `NPCGenerator`.
+- Zachowano angielski jako domyślny język UI.
+- `Equipment` i `Vehicle Wargear` pozostają osobnymi arkuszami.
+- `Vehicle Wargear` jest traktowany jako arkusz pojazdowy sterowany checkboxem pojazdów w `DataVault`.
+- `NPCGenerator` ładuje zwykłe `Equipment`, ale nie ładuje `Vehicle Wargear` jako ekwipunku NPC.
+- `showOldBestiaryEntries` w `DataVault` nie jest utrwalane w `sessionStorage`.
+
+### Zmienione pliki
+
+| Plik | Opis |
+| --- | --- |
+| `DataVault/index.html` | EN-first teksty startowe, widoczny przełącznik języka, checkbox starych wpisów Bestiary i checkbox zakładek pojazdów. |
+| `DataVault/app.js` | Aliasowanie arkuszy/kolumn, pusty `DEFAULT_VIEW_CONFIG`, widoczność pojazdów, ukrywanie starych wpisów Bestiary, aktualizacja formatowania i sesji. |
+| `DataVault/style.css` | Style checkboxów admin/vehicle i zakładek pojazdów. |
+| `DataVault/docs/README.md` | Sekcje o release Default View oraz aliasach arkuszy/kolumn. |
+| `DataVault/docs/Documentation.md` | Sekcje release oraz korekty starych opisów Default View i stałych logicznych. |
+| `NPCGenerator/index.html` | Aliasowanie kolumn, deterministyczne ładowanie arkuszy, ukrywanie starych wpisów, stabilne identyfikatory ulubionych, rozszerzony `PAGE_REF_PATTERN`. |
+| `NPCGenerator/docs/README.md` | Sekcje o wymaganych arkuszach DataVault i odwołaniach do stron. |
+| `NPCGenerator/docs/Documentation.md` | Sekcje o wymaganych arkuszach DataVault i odwołaniach do stron. |
+| `DataVault/SampleFiles/data.json` | Dodane brakujące minimalne angielskie arkusze release oraz meta-klucze. |
+| `DataVault/SampleFiles/firebase-import.json` | Zsynchronizowany wrapper `dataJson` z `data.json`. |
+
+### Szczegóły zmian w kodzie
+
+- `DataVault/index.html`: zmieniono `aria-label` przełącznika języka na `Language version`, ustawiono źródłowe teksty przycisków widoku na angielskie oraz dodano checkbox `toggleOldBestiaryEntries` widoczny tylko w adminie i checkbox `toggleVehicleTabs` dla arkuszy pojazdów.
+- `DataVault/app.js`: dodano `SHEET_ALIASES`, `COLUMN_ALIASES`, helpery kanoniczne, nowy klucz sesji `datavault_session_view_v3_release`, pusty `DEFAULT_VIEW_CONFIG`, `VEHICLE_SHEET_KEYS`, filtrowanie pojazdów i ukrywanie `old` w Bestiary przez alias `State`/`Stan`.
+- `DataVault/app.js`: `applyDefaultViewForSheet()` deleguje do `applyFullViewForSheet()`, a `createSheetViewState()` nie ustawia domyślnego sortowania.
+- `DataVault/app.js`: formatowanie słów kluczowych i zasięgu opiera się na kanonicznych kluczach zamiast polskich nazw arkuszy/kolumn.
+- `NPCGenerator/index.html`: dodano `REQUIRED_NPCGENERATOR_SHEETS`, `COLUMN_ALIASES`, `getRecordValueByCanonical()`, `getRequiredCollectionByAliases()` i czytelne błędy brakujących/pustych arkuszy.
+- `NPCGenerator/index.html`: tabele modułów używają kanonicznych kolumn, karta NPC pobiera kluczowe dane przez aliasy, a ulubione zapisują stabilny identyfikator rekordu.
+- `NPCGenerator/index.html`: dodano `PAGE_REF_PATTERN` obsługujący m.in. `page`, `pages`, `p.`, `pp.`, `str.`, `strona`, `S.` i `Seite`.
+
+### Testy
+
+- `node --check DataVault/app.js` — wynik pozytywny.
+- Ekstrakcja skryptu modułowego z `NPCGenerator/index.html` do `/tmp/npcgen.mjs` i `node --check /tmp/npcgen.mjs` — wynik pozytywny.
+- `python -m json.tool DataVault/SampleFiles/data.json` — wynik pozytywny.
+- `python -m json.tool DataVault/SampleFiles/firebase-import.json` — wynik pozytywny.
+- Skrypt Python sprawdzający obecność wymaganych arkuszy sample data i meta-kluczy — wynik pozytywny, brak brakujących arkuszy.
+- `rg -n "language-switcher--hidden" DataVault/index.html NPCGenerator/index.html || true` — brak aktywnych ukrytych przełączników języka w objętych HTML.
+- Statyczny skan `rg -n "TU_WSTAW|AIza|vapid|VAPID|https://.*firebaseio|@" DataVault NPCGenerator shared ...` wykazał istniejące prywatne wartości Firebase/e-mail w `shared/`; pozostawiono je bez zmian ze względu na ograniczenia zakresu z `Analizy/PolecenieCodex.md`.
+
+### Ryzyka i następne kroki
+
+- Należy w osobnym zadaniu wrócić do czyszczenia `shared/firebase-config.js` i `shared/FirebaseREADME.md`, bo statyczny skan nadal wykazuje prywatne wartości infrastruktury.
+- Warto wykonać pełny test przeglądarkowy `DataVault` i `NPCGenerator` na hostowanym środowisku z realnie załadowanym sample data/Firebase, ponieważ w środowisku terminalowym wykonano głównie walidację składni i statyczną walidację danych.
+- Stare fragmenty dokumentacji DataVault zostały skorygowane w najważniejszych miejscach, ale przy dalszym finalnym czyszczeniu release warto wykonać dodatkowy przegląd całej dokumentacji pod kątem historycznych polskich nazw.

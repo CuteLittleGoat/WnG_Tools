@@ -1414,6 +1414,44 @@
         "Book": "Church Of Steel",
         "Page": "124"
       }
+    ],
+    "Armor": [
+      {
+        "ID": "sample-armor",
+        "Type": "General",
+        "Name": "Sample Armor",
+        "AV": "2",
+        "Traits": "-",
+        "Keywords": "IMPERIUM",
+        "Book": "Sample",
+        "Page": "1"
+      }
+    ],
+    "Augmentations": [
+      {
+        "ID": "sample-augmentation",
+        "Type": "General",
+        "Name": "Sample Augmentation",
+        "Effect": "Sample effect",
+        "Book": "Sample",
+        "Page": "1"
+      }
+    ],
+    "Psionics": [
+      {
+        "ID": "sample-psionic",
+        "Type": "Universal",
+        "Name": "Sample Power",
+        "DN": "3",
+        "Activation": "Action",
+        "Duration": "Instant",
+        "Range": "Self",
+        "Targets": "One",
+        "Effect": "Sample effect",
+        "Boost": "Sample boost",
+        "Book": "Sample",
+        "Page": "1"
+      }
     ]
   },
   "_meta": {
@@ -1457,7 +1495,10 @@
       "Vehicle Traits",
       "Vehicles",
       "Vehicle Weapons",
-      "Vehicle Wargear"
+      "Vehicle Wargear",
+      "Armor",
+      "Augmentations",
+      "Psionics"
     ],
     "columnOrder": {
       "Notes": [
@@ -1837,6 +1878,38 @@
         "Availability",
         "Keywords",
         "Cost (IM)",
+        "Book",
+        "Page"
+      ],
+      "Armor": [
+        "ID",
+        "Type",
+        "Name",
+        "AV",
+        "Traits",
+        "Keywords",
+        "Book",
+        "Page"
+      ],
+      "Augmentations": [
+        "ID",
+        "Type",
+        "Name",
+        "Effect",
+        "Book",
+        "Page"
+      ],
+      "Psionics": [
+        "ID",
+        "Type",
+        "Name",
+        "DN",
+        "Activation",
+        "Duration",
+        "Range",
+        "Targets",
+        "Effect",
+        "Boost",
         "Book",
         "Page"
       ]

@@ -223,3 +223,51 @@ Skrypt `DataVault/build_json.py` jest referencyjną ścieżką generowania plik�
 
 ### Bramka dostępu i własny projekt Firebase
 Publiczne placeholdery Firebase nie łączą modułu z prywatną bazą. Aby używać bramki hasła, administrator musi skonfigurować własny projekt Firebase grupy. Nie zapisuj w repozytorium haseł, tokenów, plików kont usługowych ani prywatnych kluczy.
+
+## Release Default View
+
+In `WnG_Tools`, Default View is intentionally identical to Full View.
+
+It does not apply automatic filters and does not hide categories by default. This prevents language-specific sheet or column names from breaking the initial view when DataVault uses English data files.
+
+To restore automatic default filters, edit `DEFAULT_VIEW_CONFIG` in `DataVault/app.js`. Use canonical sheet and column keys, not raw localized labels. Update `SHEET_ALIASES`, `COLUMN_ALIASES` and this documentation at the same time.
+
+## Widok Domyślny w release
+
+W `WnG_Tools` Widok Domyślny jest celowo tożsamy z Pełnym Widokiem.
+
+Nie zakłada automatycznych filtrów i nie ukrywa kategorii domyślnie. Zapobiega to sytuacji, w której nazwy arkuszy lub kolumn zależne od języka psują widok początkowy.
+
+Aby przywrócić automatyczne filtry domyślne, edytuj `DEFAULT_VIEW_CONFIG` w `DataVault/app.js`. Używaj kanonicznych kluczy arkuszy i kolumn, a nie surowych etykiet językowych. Zaktualizuj jednocześnie `SHEET_ALIASES`, `COLUMN_ALIASES` i dokumentację.
+
+## Sheet and column aliases
+
+The UI language and the XLSX/JSON data language are separate.
+
+Changing the UI language does not automatically change the expected names of sheets and columns. The release data format is English by default, but the code also supports Polish aliases for compatibility.
+
+If you want to translate the XLSX/JSON data structure itself, for example to French or German, update these places in code:
+
+- `DataVault/app.js` → `SHEET_ALIASES`
+- `DataVault/app.js` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
+- `NPCGenerator/index.html` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+
+Do not rename `Equipment` to `Vehicle Wargear`. These are separate sheets. `Equipment` is used by NPCGenerator. `Vehicle Wargear` belongs to the vehicle tab group controlled by `Show tabs related to vehicles?`.
+
+## Aliasy arkuszy i kolumn
+
+Język UI i język danych XLSX/JSON są od siebie niezależne.
+
+Zmiana języka UI nie zmienia automatycznie oczekiwanych nazw arkuszy i kolumn. Domyślnym formatem danych release jest angielski, ale kod obsługuje też polskie aliasy kompatybilności.
+
+Jeżeli chcesz przetłumaczyć samą strukturę XLSX/JSON, np. na francuski albo niemiecki, zaktualizuj w kodzie:
+
+- `DataVault/app.js` → `SHEET_ALIASES`
+- `DataVault/app.js` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `REQUIRED_NPCGENERATOR_SHEETS`
+- `NPCGenerator/index.html` → `COLUMN_ALIASES`
+- `NPCGenerator/index.html` → `PAGE_REF_PATTERN`
+
+Nie zmieniaj `Equipment` na `Vehicle Wargear`. To osobne arkusze. `Equipment` jest używany przez NPCGenerator. `Vehicle Wargear` należy do grupy zakładek pojazdów sterowanej checkboxem `Show tabs related to vehicles?`.

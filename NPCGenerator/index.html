@@ -19,7 +19,7 @@
       </div>
       <div class="actions">
         <div class="language-switcher">
-          <select id="languageSelect" aria-label="Wersja językowa">
+          <select id="languageSelect" aria-label="Language version">
             <option value="en">English</option>
             <option value="pl">Polski</option>
           </select>
@@ -49,6 +49,10 @@
               <option value="" disabled selected data-i18n="dataStatusLoading">Ładowanie danych...</option>
             </select>
           </div>
+          <label class="checkbox checkbox-inline">
+            <input type="checkbox" id="bestiary-show-old" />
+            <span data-i18n="toggleOldBestiaryEntries">Show outdated entries?</span>
+          </label>
           <div class="field">
             <label for="bestiary-notes" data-i18n="bestiaryNotesLabel">Uwagi do rekordu</label>
             <textarea id="bestiary-notes" rows="3" placeholder="Opcjonalne notatki" data-i18n-placeholder="bestiaryNotesPlaceholder"></textarea>
@@ -584,6 +588,10 @@ const translations = {
             statusLoadPrivateData: "Ładowanie danych z prywatnej bazy...",
             statusPrivateDataOk: "OK — załadowano dane z prywatnej bazy",
             statusPrivateDataError: "Duch Maszyny milczy: nie udało się załadować prywatnych danych.",
+            requiredSheetsMissingContainer: "Brakuje kontenera arkuszy DataVault.",
+            requiredSheetMissing: "Brakuje wymaganego arkusza: {sheet}.",
+            requiredSheetEmpty: "Wymagany arkusz jest pusty: {sheet}.",
+            toggleOldBestiaryEntries: "Czy wyświetlić zdezaktualizowane wpisy?",
             selectBestiary: "Wybierz nazwę...",
             selectArmor: "Wybierz pancerze...",
             selectWeapon: "Wybierz bronie...",
@@ -746,6 +754,10 @@ const translations = {
             statusLoadPrivateData: "Loading data from private database...",
             statusPrivateDataOk: "OK — loaded data from private database",
             statusPrivateDataError: "The Machine Spirit is silent: could not load private data.",
+            requiredSheetsMissingContainer: "The DataVault sheets container is missing.",
+            requiredSheetMissing: "Required sheet is missing: {sheet}.",
+            requiredSheetEmpty: "Required sheet is empty: {sheet}.",
+            toggleOldBestiaryEntries: "Show outdated entries?",
             selectBestiary: "Select a name...",
             selectArmor: "Select armor...",
             selectWeapon: "Select weapons...",
@@ -862,6 +874,7 @@ const translations = {
         firestore: null,
         favoritesDoc: null,
         usingFirestore: false,
+        showOldBestiaryRecords: false,
       };
 
       const clampEvaluators = new WeakMap();
@@ -955,9 +968,10 @@ const translations = {
         return slug ? `min-col-${slug}` : "";
       };
 
+      const PAGE_REF_PATTERN = /\(([^)]*(?:\bstr\.?\b|\bstrona\b|\bpage\b|\bpages\b|\bp\.\b|\bpp\.\b|\bs\.\b|\bseite\b)[^)]*)\)/ig;
       const formatInlineHTML = (raw) => {
         const s = String(raw ?? "");
-        const reRefParen = /\(([^)]*(?:\bstr\.?\b|\bstr\b|\bstrona\b)[^)]*)\)/gi;
+        const reRefParen = PAGE_REF_PATTERN;
         const markerRegex = /{{\/?(?:RED|B|I|S)}}/g;
         const segments = [];
         const stack = [];
@@ -1113,7 +1127,10 @@ const translations = {
       };
 
       const isOldBestiaryRecord = (record) =>
-        normalizeText(getRecordValueByLabels(record, ["Stan", "stan"])).toLowerCase() === "old";
+        normalizeText(getRecordValueByCanonical(record, "state")).toLowerCase() === "old";
+
+      const getVisibleBestiaryRecords = () =>
+        state.showOldBestiaryRecords ? state.bestiary : state.bestiary.filter((record) => !isOldBestiaryRecord(record));
 
       const shouldGrayBestiaryKey = (key, record) => {
         if (!isOldBestiaryRecord(record)) return false;
@@ -1165,7 +1182,7 @@ const translations = {
       };
 
       const getBestiaryWpMinimum = (record) => {
-        const wpText = normalizeText(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"]));
+        const wpText = normalizeText(getRecordValueByCanonical(record, "armorValue"));
         if (wpText === "-") {
           return 1;
         }
@@ -1425,17 +1442,41 @@ const translations = {
         return key ? record[key] : null;
       };
 
+      const COLUMN_ALIASES = {
+        id:["ID","LP","Lp"], state:["State","Stan"], type:["Type","Typ","Kind","Rodzaj"], name:["Name","Nazwa"], keywords:["Keywords","Słowa Kluczowe","Słowo Kluczowe"], threat:["Threat","Zagrożenie"], skills:["Skills","Umiejętności"], bonuses:["Bonuses","Premie"], abilities:["Abilities","Zdolności"], attacks:["Attacks","Atak"], mobAbilities:["Mob Abilities","Zdolności Hordy"], mobOptions:["Mob Options","Opcje Hordy"], resolve:["Resolve","Upór"], courage:["Courage","Odwaga"], speed:["Speed","Szybkość"], size:["Size","Rozmiar"], armorValue:["AV","AR","Armor Rating","Armour Rating","Wartość Pancerza","WP"], resilience:["Resilience","Resilience (AR included)","Resilience (AR includer)","Odporność (w tym WP)","Obrona (w tym WP)"], shock:["Shock","Mental Resistance","Odporność Psychiczna","Odporność psychiczna"], defense:["Defence","Defense","Obrona"], wounds:["Wounds","Żywotność"], damage:["Damage","Obrażenia"], dn:["DN","DK","ST"], ap:["AP","PP"], range:["Range","Zasięg"], rateOfFire:["Rate of fire","Rate Of Fire","Szybkostrzelność","Salvo"], traits:["Traits","Cechy"], source:["Source","Book","Podręcznik"], page:["Page","Strona"], effect:["Effect","Efekt"], activation:["Activation","Aktywacja"], duration:["Duration","Czas trwania"], targets:["Targets","Multi Target","Wiele Celów"], boost:["Boost","Wzmocnienie"]
+      };
+      const getRecordValueByCanonical = (record, canonicalKey) => getRecordValueByLabels(record, COLUMN_ALIASES[canonicalKey] || [canonicalKey]);
+      const REQUIRED_NPCGENERATOR_SHEETS = { bestiary:["Bestiary","Bestiariusz"], armor:["Armor","Armour","Pancerze"], weapons:["Weapons","Bronie"], augmentations:["Augmentations","Augumentacje","Augmentics"], equipment:["Equipment","Ekwipunek"], talents:["Talents","Talenty"], psionics:["Psionics","Psychic Powers","Psionika"], prayers:["Prayers","Modlitwy"] };
+      const getRequiredCollectionByAliases = (db, canonicalKey) => {
+        const aliases = REQUIRED_NPCGENERATOR_SHEETS[canonicalKey] || [canonicalKey];
+        const sheets = db?.sheets;
+        if (!sheets || typeof sheets !== "object") throw new Error("NPCGENERATOR_DATA_MISSING_SHEETS");
+        const resolvedName = Object.keys(sheets).find((name) => aliases.some((alias) => normalizeKey(alias) === normalizeKey(name)));
+        if (!resolvedName) throw new Error(`NPCGENERATOR_REQUIRED_SHEET_MISSING:${canonicalKey}:${aliases.join("|")}`);
+        const records = extractRecords(sheets[resolvedName]);
+        if (!records.length) throw new Error(`NPCGENERATOR_REQUIRED_SHEET_EMPTY:${canonicalKey}:${resolvedName}`);
+        return records;
+      };
+      const getReadableGeneratorDataError = (error) => {
+        const message = String(error?.message || error || "");
+        const t = translations[currentLanguage].messages;
+        if (message === "NPCGENERATOR_DATA_MISSING_SHEETS" || message === "GENERATORNPC_DATA_MISSING_SHEETS") return t.requiredSheetsMissingContainer;
+        if (message.startsWith("NPCGENERATOR_REQUIRED_SHEET_MISSING:")) { const [, key, aliases] = message.split(":"); return formatText(t.requiredSheetMissing, { sheet: `${key} (accepted aliases: ${(aliases || "").split("|").join(", ")})` }); }
+        if (message.startsWith("NPCGENERATOR_REQUIRED_SHEET_EMPTY:")) { const [, key, sheetName] = message.split(":"); return formatText(t.requiredSheetEmpty, { sheet: `${key} (${sheetName})` }); }
+        return t.statusPrivateDataError;
+      };
+
       const getArmorWpValue = (record) =>
         getRecordValue(record, "Wartość Pancerza") ?? getRecordValue(record, "WP");
 
       const isArmorBlocked = (record) => normalizeText(getArmorWpValue(record)) === "-";
 
       const isBestiaryArmorBlocked = (record) =>
-        normalizeText(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"])) === "-";
+        normalizeText(getRecordValueByCanonical(record, "armorValue")) === "-";
 
       const isBestiaryMentalResistanceBlocked = (record) =>
         normalizeText(
-          getRecordValueByLabels(record, ["Odporność Psychiczna", "Odporność psychiczna"])
+          getRecordValueByCanonical(record, "shock")
         ) === "-";
 
       const buildTraitsMap = (data) => {
@@ -1756,12 +1797,12 @@ const translations = {
           const row = document.createElement("tr");
           columns.forEach((label) => {
             const columnClass = getColumnClass(label);
-            if (label.toLowerCase().includes("cechy")) {
-              row.append(renderTraitsCell(getRecordValue(record, label), columnClass));
+            if (label === "traits") {
+              row.append(renderTraitsCell(getRecordValueByCanonical(record, label), columnClass));
               return;
             }
-            const valueString = toDisplayString(getRecordValue(record, label));
-            row.append(createClampCell(sheetName, index, label, valueString, columnClass));
+            const valueString = toDisplayString(getRecordValueByCanonical(record, label));
+            row.append(createClampCell(sheetName, index, getColumnDisplayLabel(label), valueString, columnClass));
           });
           tableBody.append(row);
         });
@@ -1814,34 +1855,15 @@ const translations = {
         });
       };
 
-      const weaponColumns = [
-        "Nazwa",
-        "Obrażenia",
-        "DK",
-        "PP",
-        "Zasięg",
-        "Szybkostrzelność",
-        "Cechy",
-        "Słowa Kluczowe",
-        "Podręcznik",
-        "Strona",
-      ];
-
-      const armorColumns = ["Nazwa", "WP", "Cechy", "Słowa Kluczowe", "Podręcznik", "Strona"];
-      const augmentationsColumns = ["Nazwa", "Efekt"];
-      const equipmentColumns = ["Nazwa", "Efekt"];
-      const talentsColumns = ["Nazwa", "Efekt"];
-      const psionicsColumns = [
-        "Nazwa",
-        "ST",
-        "Aktywacja",
-        "Czas trwania",
-        "Zasięg",
-        "Wiele Celów",
-        "Efekt",
-        "Wzmocnienie",
-      ];
-      const prayersColumns = ["Nazwa", "Efekt"];
+      const weaponColumns = ["name", "damage", "dn", "ap", "range", "rateOfFire", "traits", "keywords", "source", "page"];
+      const armorColumns = ["name", "armorValue", "traits", "keywords", "source", "page"];
+      const augmentationsColumns = ["name", "effect"];
+      const equipmentColumns = ["name", "effect"];
+      const talentsColumns = ["name", "effect"];
+      const psionicsColumns = ["name", "dn", "activation", "duration", "range", "targets", "effect", "boost"];
+      const prayersColumns = ["name", "effect"];
+      const COLUMN_LABEL_KEYS = { name: "weaponHeaderName", damage: "weaponHeaderDamage", dn: "weaponHeaderDn", ap: "weaponHeaderAp", range: "weaponHeaderRange", rateOfFire: "weaponHeaderRate", traits: "weaponHeaderTraits", keywords: "weaponHeaderKeywords", source: "weaponHeaderBook", page: "weaponHeaderPage", armorValue: "armorHeaderWp", effect: "augmentationsHeaderEffect", activation: "psionicsHeaderActivation", duration: "psionicsHeaderDuration", targets: "psionicsHeaderTargets", boost: "psionicsHeaderBoost" };
+      const getColumnDisplayLabel = (canonicalKey) => { const labelKey = COLUMN_LABEL_KEYS[canonicalKey]; return labelKey && translations[currentLanguage].labels[labelKey] ? translations[currentLanguage].labels[labelKey] : canonicalKey; };
 
       const getSelectedIndices = (select) =>
         Array.from(select.selectedOptions)
@@ -1938,6 +1960,25 @@ const translations = {
           sheetName: "Modlitwy",
           emptyMessage: "Wybierz modlitwę, aby zobaczyć parametry.",
         });
+      };
+
+      const refreshBestiaryOptions = () => {
+        const previousValue = bestiarySelect.value;
+        const visibleRecords = getVisibleBestiaryRecords();
+        bestiarySelect.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = ""; placeholder.disabled = true; placeholder.selected = true;
+        placeholder.textContent = translations[currentLanguage].messages.selectBestiary;
+        bestiarySelect.append(placeholder);
+        visibleRecords.forEach((record) => {
+          const originalIndex = state.bestiary.indexOf(record);
+          const option = document.createElement("option");
+          option.value = String(originalIndex); option.textContent = getRecordName(record, originalIndex);
+          if (isOldBestiaryRecord(record)) option.classList.add("bestiary-option-old");
+          bestiarySelect.append(option);
+        });
+        if (previousValue && Array.from(bestiarySelect.options).some((option) => option.value === previousValue)) bestiarySelect.value = previousValue;
+        else { bestiarySelect.value = ""; state.selectedBestiaryIndex = null; resetBestiaryOverrides(); renderBestiaryTable(null); }
       };
 
       const setArmorSelectionEnabled = (enabled) => {
@@ -2174,6 +2215,8 @@ const translations = {
         loadFavoritesFromLocal();
       };
 
+      const getRecordStableId = (record, index) => normalizeText(getRecordValueByCanonical(record, "id")) || normalizeText(getRecordValueByCanonical(record, "name")) || String(index);
+
       const buildFavoritePayload = () => {
         const selectedIndex = Number(bestiarySelect.value);
         if (Number.isNaN(selectedIndex) || !state.bestiary[selectedIndex]) {
@@ -2182,6 +2225,8 @@ const translations = {
         return {
           selectedBestiaryIndex: selectedIndex,
           bestiaryName: getRecordName(state.bestiary[selectedIndex], selectedIndex),
+          selectedBestiaryId: getRecordStableId(state.bestiary[selectedIndex], selectedIndex),
+          selectedBestiaryName: getRecordName(state.bestiary[selectedIndex], selectedIndex),
           bestiaryOverrides: serializeBestiaryOverrides(state.bestiaryOverrides),
           notes: bestiaryNotes.value,
           modules: {
@@ -2252,10 +2297,23 @@ const translations = {
       const applyFavorite = (favorite) => {
         const payload = favorite?.payload;
         if (!payload) return;
-        const index = Number(payload.selectedBestiaryIndex);
-        if (Number.isNaN(index) || !state.bestiary[index]) {
+        let index = state.bestiary.findIndex((record, recordIndex) => payload.selectedBestiaryId && getRecordStableId(record, recordIndex) === payload.selectedBestiaryId);
+        if (index < 0) {
+          const wantedName = normalizeText(payload.selectedBestiaryName || payload.bestiaryName);
+          index = state.bestiary.findIndex((record, recordIndex) => wantedName && normalizeText(getRecordName(record, recordIndex)) === wantedName);
+        }
+        if (index < 0) {
+          const fallbackIndex = Number(payload.selectedBestiaryIndex);
+          index = !Number.isNaN(fallbackIndex) && state.bestiary[fallbackIndex] ? fallbackIndex : -1;
+        }
+        if (index < 0 || !state.bestiary[index]) {
           alert("Nie znaleziono rekordu bestiariusza dla tego wpisu.");
           return;
+        }
+        if (isOldBestiaryRecord(state.bestiary[index])) {
+          state.showOldBestiaryRecords = true;
+          if (bestiaryShowOldToggle) bestiaryShowOldToggle.checked = true;
+          refreshBestiaryOptions();
         }
         bestiarySelect.value = String(index);
         updateBestiarySelection();
@@ -2300,7 +2358,7 @@ const translations = {
       const getTraitNamesFromRecords = (records) => {
         const seen = new Map();
         records.forEach((record) => {
-          const rawTraits = getRecordValue(record, "Cechy");
+          const rawTraits = getRecordValueByCanonical(record, "traits");
           if (!hasMeaningfulValue(rawTraits)) {
             return;
           }
@@ -2367,7 +2425,7 @@ const translations = {
         const hasStar = wpValues.some((entry) => entry.hasStar);
         const traits = eligibleRecords
           .flatMap((record) =>
-            String(getRecordValue(record, "Cechy") ?? "")
+            String(getRecordValueByCanonical(record, "traits") ?? "")
               .split(/[;,]/)
               .map((trait) => normalizeText(trait))
               .filter(Boolean)
@@ -2388,18 +2446,12 @@ const translations = {
         if (!record) {
           return "";
         }
-        const name = toDisplayString(getRecordValue(record, "Nazwa"));
-        const fields = [
-          ["Obrażenia", "Obrażenia"],
-          ["DK", "DK"],
-          ["PP", "PP"],
-          ["Zasięg", "Zasięg"],
-          ["Szybkostrzelność", "Szybkostrzelność"],
-          ["Cechy", "Cechy"],
-        ];
+        const name = toDisplayString(getRecordValueByCanonical(record, "name"));
+        const fields = ["damage", "dn", "ap", "range", "rateOfFire", "traits"];
         const details = fields
-          .map(([label, key]) => {
-            const value = toDisplayString(getRecordValue(record, key));
+          .map((key) => {
+            const value = toDisplayString(getRecordValueByCanonical(record, key));
+            const label = getColumnDisplayLabel(key);
             return hasMeaningfulValue(value) ? `${label}: ${value}` : null;
           })
           .filter(Boolean)
@@ -2433,19 +2485,20 @@ const translations = {
         }
         const entries = records
           .map((record) => {
-            const name = toDisplayString(getRecordValue(record, "Nazwa"));
+            const name = toDisplayString(getRecordValueByCanonical(record, "name"));
             if (!includeFull) {
               return hasMeaningfulValue(name) ? name : "";
             }
             const details = columns
-              .filter((column) => column !== "Nazwa")
+              .filter((column) => column !== "name")
               .map((column) => {
-                const rawValue = getRecordValue(record, column);
+                const rawValue = getRecordValueByCanonical(record, column);
                 let value = toDisplayString(rawValue);
                 if (normalizeColumns.includes(column)) {
                   value = normalizeText(value);
                 }
-                return hasMeaningfulValue(value) ? `${column}: ${value}` : null;
+                const label = getColumnDisplayLabel(column);
+                return hasMeaningfulValue(value) ? `${label}: ${value}` : null;
               })
               .filter(Boolean)
               .join(", ");
@@ -2504,11 +2557,11 @@ const translations = {
         const t = translations[currentLanguage];
         const cardLabels = t.card;
         const sectionLabels = t.cardSections;
-        const name = toDisplayString(getRecordValue(record, "Nazwa"));
+        const name = toDisplayString(getRecordValueByCanonical(record, "name"));
         const keywordsOverride = bestiaryOverrides?.keywords;
         const keywords =
-          keywordsOverride != null ? keywordsOverride : toDisplayString(getRecordValue(record, "Słowa Kluczowe"));
-        const threatRaw = toDisplayString(getRecordValue(record, "Zagrożenie"));
+          keywordsOverride != null ? keywordsOverride : toDisplayString(getRecordValueByCanonical(record, "keywords"));
+        const threatRaw = toDisplayString(getRecordValueByCanonical(record, "threat"));
         // Tworzymy dynamiczną listę numerów poziomu 1..CARD_LEVEL_COLUMNS / Build a dynamic level index list from 1 to CARD_LEVEL_COLUMNS
         const levelColumns = Array.from({ length: CARD_LEVEL_COLUMNS }, (_, index) => index + 1);
         const threatLetters =
@@ -2536,12 +2589,12 @@ const translations = {
 
         const stats = {
           S: resolveNumericDisplay("S", getRecordValue(record, "S")),
-          Wt: resolveNumericDisplay("Wt", getRecordValue(record, "Wt")),
-          Zr: resolveNumericDisplay("Zr", getRecordValue(record, "Zr")),
+          Wt: resolveNumericDisplay("Wt", getRecordValueByLabels(record, ["Wt", "T"])),
+          Zr: resolveNumericDisplay("Zr", getRecordValueByLabels(record, ["Zr", "A"])),
           I: resolveNumericDisplay("I", getRecordValue(record, "I")),
-          SW: resolveNumericDisplay("SW", getRecordValue(record, "SW")),
+          SW: resolveNumericDisplay("SW", getRecordValueByLabels(record, ["SW", "Will"])),
           Int: resolveNumericDisplay("Int", getRecordValue(record, "Int")),
-          Ogd: resolveNumericDisplay("Ogd", getRecordValueByLabels(record, ["Ogd", "Ocd"])),
+          Ogd: resolveNumericDisplay("Ogd", getRecordValueByLabels(record, ["Ogd", "Ocd", "Fell"])),
         };
 
         const resistanceOverride =
@@ -2549,8 +2602,8 @@ const translations = {
         let resistance =
           resistanceOverride != null
             ? String(resistanceOverride)
-            : toDisplayString(getRecordValueByLabels(record, ["Odporność (w tym WP)", "Obrona (w tym WP)"]));
-        let wp = toDisplayString(getRecordValueByLabels(record, ["Wartość Pancerza", "WP"]));
+            : toDisplayString(getRecordValueByCanonical(record, "resilience"));
+        let wp = toDisplayString(getRecordValueByCanonical(record, "armorValue"));
         const baseResistance = parseStarNumber(resistance);
         const baseWp = parseStarNumber(wp);
         const baseWpNumeric =
@@ -2611,7 +2664,7 @@ const translations = {
           mentalOverride != null
             ? String(mentalOverride)
             : toDisplayString(
-                getRecordValueByLabels(record, ["Odporność Psychiczna", "Odporność psychiczna"])
+                getRecordValueByCanonical(record, "shock")
               );
         const vitalityCount = resolveTrackerCount(vitality);
         const mentalText = normalizeText(mental);
@@ -2647,20 +2700,20 @@ const translations = {
         `;
 
         const skills =
-          skillsOverride != null ? skillsOverride : toDisplayString(getRecordValue(record, "Umiejętności"));
-        const bonuses = toDisplayString(getRecordValue(record, "Premie"));
-        const abilities = toDisplayString(getRecordValue(record, "Zdolności"));
-        let attacks = weaponOverride?.entries ?? toDisplayString(getRecordValue(record, "Atak"));
+          skillsOverride != null ? skillsOverride : toDisplayString(getRecordValueByCanonical(record, "skills"));
+        const bonuses = toDisplayString(getRecordValueByCanonical(record, "bonuses"));
+        const abilities = toDisplayString(getRecordValueByCanonical(record, "abilities"));
+        let attacks = weaponOverride?.entries ?? toDisplayString(getRecordValueByCanonical(record, "attacks"));
         if (weaponOverride?.traitDescriptionLine && hasMeaningfulValue(attacks)) {
           attacks = `${attacks}\n${weaponOverride.traitDescriptionLine}`;
         }
-        const hordeAbilities = toDisplayString(getRecordValue(record, "Zdolności Hordy"));
-        const hordeOptions = toDisplayString(getRecordValue(record, "Opcje Hordy"));
+        const hordeAbilities = toDisplayString(getRecordValueByCanonical(record, "mobAbilities"));
+        const hordeOptions = toDisplayString(getRecordValueByCanonical(record, "mobOptions"));
 
-        const grit = resolveNumericDisplay("Upór", getRecordValue(record, "Upór"));
-        const courage = resolveNumericDisplay("Odwaga", getRecordValue(record, "Odwaga"));
-        const speed = resolveNumericDisplay("Szybkość", getRecordValue(record, "Szybkość"));
-        const size = toDisplayString(getRecordValue(record, "Rozmiar"));
+        const grit = resolveNumericDisplay("Upór", getRecordValueByCanonical(record, "resolve"));
+        const courage = resolveNumericDisplay("Odwaga", getRecordValueByCanonical(record, "courage"));
+        const speed = resolveNumericDisplay("Szybkość", getRecordValueByCanonical(record, "speed"));
+        const size = toDisplayString(getRecordValueByCanonical(record, "size"));
 
         const sections = [
           { label: sectionLabels.skills, value: skills, striped: false },
@@ -2976,7 +3029,7 @@ const translations = {
               label: sectionLabels.psionics,
               value: buildModuleEntries(selectedPsionics, psionicsColumns, {
                 includeFull: psionicsFullDetailsToggle.checked,
-                normalizeColumns: ["Wzmocnienie"],
+                normalizeColumns: ["boost"],
               }),
             },
             {
@@ -3012,15 +3065,15 @@ const translations = {
         if (!data || typeof data !== "object" || !data.sheets || typeof data.sheets !== "object") throw new Error("GENERATORNPC_DATA_MISSING_SHEETS");
         state.data = data;
         state.traits = buildTraitsMap(data);
-        state.bestiary = sortByName(getCollection(data, ["besti", "bestiariusz"]));
-        state.armor = sortByTypeThenName(getCollection(data, ["pancerz", "armor"]));
-        state.weapons = sortByTypeThenName(getCollection(data, ["broń", "bron", "weapon"]));
-        state.augmentations = sortByTypeThenName(getCollection(data, ["augument", "augment", "modyfikac"]));
-        state.equipment = sortByTypeThenName(getCollection(data, ["ekwipunek", "equipment"]));
-        state.talents = sortByName(getCollection(data, ["talent"]));
-        state.psionics = sortByTypeThenName(getCollection(data, ["psion", "psionik"]), { typeDescending: true });
-        state.prayers = sortByName(getCollection(data, ["modlitw", "prayer"]));
-        setSelectOptions(bestiarySelect, state.bestiary, translations[currentLanguage].messages.selectBestiary);
+        state.bestiary = sortByName(getRequiredCollectionByAliases(data, "bestiary"));
+        state.armor = sortByTypeThenName(getRequiredCollectionByAliases(data, "armor"));
+        state.weapons = sortByTypeThenName(getRequiredCollectionByAliases(data, "weapons"));
+        state.augmentations = sortByTypeThenName(getRequiredCollectionByAliases(data, "augmentations"));
+        state.equipment = sortByTypeThenName(getRequiredCollectionByAliases(data, "equipment"));
+        state.talents = sortByName(getRequiredCollectionByAliases(data, "talents"));
+        state.psionics = sortByTypeThenName(getRequiredCollectionByAliases(data, "psionics"), { typeDescending: true });
+        state.prayers = sortByName(getRequiredCollectionByAliases(data, "prayers"));
+        refreshBestiaryOptions();
         setSelectOptions(armorSelect, state.armor, translations[currentLanguage].messages.selectArmor, { disableOption: isArmorBlocked, disabledTitle: translations[currentLanguage].messages.armorDisabledTitle });
         setSelectOptions(weaponSelect, state.weapons, translations[currentLanguage].messages.selectWeapon);
         setSelectOptions(augmentationsSelect, state.augmentations, translations[currentLanguage].messages.selectAugmentations);
@@ -3046,7 +3099,7 @@ const translations = {
           await loadPrivateGeneratorData();
         } catch (error) {
           const firebaseApi = await getFirebaseApi();
-          const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : translations[currentLanguage].messages.statusPrivateDataError;
+          const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : getReadableGeneratorDataError(error);
           setStatus(message);
           accessGate.hidden = false;
           accessError.textContent = message;
@@ -3078,7 +3131,7 @@ const translations = {
             accessGate.hidden = true;
             await loadPrivateGeneratorData();
           } catch (error) {
-            const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : translations[currentLanguage].messages.accessInvalidPassword;
+            const message = firebaseApi.getReadableAccessError ? firebaseApi.getReadableAccessError(error, currentLanguage) : getReadableGeneratorDataError(error);
             setStatus(message);
             accessError.textContent = message;
             accessGate.hidden = false;

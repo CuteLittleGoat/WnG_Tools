@@ -27,28 +27,28 @@
 
       <div class="actions">
         <div class="language-switcher">
-          <select id="languageSelect" aria-label="Wersja językowa">
+          <select id="languageSelect" aria-label="Language version">
             <option value="en">English</option>
             <option value="pl">Polski</option>
           </select>
         </div>
         <div class="actionsGroup" id="updateDataGroup">
-          <button class="btn secondary" id="btnUpdateData" data-i18n="updateDataButton">Generuj pliki danych</button>
+          <button class="btn secondary" id="btnUpdateData" data-i18n="updateDataButton">Generate data files</button>
           <div class="actionsNote">
             <span data-i18n="updateNoteFull">Kliknij, aby wybrać lokalny plik <code>Repozytorium.xlsx</code>. Aplikacja wygeneruje <code>data.json</code> jako backup oraz <code>firebase-import.json</code> — plik gotowy do importu w root Firebase Realtime Database. Po imporcie dane zostaną umieszczone pod <code>/datavault/live</code>.</span>
           </div>
         </div>
-        <button class="btn secondary" id="btnMainPage" data-i18n="mainPageButton">Strona Główna</button>
+        <button class="btn secondary" id="btnMainPage" data-i18n="mainPageButton">Main Page</button>
         <div class="actionsGroup actionsGroup--view">
           <div class="viewButtons">
-            <button class="btn secondary" id="btnReset" title="Wyczyść filtry, sortowanie i zaznaczenia" data-i18n="fullViewButton" data-i18n-title="fullViewTitle">Pełen Widok</button>
-            <button class="btn secondary" id="btnDefaultView" title="Przywróć domyślne ukrycia danych" data-i18n="defaultViewButton" data-i18n-title="defaultViewTitle">Widok Domyślny</button>
+            <button class="btn secondary" id="btnReset" title="Clear filters, sorting and selections" data-i18n="fullViewButton" data-i18n-title="fullViewTitle">Full View</button>
+            <button class="btn secondary" id="btnDefaultView" title="Restore the release default view, identical to Full View" data-i18n="defaultViewButton" data-i18n-title="defaultViewTitle">Default View</button>
           </div>
           <div class="actionsNote actionsNote--view">
-            <span data-i18n="viewButtonsNote">Część danych jest domyślnie ukryta.</span>
+            <span data-i18n="viewButtonsNote">Default View is identical to Full View in this release.</span>
           </div>
         </div>
-        <button class="btn primary" id="btnCompare" disabled data-i18n="compareButton">Porównaj zaznaczone</button>
+        <button class="btn primary" id="btnCompare" disabled data-i18n="compareButton">Compare selected</button>
       </div>
     </header>
 
@@ -63,6 +63,10 @@
             <div class="fieldLabel" data-i18n="globalSearchLabel">Szukaj (globalnie)</div>
             <input id="globalSearch" class="input" placeholder="np. Pist, Brutalna, IMPERIUM, Zatrucie (5)..." />
           </label>
+          <label class="checkboxRow checkboxRow--admin" id="toggleBestiaryOldGroup">
+            <input type="checkbox" id="toggleOldBestiaryEntries" />
+            <span class="checkboxLabel checkboxLabel--admin" data-i18n="toggleOldBestiaryEntries">Show outdated entries?</span>
+          </label>
           <label class="checkboxRow">
             <input type="checkbox" id="toggleCharacterTabs" />
             <span class="checkboxLabel" data-i18n="toggleCharacterTabs">Czy wyświetlić zakładki dotyczące tworzenia postaci?</span>
@@ -70,6 +74,10 @@
           <label class="checkboxRow checkboxRow--combat">
             <input type="checkbox" id="toggleCombatTabs" />
             <span class="checkboxLabel checkboxLabel--combat" data-i18n="toggleCombatTabs">Czy wyświetlić zakładki dotyczące zasad walki?</span>
+          </label>
+          <label class="checkboxRow checkboxRow--vehicle">
+            <input type="checkbox" id="toggleVehicleTabs" />
+            <span class="checkboxLabel checkboxLabel--vehicle" data-i18n="toggleVehicleTabs">Show tabs related to vehicles?</span>
           </label>
 
           <div class="hint">
