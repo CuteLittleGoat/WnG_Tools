@@ -49,7 +49,7 @@
               <option value="" disabled selected data-i18n="dataStatusLoading">Ładowanie danych...</option>
             </select>
           </div>
-          <label class="checkbox checkbox-inline">
+          <label class="checkbox checkbox-inline bestiary-show-old-toggle" for="bestiary-show-old">
             <input type="checkbox" id="bestiary-show-old" />
             <span data-i18n="bestiaryShowOldToggle">Show outdated entries?</span>
           </label>
@@ -1138,8 +1138,12 @@ const translations = {
       const shouldGrayBestiaryKey = (key, record) => {
         if (!isOldBestiaryRecord(record)) return false;
         const normalized = normalizeKey(key);
-        const allowed = new Set(["lp", "nazwa", "typ"]);
+        const allowed = new Set(["id", "lp", "state", "stan", "type", "typ", "name", "nazwa"]);
         return allowed.has(normalized);
+      };
+
+      const updateBestiarySelectOldClass = (record) => {
+        bestiarySelect.classList.toggle("bestiary-select-old", Boolean(record && isOldBestiaryRecord(record)));
       };
 
       const canonicalTraitName = (name) =>
@@ -2000,6 +2004,7 @@ const translations = {
           state.selectedBestiaryIndex = null;
           resetBestiaryOverrides();
           renderBestiaryTable(null);
+          updateBestiarySelectOldClass(null);
           setArmorSelectionEnabled(true);
           return;
         }
@@ -2009,6 +2014,7 @@ const translations = {
         }
         const record = state.bestiary[index];
         renderBestiaryTable(record);
+        updateBestiarySelectOldClass(record);
         setArmorSelectionEnabled(!isBestiaryArmorBlocked(record));
       };
 
@@ -2024,7 +2030,10 @@ const translations = {
           state.selectedBestiaryIndex = null;
           resetBestiaryOverrides();
           renderBestiaryTable(null);
+          updateBestiarySelectOldClass(null);
           setArmorSelectionEnabled(true);
+        } else {
+          updateBestiarySelectOldClass(selectedRecord);
         }
       };
 
@@ -2923,6 +2932,7 @@ const translations = {
           refreshBestiaryOptions();
           bestiarySelect.selectedIndex = 0;
           state.selectedBestiaryIndex = null;
+          updateBestiarySelectOldClass(null);
           Array.from(armorSelect.options).forEach((option) => {
             option.selected = false;
           });

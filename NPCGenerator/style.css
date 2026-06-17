@@ -246,6 +246,15 @@ textarea {
   font-family: inherit;
 }
 
+#bestiary option {
+  color: var(--text);
+}
+
+#bestiary option.bestiary-option-old,
+#bestiary.bestiary-select-old {
+  color: var(--text-old);
+}
+
 .input {
   width: 100%;
   padding: 10px 12px;
@@ -318,6 +327,20 @@ textarea:focus {
   display: flex;
   gap: 10px;
   align-items: flex-start;
+}
+
+.bestiary-show-old-toggle {
+  margin-top: 10px;
+}
+
+.bestiary-show-old-toggle,
+.bestiary-show-old-toggle span {
+  color: var(--text-old);
+  opacity: 1;
+}
+
+#bestiary-show-old {
+  accent-color: var(--text-old);
 }
 
 .checkbox input {
