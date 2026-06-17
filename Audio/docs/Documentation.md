@@ -1,6 +1,6 @@
 # Technical documentation — Audio
 
-Audio is a browser-based soundboard module. It has a normal user playback view and an admin view enabled with `?admin=1`. It loads sound metadata from `AudioManifest.xlsx`, renders sound tiles, manages aliases and lists, and can synchronize shared settings through Firestore.
+Audio is a browser-based soundboard module. It has a normal user playback view and an admin view enabled with `?admin=1`. It loads sound metadata from `AudioManifest.xlsx`, plays audio URLs, manages aliases and lists, and can synchronize shared settings through Firestore.
 
 This document is English-only and describes the current release architecture.
 
@@ -20,8 +20,8 @@ Audio is responsible for:
 - managing aliases,
 - creating and ordering favorites lists,
 - managing the main view order,
-- saving shared settings through Firestore when configured,
-- falling back to local browser storage when Firebase is unavailable.
+- persisting shared settings through Firestore when configured,
+- falling back to local storage when Firebase is unavailable.
 
 ---
 
@@ -40,7 +40,7 @@ Audio is responsible for:
 
 ## 3. Operating modes
 
-### User mode
+### 3.1 User mode
 
 Open:
 
@@ -48,9 +48,15 @@ Open:
 Audio/index.html
 ```
 
-User mode provides playback, loop buttons, volume sliders, the main view, and favorites-list navigation.
+User mode provides:
 
-### Admin mode
+- sound playback,
+- loop buttons,
+- per-tile volume sliders,
+- main view navigation,
+- favorites list navigation.
+
+### 3.2 Admin mode
 
 Open:
 
@@ -58,9 +64,19 @@ Open:
 Audio/index.html?admin=1
 ```
 
-Admin mode provides manifest loading, tag filters, search, alias editing, favorites list management, item ordering, main view management, and persistence status.
+Admin mode provides:
 
-Loop controls are intended for user mode, not for the admin management panel.
+- manifest loading,
+- tag filtering,
+- sound search,
+- alias editing,
+- favorites list creation,
+- favorites list ordering,
+- item ordering inside lists,
+- main view management,
+- Firebase/local state status.
+
+Loop buttons are only shown in true user mode, not in admin mode.
 
 ---
 
@@ -80,36 +96,39 @@ NazwaPliku
 LinkDoFolderu
 ```
 
-Each manifest row becomes a sound record. Keep the filename and column structure stable unless the parser and documentation are updated together.
+The public release manifest is neutral and can be replaced with a group's own audio links while preserving the workbook structure.
+
+Each manifest row becomes a sound record.
 
 ---
 
-## 5. Sound tile behavior
+## 5. Sound record behavior
 
 A sound tile may display:
 
 - sound name,
-- tag or folder hint,
+- tag/folder hint,
 - alias in parentheses,
 - file metadata in admin mode,
-- play/stop control,
+- play/stop controls,
 - loop control in user mode,
 - volume slider.
 
-Important behavior:
+Playback behavior:
 
-- clicking the sound name toggles playback,
-- several sounds may be active at the same time,
+- clicking the sound name starts/stops playback,
+- several sounds can play simultaneously,
 - active playback changes the visual state of the tile,
 - volume is controlled per tile,
-- loop mode starts the selected sound and schedules the next iteration when the current one ends,
-- grouped variants may be randomized between loop iterations.
+- loop mode starts playback immediately and schedules the next iteration after `ended`,
+- grouped variants can be randomized between iterations,
+- immediate repeat is avoided when another URL exists.
 
 ---
 
 ## 6. Firebase and persistence
 
-Audio can store shared settings through Firestore.
+Audio can persist shared settings through Firestore.
 
 Expected Firestore path:
 
@@ -131,7 +150,7 @@ Fallback storage:
 localStorage key: audio.settings
 ```
 
-If Firebase is not configured or cannot be accessed, the module should use local browser storage and show that shared persistence is unavailable.
+If Firebase is not configured or cannot be accessed, the module should use local storage and communicate that shared persistence is unavailable.
 
 Firebase setup belongs in:
 
@@ -151,11 +170,11 @@ Important state areas:
 | Filter state | Admin tag filters and search text. |
 | Favorites | Named user-created lists. |
 | Main view | Ordered list of sounds shown in the main user view. |
-| Aliases | Custom labels keyed by sound item. |
+| Aliases | Custom labels keyed by sound ID/item ID. |
 | Playback map | Active audio elements and loop state. |
-| Firebase status | Whether shared state is available. |
+| Firebase status | Indicates whether shared state is available. |
 
-Alias synchronization is important: aliases must be applied after manifest load and after every Firebase/local state refresh.
+Alias synchronization is important: aliases must be applied to sound objects after manifest load and after each Firebase/local state refresh so both user and admin views show the same labels.
 
 ---
 
@@ -165,23 +184,34 @@ Admin tag filtering affects only the admin sound list.
 
 Expected behavior:
 
-- tag tree can be collapsed or expanded,
+- tag tree can be collapsed/expanded,
 - tag filter popup supports searching tags,
-- selected tags narrow the visible admin list,
+- selecting parent/child tags narrows the visible admin list,
 - filters do not alter source manifest data,
-- filters do not change the main view or favorites definitions unless the admin explicitly edits them.
+- filters do not change the main view or favorites list definitions unless the admin explicitly edits those lists.
 
 ---
 
 ## 9. Favorites and main view
 
+Favorites and main view are separate concepts.
+
 | Feature | Purpose |
 | --- | --- |
 | Main view | Default ordered set of sounds for user mode. |
-| Favorites list | Named custom list. |
+| Favorites list | Named custom list created by the user/admin. |
 | Alias | Optional alternate label for one sound. |
 
-Admin mode must support creating, renaming, deleting, ordering, and editing lists and aliases.
+Admin mode must support:
+
+- creating lists,
+- renaming lists,
+- deleting lists,
+- moving lists up/down,
+- adding sounds to lists,
+- reordering items inside lists,
+- clearing one alias,
+- clearing all aliases after confirmation.
 
 ---
 
@@ -193,9 +223,9 @@ Audio may use:
 | --- | --- |
 | SheetJS / XLSX | Browser-side parsing of `AudioManifest.xlsx`. |
 | Firebase Web SDK | Firestore persistence. |
-| Font assets | UI typography depending on release setup. |
+| Local fonts / web fonts | UI typography depending on release setup. |
 
-The module must degrade clearly when Firebase is missing.
+The module must degrade clearly when Firebase is missing. Manifest parsing must be tested after any dependency version change.
 
 ---
 
@@ -205,17 +235,17 @@ The release starts in English. Polish may remain available in the language selec
 
 When adding another language, update:
 
-- translation dictionary entries,
+- all translation dictionary entries,
 - language selector options,
 - admin labels,
 - user view labels,
 - status messages,
 - confirmation dialogs,
-- Firebase fallback messages,
+- Firebase error/fallback messages,
 - user documentation,
 - technical documentation.
 
-Test language switching in both user mode and admin mode.
+Test EN → other language → EN switching in both user mode and admin mode.
 
 ---
 
@@ -224,12 +254,13 @@ Test language switching in both user mode and admin mode.
 If manifest column names change, update:
 
 1. manifest parsing logic in `Audio/index.html`,
-2. `Audio/docs/README.md`,
+2. documentation in `Audio/docs/README.md`,
 3. this technical documentation,
-4. validation and status messages,
-5. test manifest data.
+4. any validation/error messages,
+5. test manifest data,
+6. user instructions for replacing the manifest.
 
-Keep `AudioManifest.xlsx` as the expected filename unless code and docs are updated together.
+Keep the filename `AudioManifest.xlsx` unless the code and docs are updated together.
 
 ---
 
@@ -241,11 +272,12 @@ Keep `AudioManifest.xlsx` as the expected filename unless code and docs are upda
 | Admin open | Open `Audio/index.html?admin=1`. | Admin controls appear. |
 | Manifest load | Load `AudioManifest.xlsx`. | Sound records render. |
 | Playback | Click a sound. | Sound starts, then stops when clicked again. |
-| Multi-playback | Start several sounds. | More than one sound can be active. |
-| Loop | Click Loop in user mode. | Loop starts, and a second click stops it. |
+| Multi-playback | Start several sounds. | Sounds can play simultaneously. |
+| Loop | Click Loop in user mode. | Loop starts, button becomes active, second click stops it. |
 | Volume | Move tile slider during playback. | Volume changes for that sound. |
-| Alias | Set alias in admin mode. | Alias appears in user and admin views. |
-| Clear aliases | Use clear actions. | Aliases are removed as expected. |
+| Alias | Set alias in admin mode. | Alias appears in user/admin views. |
+| Clear alias | Clear one alias. | Alias disappears only for that sound. |
+| Clear all aliases | Use clear-all action. | All aliases are removed after confirmation. |
 | Favorites | Create a list and add sounds. | List appears in user navigation. |
 | Reorder | Move lists/items. | Order changes and persists. |
 | Firebase persistence | Configure Firestore, create list, refresh. | List persists. |
@@ -260,7 +292,7 @@ To rebuild or copy Audio:
 
 1. Keep `Audio/index.html`.
 2. Keep `Audio/AudioManifest.xlsx` with the expected structure.
-3. Keep or replace `Audio/config/firebase-config.js`.
+3. Keep `Audio/config/firebase-config.js` or replace it with a valid group config.
 4. Keep documentation files.
 5. Configure Firestore if shared lists are required.
 6. Test user mode.
