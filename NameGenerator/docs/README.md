@@ -1,67 +1,95 @@
-# 🇬🇧 User instructions (EN)
+# User guide — NameGenerator
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+NameGenerator creates setting-style names from selectable categories and options.
 
-### What this module is for
-**Name Generator** creates Warhammer 40k-style names (characters, vehicles, ships, and other sets depending on category).
+This is a user-facing guide. Technical details belong in `NameGenerator/docs/Documentation.md` if that file exists or is added later.
 
-### How to use
+---
+
+## How to open
+
+Open:
+
+```text
+NameGenerator/index.html
+```
+
+The interface starts in English. Polish may remain available through the language selector.
+
+---
+
+## How to use
+
 1. Open `NameGenerator/index.html`.
-2. In **Category**, choose the name family you want.
-3. In **Option**, narrow the style, for example faction or variant.
+2. In **Category**, choose the group you want.
+3. In **Option**, choose a style or variant.
 4. Optionally enter **Seed** for repeatable output.
-5. Set how many names in **Count**.
+5. Set the number of results in **Count**.
 6. Click **Generate**.
-7. Click **Copy result** to copy the list to clipboard.
+7. Click **Copy result** to copy the list.
 
-The PL/EN language switcher is visible; English is selected by default and Polish remains available.
+---
 
+## Fields and actions
 
-## Adding a new language version (EN)
+| Element | Meaning |
+| --- | --- |
+| **Category** | Main generator group. |
+| **Option** | Sub-style, faction, variant, or dataset option. |
+| **Seed** | Optional repeatability input. |
+| **Count** | Number of generated results. |
+| **Generate** | Creates the result list. |
+| **Copy result** | Copies generated names to the clipboard. |
+| Language selector | Changes the interface language where supported. |
 
-This is the update map for adding another language (for example FR/DE):
+---
 
-1. **Module code**: find the translation dictionary/object (`translations`) and language switch function (`applyLanguage` / `updateLanguage`).
-2. **Language selector**: if the module has a language menu, add a new `<select>` option and make sure all labels/messages refresh after switching.
-3. **Static texts without selector**: in modules without a language menu (for example Main), manually update button and description texts.
-4. **Manuals/PDF files**: if the module opens language-specific manuals, add the matching file for the new language.
-5. **User flow check**: test the whole module after switching language: buttons, statuses, errors, confirmations, empty states, export/print.
+## Interface language and generated results
 
-Code locations are marked with the comment: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+The interface starts in English.
 
-### Interface language and generated results
-The interface starts in English. Use the language selector to switch the interface to Polish. Generated names, titles, and codenames still use the existing dictionaries, so individual results may retain their current source-language wording.
+Generated results may still use the existing source dictionaries. This means individual results may retain their current wording even when the interface is English.
 
-# 🇵🇱 Instrukcja dla użytkownika (PL)
+Translating generated results is a separate dictionary task, not only a UI translation task.
 
-### Do czego służy moduł
-**Generator Nazw** tworzy gotowe nazwy w klimacie Warhammer 40k (postacie, pojazdy, okręty i inne style zależnie od wybranej kategorii).
+---
 
-### Jak używać
-1. Otwórz `NameGenerator/index.html`.
-2. W polu **Kategoria** wybierz obszar, z którego chcesz nazwy.
-3. W polu **Opcja** doprecyzuj styl, na przykład frakcję albo wariant.
-4. Opcjonalnie w polu **Seed** wpisz własny tekst, jeśli chcesz mieć powtarzalne wyniki.
-5. W polu **Ile** ustaw liczbę propozycji.
-6. Kliknij **Generuj**.
-7. Kliknij **Kopiuj wynik**, aby skopiować listę do schowka.
+## Firebase behavior
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+NameGenerator does not use Firebase.
 
+It does not require:
 
-## Dodawanie nowej wersji językowej (PL)
+- Firebase Authentication,
+- Realtime Database,
+- Firestore,
+- Firebase Storage.
 
-To jest mapa miejsc, które trzeba zaktualizować przy dodaniu kolejnego języka (np. FR/DE):
+---
 
-1. **Kod modułu**: znajdź obiekt/słownik tłumaczeń (`translations`) oraz funkcję przełączającą język (`applyLanguage` / `updateLanguage`).
-2. **Selektor języka**: jeśli moduł ma menu języka, dopisz nową opcję w `<select>` i upewnij się, że po zmianie języka odświeżane są wszystkie etykiety oraz komunikaty.
-3. **Treści stałe bez przełącznika**: w modułach bez menu językowego (np. Main) ręcznie zaktualizuj napisy przycisków i opisy.
-4. **Instrukcje/PDF**: jeśli moduł otwiera instrukcję zależną od języka, dodaj odpowiedni plik dla nowego języka.
-5. **Test użytkownika**: przejdź cały moduł po zmianie języka i sprawdź: przyciski, statusy, błędy, komunikaty potwierdzeń, puste stany, eksport/druk.
+## Adding another language version
 
-Miejsca w kodzie są oznaczone komentarzem: **`MIEJSCE ROZSZERZENIA JĘZYKÓW / LANGUAGE EXTENSION POINT`**.
+If another UI language is added, update and test:
 
-Przełącznik PL/EN jest widoczny; domyślnie wybrany jest English, a Polski pozostaje dostępny.
+- translation dictionary entries,
+- language selector options,
+- static text not controlled by translations,
+- category labels,
+- option labels,
+- placeholder text,
+- status messages,
+- copy confirmation messages,
+- documentation.
 
-### Język interfejsu i generowanych wyników
-Interfejs uruchamia się po angielsku. Przełącznik języka pozwala zmienić język interfejsu na polski. Generowane nazwy, tytuły i kryptonimy nadal korzystają z dotychczasowych słowników, dlatego poszczególne wyniki mogą zachowywać obecne brzmienie językowe.
+If generated results are translated later, update the generator dictionaries and test every category/option combination separately.
+
+---
+
+## Common problems
+
+| Symptom | Possible cause | Fix |
+| --- | --- | --- |
+| Results are not in the selected interface language. | Generated results use existing source dictionaries. | Treat result translation as a separate dictionary task. |
+| Same seed does not produce expected result. | Category, option, or generator logic changed. | Use the same category, option, seed, and count. |
+| Copy result does not work. | Browser clipboard permission or focus issue. | Try again after interacting with the page, or copy manually. |
+| Main Page navigation is wrong after copying the app. | Folder path changed. | Update the Main Page link if present. |
