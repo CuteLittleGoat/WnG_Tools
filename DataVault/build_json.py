@@ -59,7 +59,7 @@ SHEET_ALIASES = {
   "species": ["Species", "Gatunki"],
   "archetypes": ["Archetypes", "Archetypy"],
   "ascensionPackages": ["Ascension Packages", "Pakiety Wyniesienia"],
-  "factionBonuses": ["Faction Bonuses", "Premie Frakcji"],
+  "factionBackgrounds": ["Faction Backgrounds"],
   "factionKeywords": ["Faction Keywords", "Słowa Kluczowe Frakcji"],
   "specialFactionBonuses": ["Special Faction Bonuses", "Specjalne Bonusy Frakcji"],
   "astartesImplants": ["Astartes Implants", "Implanty Astartes"],
@@ -86,6 +86,8 @@ SHEET_ALIASES = {
   "vehicles": ["Vehicles", "Pojazdy"],
   "vehicleWeapons": ["Vehicle Weapons", "Bronie Pojazdów"],
   "vehicleWargear": ["Vehicle Wargear", "Vehicle Equipment", "Ekwipunek Pojazdów"],
+  "vehicleDamage": ["Vehicle Damage"],
+  "vehicleExplosions": ["Vehicle Explosions"],
 }
 
 COLUMN_ALIASES = {
