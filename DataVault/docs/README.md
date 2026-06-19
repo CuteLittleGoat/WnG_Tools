@@ -292,7 +292,7 @@ Size Table
 Species
 Archetypes
 Ascension Packages
-Faction Bonuses
+Faction Backgrounds
 Faction Keywords
 Special Faction Bonuses
 Astartes Implants
@@ -319,6 +319,8 @@ Vehicle Traits
 Vehicles
 Vehicle Weapons
 Vehicle Wargear
+Vehicle Damage
+Vehicle Explosions
 ```
 
 Common important columns include:
@@ -337,6 +339,8 @@ Range
 Book
 Page
 ```
+
+Vehicle Damage and Vehicle Explosions are admin-only vehicle sheets: regular users do not see them, and admins see them only after enabling the vehicle tabs checkbox. Their ID column is a technical ordering column that stays hidden in the app while remaining available in data for default ascending sorting.
 
 Sheet-specific columns are documented in the technical documentation and in the sample workbook itself.
 

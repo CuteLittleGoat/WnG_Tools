@@ -993,3 +993,36 @@ td.center{text-align:center}
   border-color:rgba(184,199,199,.55);
   box-shadow:0 0 0 2px rgba(184,199,199,.12);
 }
+
+.tableWrap table[data-sheet="Faction Backgrounds"] th[data-col="Faction"],
+.tableWrap table[data-sheet="Faction Backgrounds"] td[data-col="Faction"]{min-width:26ch}
+
+.tableWrap table[data-sheet="Faction Backgrounds"] th[data-col="Bonus 1"],
+.tableWrap table[data-sheet="Faction Backgrounds"] td[data-col="Bonus 1"],
+.tableWrap table[data-sheet="Faction Backgrounds"] th[data-col="Bonus 2"],
+.tableWrap table[data-sheet="Faction Backgrounds"] td[data-col="Bonus 2"],
+.tableWrap table[data-sheet="Faction Backgrounds"] th[data-col="Bonus 3"],
+.tableWrap table[data-sheet="Faction Backgrounds"] td[data-col="Bonus 3"]{min-width:56ch}
+
+.tableWrap table[data-sheet="Vehicle Damage"] th[data-col="d66"],
+.tableWrap table[data-sheet="Vehicle Damage"] td[data-col="d66"]{min-width:6ch;text-align:center;white-space:nowrap}
+
+.tableWrap table[data-sheet="Vehicle Damage"] th[data-col="Effect"],
+.tableWrap table[data-sheet="Vehicle Damage"] td[data-col="Effect"]{min-width:56ch;text-align:left}
+
+.tableWrap table[data-sheet="Vehicle Explosions"] th[data-col="Vechicle Size"],
+.tableWrap table[data-sheet="Vehicle Explosions"] td[data-col="Vechicle Size"]{min-width:20ch;max-width:20ch;width:20ch;text-align:left}
+
+.tableWrap table[data-sheet="Vehicle Explosions"] th[data-col="Vehicle Size"],
+.tableWrap table[data-sheet="Vehicle Explosions"] td[data-col="Vehicle Size"]{min-width:20ch;max-width:20ch;width:20ch;text-align:left}
+
+.tableWrap table[data-sheet="Vehicle Explosions"] th[data-col="Range"],
+.tableWrap table[data-sheet="Vehicle Explosions"] td[data-col="Range"]{min-width:14ch;max-width:14ch;width:14ch;text-align:center}
+
+.tableWrap table[data-sheet="Vehicle Explosions"] th[data-col="Damage"],
+.tableWrap table[data-sheet="Vehicle Explosions"] td[data-col="Damage"]{min-width:14ch;max-width:14ch;width:14ch;text-align:center}
+
+.tableWrap table[data-sheet="Vehicle Explosions"]{
+  table-layout:fixed;
+  width:max-content;
+}
