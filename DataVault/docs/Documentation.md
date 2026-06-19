@@ -219,7 +219,7 @@ Size Table
 Species
 Archetypes
 Ascension Packages
-Faction Bonuses
+Faction Backgrounds
 Faction Keywords
 Special Faction Bonuses
 Astartes Implants
@@ -246,6 +246,8 @@ Vehicle Traits
 Vehicles
 Vehicle Weapons
 Vehicle Wargear
+Vehicle Damage
+Vehicle Explosions
 ```
 
 These names are not only labels. They are used by code paths that map sheet behavior, tab groups, tooltip metadata, and release generation.
@@ -680,6 +682,8 @@ DataVault has release sheet groups controlled by checkboxes.
 | Outdated Bestiary entries | Bestiary `State = old` | `#toggleOldBestiaryEntries` |
 
 Admin-only sheets are controlled through `ADMIN_ONLY_SHEET_KEYS`.
+
+`Vehicle Damage` and `Vehicle Explosions` are vehicle sheets that are admin-only: outside admin mode they are hidden completely, and in admin mode they appear only when the vehicle checkbox (`#toggleVehicleTabs`) is enabled. Their `ID` column is a technical ordering column: it remains available in the row data, is hidden in the rendered table like other ID columns, and is used by the default ascending sort.
 
 Important outdated Bestiary behavior:
 
